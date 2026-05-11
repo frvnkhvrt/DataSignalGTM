@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+google-genai
+httpx>=0.27
+python-dotenv
+pydantic
