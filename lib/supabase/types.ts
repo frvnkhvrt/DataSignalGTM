@@ -176,6 +176,7 @@ export type Database = {
           issue_type: string | null
           resolved_at: string | null
           severity: string | null
+          status: string
           suggested_fix: string | null
         }
         Insert: {
@@ -186,6 +187,7 @@ export type Database = {
           issue_type?: string | null
           resolved_at?: string | null
           severity?: string | null
+          status?: string
           suggested_fix?: string | null
         }
         Update: {
@@ -196,6 +198,7 @@ export type Database = {
           issue_type?: string | null
           resolved_at?: string | null
           severity?: string | null
+          status?: string
           suggested_fix?: string | null
         }
         Relationships: [
