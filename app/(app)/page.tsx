@@ -159,10 +159,10 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-6 lg:col-span-1">
           <div className="text-xs uppercase tracking-wide text-zinc-500">
-            Avg data quality (DQ)
+            GTM Health Score
           </div>
           <div className="mt-3 flex items-baseline gap-3">
-            <span className="text-5xl sm:text-6xl font-semibold font-mono tabular-nums text-zinc-100">
+            <span className="text-5xl sm:text-6xl font-semibold font-mono tabular-nums text-emerald-400">
               {health}
             </span>
             <span className="text-sm text-zinc-500">/ 100</span>
@@ -310,7 +310,7 @@ export default function Dashboard() {
               <div className="flex sm:flex-1 items-center gap-3 min-w-0">
                 <div className="flex-1 h-1.5 rounded-full bg-zinc-800 overflow-hidden min-w-[4rem]">
                   <div
-                    className="h-full bg-zinc-400"
+                    className="h-full bg-emerald-400"
                     style={{
                       width: `${Math.min(100, a.icp_fit_score ?? 0)}%`,
                     }}
