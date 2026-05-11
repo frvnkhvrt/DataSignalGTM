@@ -26,6 +26,19 @@ export function isTransitionError(err: unknown): err is TransitionError {
   return err instanceof TransitionError;
 }
 
+export class ApproveRequiresPlaybookError extends Error {
+  constructor(public readonly accountName: string) {
+    super("Generate a playbook first before approving.");
+    this.name = "ApproveRequiresPlaybookError";
+  }
+}
+
+export function isApproveRequiresPlaybookError(
+  err: unknown
+): err is ApproveRequiresPlaybookError {
+  return err instanceof ApproveRequiresPlaybookError;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Row types                                                          */
 /* ------------------------------------------------------------------ */
@@ -197,9 +210,7 @@ export async function transitionSignal(
   }
 
   if (to === "approved" && !current.playbook) {
-    throw new Error(
-      `Cannot approve ${accountName}: playbook required. Generate one first.`
-    );
+    throw new ApproveRequiresPlaybookError(accountName);
   }
 
   const { error } = await supabase

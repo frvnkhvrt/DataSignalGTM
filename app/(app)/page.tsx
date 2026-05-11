@@ -19,6 +19,7 @@ import {
   approveSignal,
   rejectSignal,
   isTransitionError,
+  isApproveRequiresPlaybookError,
   signalsRecentQuery,
   type AccountRow,
   type SignalRow,
@@ -50,7 +51,9 @@ export default function Dashboard() {
     },
     onError: (e, _n, ctx) => {
       if (ctx?.prev) qc.setQueryData(signalsRecentQuery.queryKey, ctx.prev);
-      if (isTransitionError(e)) {
+      if (isApproveRequiresPlaybookError(e)) {
+        toast.error(e.message);
+      } else if (isTransitionError(e)) {
         toast.info(e.message);
       } else {
         toast.error("Approve failed");

@@ -17,12 +17,15 @@ import {
   Loader2,
   CheckCircle2,
   XCircle,
+  Sparkles,
 } from "lucide-react";
 import {
   approveSignal,
   rejectSignal,
   isTransitionError,
+  isApproveRequiresPlaybookError,
   playbookForAccountQuery,
+  generatePlaybookForSignal,
   type PlaybookStep,
 } from "@/lib/gtm-queries";
 import type { SignalStatus } from "@/types/signal";
@@ -66,8 +69,15 @@ export function ReceiptPanel({
       qc.invalidateQueries({ queryKey: ["accounts"] });
       toast.success("Approved");
     },
-    onError: (e) =>
-      isTransitionError(e) ? toast.info(e.message) : toast.error("Approve failed"),
+    onError: (e) => {
+      if (isApproveRequiresPlaybookError(e)) {
+        toast.error(e.message);
+      } else if (isTransitionError(e)) {
+        toast.info(e.message);
+      } else {
+        toast.error(e instanceof Error ? e.message : "Approve failed");
+      }
+    },
   });
 
   const reject = useMutation({
@@ -78,7 +88,19 @@ export function ReceiptPanel({
       toast.success("Rejected");
     },
     onError: (e) =>
-      isTransitionError(e) ? toast.info(e.message) : toast.error("Reject failed"),
+      isTransitionError(e)
+        ? toast.info(e.message)
+        : toast.error(e instanceof Error ? e.message : "Reject failed"),
+  });
+
+  const generateMut = useMutation({
+    mutationFn: (signalId: string) => generatePlaybookForSignal(signalId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["signals"] });
+      toast.success("Playbook generated");
+    },
+    onError: (e) =>
+      toast.error(e instanceof Error ? e.message : "Generation failed"),
   });
 
   const pb = data?.playbook ?? null;
@@ -179,9 +201,25 @@ export function ReceiptPanel({
           )}
 
           {!isLoading && !pb && (
-            <div className="rounded-md border border-zinc-800 bg-zinc-900 px-3 py-3 text-xs text-zinc-400">
-              No playbook on this signal yet. Approve the signal (or run
-              generation upstream) to attach steps.
+            <div className="space-y-3">
+              <div className="rounded-md border border-zinc-800 bg-zinc-900 px-3 py-3 text-xs text-zinc-400">
+                No playbook on this signal yet.
+              </div>
+              {data?.id && (
+                <button
+                  type="button"
+                  disabled={generateMut.isPending}
+                  onClick={() => generateMut.mutate(data.id)}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-emerald-500/40 text-emerald-300 font-medium py-2.5 text-sm hover:bg-emerald-500/10 disabled:opacity-50"
+                >
+                  {generateMut.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )}
+                  Generate playbook
+                </button>
+              )}
             </div>
           )}
 
