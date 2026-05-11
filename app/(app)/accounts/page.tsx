@@ -29,9 +29,6 @@ export default function AccountsPage() {
         <h1 className="text-xl sm:text-2xl font-semibold text-zinc-100">
           Accounts
         </h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Sorted by DQ (highest first). Playbook opens when DQ &ge; 90.
-        </p>
       </div>
 
       <div className="rounded-lg border border-zinc-800 bg-zinc-900 overflow-x-auto">
