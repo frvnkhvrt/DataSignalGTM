@@ -188,6 +188,26 @@ export function dataIssuesForAccountQuery(accountId: string) {
   });
 }
 
+export type DataIssueCount = { account_id: string; count: number };
+
+export const dataIssueCountsQuery = queryOptions({
+  queryKey: ["data-issues", "counts"],
+  queryFn: async (): Promise<DataIssueCount[]> => {
+    const { data, error } = await supabase
+      .from("data_issues")
+      .select("account_id")
+      .eq("status", "open");
+    if (error) throw error;
+    const map = new Map<string, number>();
+    for (const row of data ?? []) {
+      if (row.account_id) {
+        map.set(row.account_id, (map.get(row.account_id) ?? 0) + 1);
+      }
+    }
+    return Array.from(map, ([account_id, count]) => ({ account_id, count }));
+  },
+});
+
 /* ------------------------------------------------------------------ */
 /*  Signal transitions                                                 */
 /* ------------------------------------------------------------------ */
@@ -270,6 +290,27 @@ export async function dismissGap(
     action: "gap_dismissed",
     reasoning: suggestedFix,
   });
+}
+
+export async function resolveAllGaps(
+  issues: { id: string; suggestedFix: string }[],
+  accountName: string
+) {
+  const now = new Date().toISOString();
+  for (const { id, suggestedFix } of issues) {
+    const { error } = await supabase
+      .from("data_issues")
+      .update({ status: "resolved", resolved_at: now })
+      .eq("id", id);
+    if (error) throw error;
+
+    await supabase.from("audit_trail").insert({
+      signal_id: null,
+      account_name: accountName,
+      action: "gap_resolved",
+      reasoning: suggestedFix,
+    });
+  }
 }
 
 /* ------------------------------------------------------------------ */
