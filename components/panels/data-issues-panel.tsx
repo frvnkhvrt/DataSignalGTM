@@ -7,6 +7,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { QueryKey } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Database,
@@ -20,10 +21,12 @@ import {
   Mail,
   HelpCircle,
 } from "lucide-react";
-import type { AccountRow, DataIssueRow } from "@/lib/gtm-queries";
+import type { AccountRow, DataIssueCount, DataIssueRow } from "@/lib/gtm-queries";
 import {
+  accountsByDqQuery,
   dqStatusLabel,
   dqTone,
+  dataIssueCountsQuery,
   dataIssuesForAccountQuery,
   resolveGap,
   dismissGap,
@@ -70,9 +73,15 @@ export function DataIssuesPanel({
   onClose: () => void;
 }) {
   const qc = useQueryClient();
-  const tone = account ? dqTone(account.data_quality_score) : "good";
-  const label = account ? dqStatusLabel(account.data_quality_score) : "HEALTHY";
-  const dq = account?.data_quality_score ?? 0;
+  const { data: cachedAccounts } = useQuery(accountsByDqQuery);
+  const liveAccount = account?.id
+    ? (cachedAccounts?.find((a) => a.id === account.id) ?? account)
+    : account;
+  const tone = liveAccount ? dqTone(liveAccount.data_quality_score) : "good";
+  const label = liveAccount
+    ? dqStatusLabel(liveAccount.data_quality_score)
+    : "HEALTHY";
+  const dq = liveAccount?.data_quality_score ?? 0;
 
   const ringColor =
     tone === "good"
@@ -107,64 +116,159 @@ export function DataIssuesPanel({
     qc.invalidateQueries({ queryKey: ["accounts"] });
   };
 
+  type MutCtx = {
+    queryKey: QueryKey;
+    prevIssues?: DataIssueRow[];
+    prevCounts?: DataIssueCount[];
+    accountSnapshots: [QueryKey, AccountRow[] | undefined][];
+  };
+
+  const snapshotForOptimisticUpdate = async (queryKey: QueryKey) => {
+    await qc.cancelQueries({ queryKey });
+    await qc.cancelQueries({ queryKey: ["accounts"] });
+    await qc.cancelQueries({ queryKey: dataIssueCountsQuery.queryKey });
+
+    return {
+      queryKey,
+      prevIssues: qc.getQueryData<DataIssueRow[]>(queryKey),
+      prevCounts: qc.getQueryData<DataIssueCount[]>(dataIssueCountsQuery.queryKey),
+      accountSnapshots: qc.getQueriesData<AccountRow[]>({
+        queryKey: ["accounts"],
+      }),
+    };
+  };
+
+  const restoreOptimisticUpdate = (ctx?: MutCtx) => {
+    if (!ctx) return;
+    qc.setQueryData(ctx.queryKey, ctx.prevIssues);
+    qc.setQueryData(dataIssueCountsQuery.queryKey, ctx.prevCounts);
+    for (const [queryKey, data] of ctx.accountSnapshots) {
+      qc.setQueryData(queryKey, data);
+    }
+  };
+
+  const updateAccountScore = (accountId: string, score: number | null) => {
+    qc.setQueriesData<AccountRow[]>({ queryKey: ["accounts"] }, (old) =>
+      old?.map((a) =>
+        a.id === accountId ? { ...a, data_quality_score: score } : a
+      )
+    );
+  };
+
+  const adjustAccountScore = (accountId: string, delta: number) => {
+    qc.setQueriesData<AccountRow[]>({ queryKey: ["accounts"] }, (old) =>
+      old?.map((a) => {
+        if (a.id !== accountId) return a;
+        const next = Math.max(
+          0,
+          Math.min(100, (a.data_quality_score ?? 0) + delta)
+        );
+        return { ...a, data_quality_score: next };
+      })
+    );
+  };
+
+  const setIssueCount = (accountId: string, count: number) => {
+    qc.setQueryData<DataIssueCount[]>(dataIssueCountsQuery.queryKey, (old) => {
+      if (!old) return old;
+      return old
+        .map((c) =>
+          c.account_id === accountId ? { ...c, count: Math.max(0, count) } : c
+        )
+        .filter((c) => c.count > 0);
+    });
+  };
+
+  const decrementIssueCount = (accountId: string, by = 1) => {
+    qc.setQueryData<DataIssueCount[]>(dataIssueCountsQuery.queryKey, (old) => {
+      if (!old) return old;
+      return old
+        .map((c) =>
+          c.account_id === accountId
+            ? { ...c, count: Math.max(0, c.count - by) }
+            : c
+        )
+        .filter((c) => c.count > 0);
+    });
+  };
+
   const resolveMut = useMutation({
-    mutationFn: ({ id, suggestedFix }: { id: string; suggestedFix: string }) =>
-      resolveGap(id, account?.name ?? "", suggestedFix),
-    onMutate: async ({ id }) => {
+    mutationFn: ({ issue }: { issue: DataIssueRow }) => resolveGap(issue.id),
+    onMutate: async ({ issue }) => {
       const queryKey = ["data-issues", account?.id ?? ""];
-      await qc.cancelQueries({ queryKey });
-      const prev = qc.getQueryData<DataIssueRow[]>(queryKey);
+      const ctx = await snapshotForOptimisticUpdate(queryKey);
       qc.setQueryData<DataIssueRow[]>(queryKey, (old) =>
-        old ? old.filter((i) => i.id !== id) : old
+        old ? old.filter((i) => i.id !== issue.id) : old
       );
-      return { prev, queryKey };
+      const accountId = issue.account_id ?? account?.id;
+      if (accountId) {
+        decrementIssueCount(accountId);
+        adjustAccountScore(accountId, issue.score_impact ?? 0);
+      }
+      return ctx;
     },
     onError: (_e, _v, ctx) => {
-      if (ctx) qc.setQueryData(ctx.queryKey, ctx.prev);
+      restoreOptimisticUpdate(ctx);
       toast.error("Failed to resolve gap");
     },
-    onSuccess: () => toast.success("Gap resolved"),
+    onSuccess: (result) => {
+      if (result) updateAccountScore(result.account_id, result.data_quality_score);
+      toast.success("Gap resolved");
+    },
     onSettled: invalidateAll,
   });
 
   const dismissMut = useMutation({
-    mutationFn: ({ id, suggestedFix }: { id: string; suggestedFix: string }) =>
-      dismissGap(id, account?.name ?? "", suggestedFix),
-    onMutate: async ({ id }) => {
+    mutationFn: ({ issue }: { issue: DataIssueRow }) => dismissGap(issue.id),
+    onMutate: async ({ issue }) => {
       const queryKey = ["data-issues", account?.id ?? ""];
-      await qc.cancelQueries({ queryKey });
-      const prev = qc.getQueryData<DataIssueRow[]>(queryKey);
+      const ctx = await snapshotForOptimisticUpdate(queryKey);
       qc.setQueryData<DataIssueRow[]>(queryKey, (old) =>
-        old ? old.filter((i) => i.id !== id) : old
+        old ? old.filter((i) => i.id !== issue.id) : old
       );
-      return { prev, queryKey };
+      const accountId = issue.account_id ?? account?.id;
+      if (accountId) decrementIssueCount(accountId);
+      return ctx;
     },
     onError: (_e, _v, ctx) => {
-      if (ctx) qc.setQueryData(ctx.queryKey, ctx.prev);
+      restoreOptimisticUpdate(ctx);
       toast.error("Failed to dismiss gap");
     },
-    onSuccess: () => toast.success("Gap dismissed"),
+    onSuccess: (result) => {
+      if (result) updateAccountScore(result.account_id, result.data_quality_score);
+      toast.success("Gap dismissed");
+    },
     onSettled: invalidateAll,
   });
 
   const resolveAllMut = useMutation({
-    mutationFn: () =>
-      resolveAllGaps(
-        sorted.map((i) => ({ id: i.id, suggestedFix: i.suggested_fix ?? "" })),
-        account?.name ?? ""
-      ),
+    mutationFn: () => {
+      if (!account?.id) throw new Error("Account is required");
+      return resolveAllGaps(account.id);
+    },
     onMutate: async () => {
       const queryKey = ["data-issues", account?.id ?? ""];
-      await qc.cancelQueries({ queryKey });
-      const prev = qc.getQueryData<DataIssueRow[]>(queryKey);
+      const ctx = await snapshotForOptimisticUpdate(queryKey);
       qc.setQueryData<DataIssueRow[]>(queryKey, () => []);
-      return { prev, queryKey };
+      if (account?.id) {
+        setIssueCount(account.id, 0);
+        adjustAccountScore(
+          account.id,
+          sorted.reduce((sum, i) => sum + (i.score_impact ?? 0), 0)
+        );
+      }
+      return ctx;
     },
     onError: (_e, _v, ctx) => {
-      if (ctx) qc.setQueryData(ctx.queryKey, ctx.prev);
+      restoreOptimisticUpdate(ctx);
       toast.error("Failed to resolve all gaps");
     },
-    onSuccess: () => toast.success("All gaps resolved"),
+    onSuccess: (result) => {
+      if (result && account?.id) {
+        updateAccountScore(account.id, result.data_quality_score);
+      }
+      toast.success("All gaps resolved");
+    },
     onSettled: invalidateAll,
   });
 
@@ -184,7 +288,7 @@ export function DataIssuesPanel({
             Data gaps
           </div>
           <SheetTitle className="text-zinc-100 text-base">
-            {account?.name ?? ""}
+            {liveAccount?.name ?? ""}
           </SheetTitle>
         </SheetHeader>
 
@@ -334,21 +438,20 @@ export function DataIssuesPanel({
               issue={issue}
               onResolve={() =>
                 resolveMut.mutate({
-                  id: issue.id,
-                  suggestedFix: issue.suggested_fix ?? "",
+                  issue,
                 })
               }
               onDismiss={() =>
                 dismissMut.mutate({
-                  id: issue.id,
-                  suggestedFix: issue.suggested_fix ?? "",
+                  issue,
                 })
               }
               busy={
+                resolveAllMut.isPending ||
                 (resolveMut.isPending &&
-                  resolveMut.variables?.id === issue.id) ||
+                  resolveMut.variables?.issue.id === issue.id) ||
                 (dismissMut.isPending &&
-                  dismissMut.variables?.id === issue.id)
+                  dismissMut.variables?.issue.id === issue.id)
               }
             />
           ))}

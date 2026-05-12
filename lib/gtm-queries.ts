@@ -87,8 +87,24 @@ export type DataIssueRow = {
   severity: string | null;
   suggested_fix: string | null;
   status: string;
+  score_impact: number;
   resolved_at: string | null;
   created_at: string | null;
+};
+
+export type GapScoreResult = {
+  account_id: string;
+  data_quality_score: number | null;
+};
+
+export type CreateDataIssueResult = {
+  issue_id: string;
+  data_quality_score: number | null;
+};
+
+export type ResolveAllGapsResult = {
+  data_quality_score: number | null;
+  resolved_issue_count: number;
 };
 
 /* ------------------------------------------------------------------ */
@@ -177,7 +193,7 @@ export function dataIssuesForAccountQuery(accountId: string) {
       const { data, error } = await supabase
         .from("data_issues")
         .select(
-          "id,account_id,field_name,issue_type,severity,suggested_fix,status,resolved_at,created_at"
+          "id,account_id,field_name,issue_type,severity,suggested_fix,status,score_impact,resolved_at,created_at"
         )
         .eq("account_id", accountId)
         .eq("status", "open")
@@ -253,64 +269,57 @@ export async function rejectSignal(accountName: string) {
 /* ------------------------------------------------------------------ */
 
 export async function resolveGap(
-  issueId: string,
-  accountName: string,
-  suggestedFix: string
-) {
-  const now = new Date().toISOString();
-  const { error: updateErr } = await supabase
-    .from("data_issues")
-    .update({ status: "resolved", resolved_at: now })
-    .eq("id", issueId);
-  if (updateErr) throw updateErr;
-
-  await supabase.from("audit_trail").insert({
-    signal_id: null,
-    account_name: accountName,
-    action: "gap_resolved",
-    reasoning: suggestedFix,
+  issueId: string
+): Promise<GapScoreResult | null> {
+  const { data, error } = await supabase.rpc("resolve_data_issue", {
+    issue_id: issueId,
   });
+  if (error) throw error;
+  return data?.[0] ?? null;
 }
 
 export async function dismissGap(
-  issueId: string,
-  accountName: string,
-  suggestedFix: string
-) {
-  const now = new Date().toISOString();
-  const { error: updateErr } = await supabase
-    .from("data_issues")
-    .update({ status: "dismissed", resolved_at: now })
-    .eq("id", issueId);
-  if (updateErr) throw updateErr;
-
-  await supabase.from("audit_trail").insert({
-    signal_id: null,
-    account_name: accountName,
-    action: "gap_dismissed",
-    reasoning: suggestedFix,
+  issueId: string
+): Promise<GapScoreResult | null> {
+  const { data, error } = await supabase.rpc("dismiss_data_issue", {
+    issue_id: issueId,
   });
+  if (error) throw error;
+  return data?.[0] ?? null;
 }
 
 export async function resolveAllGaps(
-  issues: { id: string; suggestedFix: string }[],
-  accountName: string
-) {
-  const now = new Date().toISOString();
-  for (const { id, suggestedFix } of issues) {
-    const { error } = await supabase
-      .from("data_issues")
-      .update({ status: "resolved", resolved_at: now })
-      .eq("id", id);
-    if (error) throw error;
+  accountId: string
+): Promise<ResolveAllGapsResult | null> {
+  const { data, error } = await supabase.rpc("resolve_all_open_issues", {
+    account_id: accountId,
+  });
+  if (error) throw error;
+  return data?.[0] ?? null;
+}
 
-    await supabase.from("audit_trail").insert({
-      signal_id: null,
-      account_name: accountName,
-      action: "gap_resolved",
-      reasoning: suggestedFix,
-    });
-  }
+export async function createDataIssue({
+  accountId,
+  fieldName,
+  issueType,
+  severity,
+  suggestedFix,
+}: {
+  accountId: string;
+  fieldName: string;
+  issueType: "missing" | "stale" | "invalid";
+  severity: "low" | "medium" | "high";
+  suggestedFix: string;
+}): Promise<CreateDataIssueResult | null> {
+  const { data, error } = await supabase.rpc("create_data_issue", {
+    account_id: accountId,
+    field_name: fieldName,
+    issue_type: issueType,
+    severity,
+    suggested_fix: suggestedFix,
+  });
+  if (error) throw error;
+  return data?.[0] ?? null;
 }
 
 /* ------------------------------------------------------------------ */

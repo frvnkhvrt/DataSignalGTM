@@ -175,6 +175,7 @@ export type Database = {
           id: string
           issue_type: string | null
           resolved_at: string | null
+          score_impact: number
           severity: string | null
           status: string
           suggested_fix: string | null
@@ -186,6 +187,7 @@ export type Database = {
           id?: string
           issue_type?: string | null
           resolved_at?: string | null
+          score_impact?: number
           severity?: string | null
           status?: string
           suggested_fix?: string | null
@@ -197,6 +199,7 @@ export type Database = {
           id?: string
           issue_type?: string | null
           resolved_at?: string | null
+          score_impact?: number
           severity?: string | null
           status?: string
           suggested_fix?: string | null
@@ -284,7 +287,46 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_data_issue: {
+        Args: {
+          account_id: string
+          field_name: string
+          issue_type: string
+          severity: string
+          suggested_fix: string
+        }
+        Returns: {
+          issue_id: string
+          data_quality_score: number
+        }[]
+      }
+      dismiss_data_issue: {
+        Args: {
+          issue_id: string
+        }
+        Returns: {
+          account_id: string
+          data_quality_score: number
+        }[]
+      }
+      resolve_all_open_issues: {
+        Args: {
+          account_id: string
+        }
+        Returns: {
+          data_quality_score: number
+          resolved_issue_count: number
+        }[]
+      }
+      resolve_data_issue: {
+        Args: {
+          issue_id: string
+        }
+        Returns: {
+          account_id: string
+          data_quality_score: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
