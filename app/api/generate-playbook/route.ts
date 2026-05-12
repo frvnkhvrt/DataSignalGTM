@@ -162,9 +162,17 @@ export async function POST(request: NextRequest) {
     const message =
       err instanceof Error ? err.message : "Unknown error during generation.";
     console.error("[generate-playbook]", message);
+
+    const isRateLimit =
+      message.includes("429") || message.includes("quota");
     return NextResponse.json(
-      { error: "Playbook generation failed.", detail: message },
-      { status: 500 }
+      {
+        error: isRateLimit
+          ? "Gemini rate limit exceeded. Please wait a minute and try again."
+          : "Playbook generation failed.",
+        detail: message,
+      },
+      { status: isRateLimit ? 429 : 500 }
     );
   }
 }

@@ -88,9 +88,10 @@ export default function SignalsPage() {
       const eligible = (signals ?? []).filter(
         (s) => !s.playbook && s.status !== "rejected"
       );
-      if (eligible.length === 0) return 0;
+      if (eligible.length === 0) return { completed: 0, lastError: null as string | null };
       setBackfillProgress({ done: 0, total: eligible.length });
       let completed = 0;
+      let lastError: string | null = null;
       for (const s of eligible) {
         try {
           await generatePlaybookForSignal(s.id);
@@ -98,18 +99,21 @@ export default function SignalsPage() {
           setBackfillProgress({ done: completed, total: eligible.length });
           qc.invalidateQueries({ queryKey: ["signals"] });
         } catch (e) {
+          lastError = e instanceof Error ? e.message : "Generation failed";
           console.error(
             `Playbook generation failed for ${s.account_name}:`,
             e
           );
         }
       }
-      return completed;
+      return { completed, lastError };
     },
-    onSuccess: (count) => {
+    onSuccess: ({ completed, lastError }) => {
       setBackfillProgress(null);
-      if (count && count > 0) {
-        toast.success(`Generated ${count} playbook(s)`);
+      if (completed > 0) {
+        toast.success(`Generated ${completed} playbook(s)`);
+      } else if (lastError) {
+        toast.error(lastError);
       } else {
         toast.info("No playbooks were generated");
       }
