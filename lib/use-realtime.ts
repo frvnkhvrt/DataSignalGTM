@@ -11,24 +11,48 @@ import { supabase } from "@/lib/supabase/client";
  *
  * Mount once near the top of the component tree (inside QueryClientProvider).
  */
-export function useRealtimeSync() {
+export function useRealtimeSync(orgId: string) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const channel = supabase
-      .channel("gtm-realtime")
+      .channel(`gtm-realtime:${orgId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "signals" },
+        {
+          event: "*",
+          schema: "public",
+          table: "signals",
+          filter: `org_id=eq.${orgId}`,
+        },
         () => {
-          queryClient.invalidateQueries({ queryKey: ["signals"] });
+          queryClient.invalidateQueries({ queryKey: ["org", orgId, "signals"] });
         }
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "accounts" },
+        {
+          event: "*",
+          schema: "public",
+          table: "accounts",
+          filter: `org_id=eq.${orgId}`,
+        },
         () => {
-          queryClient.invalidateQueries({ queryKey: ["accounts"] });
+          queryClient.invalidateQueries({ queryKey: ["org", orgId, "accounts"] });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "data_issues",
+          filter: `org_id=eq.${orgId}`,
+        },
+        () => {
+          queryClient.invalidateQueries({
+            queryKey: ["org", orgId, "data-issues"],
+          });
         }
       )
       .subscribe();
@@ -36,5 +60,5 @@ export function useRealtimeSync() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [orgId, queryClient]);
 }

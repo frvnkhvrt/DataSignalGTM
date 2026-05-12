@@ -1,15 +1,11 @@
 import { createBrowserClient } from "@supabase/ssr";
+import { getPublicEnv, getPublicEnvStatus } from "@/lib/env";
 import type { Database } from "./types";
 
-const _url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const _anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+const publicEnvStatus = getPublicEnvStatus();
 
-export const supabaseConfigured = !!(_url && _anonKey);
-
-export const supabaseMissingVars = [
-  ...(!_url ? ["NEXT_PUBLIC_SUPABASE_URL"] : []),
-  ...(!_anonKey ? ["NEXT_PUBLIC_SUPABASE_ANON_KEY"] : []),
-];
+export const supabaseConfigured = publicEnvStatus.configured;
+export const supabaseMissingVars = publicEnvStatus.invalidVars;
 
 let _supabase: ReturnType<typeof createBrowserClient<Database>> | undefined;
 
@@ -20,10 +16,14 @@ export const supabase = new Proxy(
       if (!_supabase) {
         if (!supabaseConfigured) {
           throw new Error(
-            `Missing Supabase env var(s): ${supabaseMissingVars.join(", ")}. Add them to .env.local.`
+            `${publicEnvStatus.message}. Add valid Supabase values to .env.local.`
           );
         }
-        _supabase = createBrowserClient<Database>(_url, _anonKey);
+        const env = getPublicEnv();
+        _supabase = createBrowserClient<Database>(
+          env.NEXT_PUBLIC_SUPABASE_URL,
+          env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        );
       }
       return Reflect.get(_supabase, prop, receiver);
     },

@@ -2,16 +2,11 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { useRealtimeSync } from "@/lib/use-realtime";
 import {
   supabaseConfigured,
   supabaseMissingVars,
 } from "@/lib/supabase/client";
-
-function RealtimeSync() {
-  useRealtimeSync();
-  return null;
-}
+import { AnalyticsProvider } from "@/components/analytics-provider";
 
 function MissingEnvBanner() {
   return (
@@ -55,9 +50,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <RealtimeSync />
-      {children}
-    </QueryClientProvider>
+    <AnalyticsProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </AnalyticsProvider>
   );
 }

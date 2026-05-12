@@ -28,6 +28,7 @@ import {
   generatePlaybookForSignal,
   type PlaybookStep,
 } from "@/lib/gtm-queries";
+import { useCurrentOrg } from "@/lib/auth-context";
 import type { SignalStatus } from "@/types/signal";
 import { isTerminal, canTransition } from "@/types/signal";
 
@@ -56,17 +57,18 @@ export function ReceiptPanel({
   account: Account | null;
   onClose: () => void;
 }) {
+  const org = useCurrentOrg();
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
-    ...playbookForAccountQuery(account?.name ?? ""),
+    ...playbookForAccountQuery(org.id, account?.name ?? ""),
     enabled: !!account,
   });
 
   const approve = useMutation({
-    mutationFn: () => approveSignal(account!.name),
+    mutationFn: () => approveSignal(org.id, account!.name),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["signals"] });
-      qc.invalidateQueries({ queryKey: ["accounts"] });
+      qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
+      qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
       toast.success("Approved");
     },
     onError: (e) => {
@@ -81,10 +83,10 @@ export function ReceiptPanel({
   });
 
   const reject = useMutation({
-    mutationFn: () => rejectSignal(account!.name),
+    mutationFn: () => rejectSignal(org.id, account!.name),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["signals"] });
-      qc.invalidateQueries({ queryKey: ["accounts"] });
+      qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
+      qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
       toast.success("Rejected");
     },
     onError: (e) =>
@@ -94,10 +96,10 @@ export function ReceiptPanel({
   });
 
   const generateMut = useMutation({
-    mutationFn: (signalId: string) => generatePlaybookForSignal(signalId),
+    mutationFn: (signalId: string) => generatePlaybookForSignal(org.id, signalId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["signals"] });
-      toast.success("Playbook generated");
+      qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
+      toast.success("Playbook job queued");
     },
     onError: (e) =>
       toast.error(e instanceof Error ? e.message : "Generation failed"),
@@ -105,6 +107,9 @@ export function ReceiptPanel({
 
   const pb = data?.playbook ?? null;
   const status = ((data?.status as string) ?? "pending") as SignalStatus;
+  const playbookStatus = data?.playbook_status ?? "idle";
+  const isGenerating =
+    playbookStatus === "queued" || playbookStatus === "generating";
   const terminal = isTerminal(status);
   const canApprove = canTransition(status, "approved");
   const canReject = canTransition(status, "rejected");
@@ -203,21 +208,25 @@ export function ReceiptPanel({
           {!isLoading && !pb && (
             <div className="space-y-3">
               <div className="rounded-md border border-zinc-800 bg-zinc-900 px-3 py-3 text-xs text-zinc-400">
-                No playbook on this signal yet.
+                {isGenerating
+                  ? "Generating playbook in the background..."
+                  : playbookStatus === "failed"
+                    ? (data?.playbook_error ?? "Playbook generation failed.")
+                    : "No playbook on this signal yet."}
               </div>
               {data?.id && (
                 <button
                   type="button"
-                  disabled={generateMut.isPending}
+                  disabled={generateMut.isPending || isGenerating}
                   onClick={() => generateMut.mutate(data.id)}
                   className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-emerald-500/40 text-emerald-300 font-medium py-2.5 text-sm hover:bg-emerald-500/10 disabled:opacity-50"
                 >
-                  {generateMut.isPending ? (
+                  {generateMut.isPending || isGenerating ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Sparkles className="h-4 w-4" />
                   )}
-                  Generate playbook
+                  {isGenerating ? "Generating..." : "Generate playbook"}
                 </button>
               )}
             </div>

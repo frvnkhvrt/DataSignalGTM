@@ -45,12 +45,14 @@ export function isApproveRequiresPlaybookError(
 
 export type AccountRow = {
   id: string;
+  org_id: string;
   name: string;
   domain: string | null;
   industry: string | null;
   employee_count: number | null;
   data_quality_score: number | null;
   icp_fit_score: number | null;
+  created_at: string | null;
 };
 
 export type PlaybookStep = {
@@ -69,6 +71,7 @@ export type Playbook = {
 
 export type SignalRow = {
   id: string;
+  org_id: string;
   account_name: string | null;
   source: string | null;
   status: string | null;
@@ -76,11 +79,19 @@ export type SignalRow = {
   why_now: string | null;
   assigned_to: string | null;
   playbook: Playbook | null;
+  playbook_error: string | null;
+  playbook_status: "idle" | "queued" | "generating" | "completed" | "failed";
   created_at: string | null;
+};
+
+export type QueuePlaybookResult = {
+  queued: true;
+  signal_id: string;
 };
 
 export type DataIssueRow = {
   id: string;
+  org_id: string;
   account_id: string | null;
   field_name: string | null;
   issue_type: string | null;
@@ -107,32 +118,41 @@ export type ResolveAllGapsResult = {
   resolved_issue_count: number;
 };
 
+export type SignalTransitionInput = {
+  accountName: string;
+  from: SignalStatus;
+  to: SignalStatus;
+  playbook: Playbook | null;
+};
+
 /* ------------------------------------------------------------------ */
 /*  Account queries                                                    */
 /* ------------------------------------------------------------------ */
 
-export const accountsByDqQuery = queryOptions({
-  queryKey: ["accounts", "by-dq"],
+export const accountsByDqQuery = (orgId: string) => queryOptions({
+  queryKey: ["org", orgId, "accounts", "by-dq"],
   queryFn: async (): Promise<AccountRow[]> => {
     const { data, error } = await supabase
       .from("accounts")
       .select(
-        "id,name,domain,industry,employee_count,data_quality_score,icp_fit_score"
+        "id,org_id,name,domain,industry,employee_count,data_quality_score,icp_fit_score,created_at"
       )
+      .eq("org_id", orgId)
       .order("data_quality_score", { ascending: false });
     if (error) throw error;
     return data ?? [];
   },
 });
 
-export const accountsByIcpQuery = queryOptions({
-  queryKey: ["accounts", "by-icp"],
+export const accountsByIcpQuery = (orgId: string) => queryOptions({
+  queryKey: ["org", orgId, "accounts", "by-icp"],
   queryFn: async (): Promise<AccountRow[]> => {
     const { data, error } = await supabase
       .from("accounts")
       .select(
-        "id,name,domain,industry,employee_count,data_quality_score,icp_fit_score"
+        "id,org_id,name,domain,industry,employee_count,data_quality_score,icp_fit_score,created_at"
       )
+      .eq("org_id", orgId)
       .order("icp_fit_score", { ascending: false })
       .limit(3);
     if (error) throw error;
@@ -144,35 +164,40 @@ export const accountsByIcpQuery = queryOptions({
 /*  Signal queries                                                     */
 /* ------------------------------------------------------------------ */
 
-export const signalsRecentQuery = queryOptions({
-  queryKey: ["signals", "recent"],
+export const signalsRecentQuery = (orgId: string) => queryOptions({
+  queryKey: ["org", orgId, "signals", "recent"],
   queryFn: async (): Promise<SignalRow[]> => {
     const { data, error } = await supabase
       .from("signals")
       .select(
-        "id,account_name,source,status,velocity_score,why_now,assigned_to,playbook,created_at"
+        "id,org_id,account_name,source,status,velocity_score,why_now,assigned_to,playbook,playbook_status,playbook_error,created_at"
       )
+      .eq("org_id", orgId)
       .order("created_at", { ascending: false });
     if (error) throw error;
     return (data ?? []) as unknown as SignalRow[];
   },
 });
 
-export const playbookForAccountQuery = (accountName: string) =>
+export const playbookForAccountQuery = (orgId: string, accountName: string) =>
   queryOptions({
-    queryKey: ["signals", "playbook", accountName],
+    queryKey: ["org", orgId, "signals", "playbook", accountName],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("signals")
         .select(
-          "id,playbook,assigned_to,why_now,source,velocity_score,status"
+          "id,org_id,playbook,playbook_status,playbook_error,assigned_to,why_now,source,velocity_score,status"
         )
+        .eq("org_id", orgId)
         .eq("account_name", accountName)
         .maybeSingle();
       if (error) throw error;
       return (data ?? null) as {
         id: string;
+        org_id: string;
         playbook: Playbook | null;
+        playbook_error: string | null;
+        playbook_status: SignalRow["playbook_status"];
         assigned_to: string | null;
         why_now: string | null;
         source: string | null;
@@ -186,15 +211,16 @@ export const playbookForAccountQuery = (accountName: string) =>
 /*  Data-issues queries                                                */
 /* ------------------------------------------------------------------ */
 
-export function dataIssuesForAccountQuery(accountId: string) {
+export function dataIssuesForAccountQuery(orgId: string, accountId: string) {
   return queryOptions({
-    queryKey: ["data-issues", accountId],
+    queryKey: ["org", orgId, "data-issues", accountId],
     queryFn: async (): Promise<DataIssueRow[]> => {
       const { data, error } = await supabase
         .from("data_issues")
         .select(
-          "id,account_id,field_name,issue_type,severity,suggested_fix,status,score_impact,resolved_at,created_at"
+          "id,org_id,account_id,field_name,issue_type,severity,suggested_fix,status,score_impact,resolved_at,created_at"
         )
+        .eq("org_id", orgId)
         .eq("account_id", accountId)
         .eq("status", "open")
         .order("created_at", { ascending: false });
@@ -206,12 +232,13 @@ export function dataIssuesForAccountQuery(accountId: string) {
 
 export type DataIssueCount = { account_id: string; count: number };
 
-export const dataIssueCountsQuery = queryOptions({
-  queryKey: ["data-issues", "counts"],
+export const dataIssueCountsQuery = (orgId: string) => queryOptions({
+  queryKey: ["org", orgId, "data-issues", "counts"],
   queryFn: async (): Promise<DataIssueCount[]> => {
     const { data, error } = await supabase
       .from("data_issues")
       .select("account_id")
+      .eq("org_id", orgId)
       .eq("status", "open");
     if (error) throw error;
     const map = new Map<string, number>();
@@ -228,40 +255,57 @@ export const dataIssueCountsQuery = queryOptions({
 /*  Signal transitions                                                 */
 /* ------------------------------------------------------------------ */
 
+export function assertSignalTransition({
+  accountName,
+  from,
+  to,
+  playbook,
+}: SignalTransitionInput): void {
+  if (!canTransition(from, to)) {
+    throw new TransitionError(from, to, accountName);
+  }
+
+  if (to === "approved" && !playbook) {
+    throw new ApproveRequiresPlaybookError(accountName);
+  }
+}
+
 export async function transitionSignal(
+  orgId: string,
   accountName: string,
   to: SignalStatus
 ) {
   const { data: current, error: fetchErr } = await supabase
     .from("signals")
     .select("status,playbook")
+    .eq("org_id", orgId)
     .eq("account_name", accountName)
     .maybeSingle();
   if (fetchErr) throw fetchErr;
   if (!current) throw new Error(`Signal not found for ${accountName}`);
 
   const from = (current.status ?? "pending") as SignalStatus;
-  if (!canTransition(from, to)) {
-    throw new TransitionError(from, to, accountName);
-  }
-
-  if (to === "approved" && !current.playbook) {
-    throw new ApproveRequiresPlaybookError(accountName);
-  }
+  assertSignalTransition({
+    accountName,
+    from,
+    to,
+    playbook: current.playbook as Playbook | null,
+  });
 
   const { error } = await supabase
     .from("signals")
     .update({ status: to })
+    .eq("org_id", orgId)
     .eq("account_name", accountName);
   if (error) throw error;
 }
 
-export async function approveSignal(accountName: string) {
-  return transitionSignal(accountName, "approved");
+export async function approveSignal(orgId: string, accountName: string) {
+  return transitionSignal(orgId, accountName, "approved");
 }
 
-export async function rejectSignal(accountName: string) {
-  return transitionSignal(accountName, "rejected");
+export async function rejectSignal(orgId: string, accountName: string) {
+  return transitionSignal(orgId, accountName, "rejected");
 }
 
 /* ------------------------------------------------------------------ */
@@ -333,37 +377,20 @@ export function isGeneratingPlaybook(signalId: string): boolean {
 }
 
 export async function generatePlaybookForSignal(
+  orgId: string,
   signalId: string
-): Promise<Playbook> {
-  if (_generating.has(signalId)) {
+): Promise<QueuePlaybookResult> {
+  const key = `${orgId}:${signalId}`;
+  if (_generating.has(key)) {
     throw new Error("Generation already in progress for this signal.");
   }
-  _generating.add(signalId);
+  _generating.add(key);
   try {
-    const { data: signal, error: sigErr } = await supabase
-      .from("signals")
-      .select("account_name,why_now,velocity_score")
-      .eq("id", signalId)
-      .single();
-    if (sigErr) throw sigErr;
-
-    const { data: account } = await supabase
-      .from("accounts")
-      .select("industry,employee_count,data_quality_score,icp_fit_score")
-      .eq("name", signal.account_name!)
-      .maybeSingle();
-
     const res = await fetch("/api/generate-playbook", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        account_name: signal.account_name,
-        industry: account?.industry ?? null,
-        employee_count: account?.employee_count ?? null,
-        data_quality_score: account?.data_quality_score ?? null,
-        icp_fit_score: account?.icp_fit_score ?? null,
-        why_now: signal.why_now || "No signal context available",
-        velocity_score: signal.velocity_score ?? null,
+        signal_id: signalId,
       }),
     });
 
@@ -374,17 +401,9 @@ export async function generatePlaybookForSignal(
       throw new Error(err.error || "Playbook generation failed");
     }
 
-    const playbook: Playbook = await res.json();
-
-    const { error: updateErr } = await supabase
-      .from("signals")
-      .update({ playbook: playbook as never })
-      .eq("id", signalId);
-    if (updateErr) throw updateErr;
-
-    return playbook;
+    return (await res.json()) as QueuePlaybookResult;
   } finally {
-    _generating.delete(signalId);
+    _generating.delete(key);
   }
 }
 

@@ -1,408 +1,76 @@
 "use client";
 
-import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import {
-  CheckCircle2,
-  Loader2,
-  AlertTriangle,
-  XCircle,
-  Clock,
-  Sparkles,
-} from "lucide-react";
-import {
-  approveSignal,
-  rejectSignal,
-  isTransitionError,
-  isApproveRequiresPlaybookError,
-  signalsRecentQuery,
-  generatePlaybookForSignal,
-  type SignalRow,
-} from "@/lib/gtm-queries";
-import { SourceBadge } from "@/components/source-badge";
-import { ReceiptPanel } from "@/components/panels/receipt-panel";
-import type { SignalStatus } from "@/types/signal";
-import { canTransition, isTerminal } from "@/types/signal";
-
-type Filter = "all" | "pending" | "held" | "approved" | "rejected";
-
-const FILTERS: Filter[] = ["all", "pending", "held", "approved", "rejected"];
+import { useCurrentOrg } from "@/lib/auth-context";
+import { signalsRecentQuery } from "@/lib/gtm-queries";
+import { SignalsTable } from "@/components/tables/signals-table";
 
 export default function SignalsPage() {
-  const { data: signals, isLoading } = useQuery(signalsRecentQuery);
-  const [receiptFor, setReceiptFor] = useState<{ name: string } | null>(null);
-  const [filter, setFilter] = useState<Filter>("all");
-  const [backfillProgress, setBackfillProgress] = useState<{
-    done: number;
-    total: number;
-  } | null>(null);
-
-  const filtered = (signals ?? []).filter((s) =>
-    filter === "all" ? true : s.status === filter
-  );
-  const counts: Record<Filter, number> = {
-    all: signals?.length ?? 0,
-    pending: signals?.filter((s) => s.status === "pending").length ?? 0,
-    held: signals?.filter((s) => s.status === "held").length ?? 0,
-    approved: signals?.filter((s) => s.status === "approved").length ?? 0,
-    rejected: signals?.filter((s) => s.status === "rejected").length ?? 0,
-  };
+  const org = useCurrentOrg();
   const qc = useQueryClient();
+  const { data: signals = [], isLoading } = useQuery(signalsRecentQuery(org.id));
 
-  const missingPlaybooks = (signals ?? []).filter(
-    (s) => !s.playbook && s.status !== "rejected"
+  const missingPlaybooks = signals.filter(
+    (signal) =>
+      !signal.playbook &&
+      signal.status !== "rejected" &&
+      signal.playbook_status !== "queued" &&
+      signal.playbook_status !== "generating"
   ).length;
-
-  const approve = useMutation({
-    mutationFn: (name: string) => approveSignal(name),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["signals"] });
-      qc.invalidateQueries({ queryKey: ["accounts"] });
-    },
-    onError: (e) => {
-      if (isApproveRequiresPlaybookError(e)) {
-        toast.error(e.message);
-      } else if (isTransitionError(e)) {
-        toast.info(e.message);
-      } else {
-        toast.error(e instanceof Error ? e.message : "Approve failed");
-      }
-    },
-  });
-
-  const rejectMut = useMutation({
-    mutationFn: (name: string) => rejectSignal(name),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["signals"] });
-      qc.invalidateQueries({ queryKey: ["accounts"] });
-    },
-    onError: (e) =>
-      isTransitionError(e)
-        ? toast.info(e.message)
-        : toast.error(e instanceof Error ? e.message : "Reject failed"),
-  });
 
   const backfill = useMutation({
     mutationFn: async () => {
-      const eligible = (signals ?? []).filter(
-        (s) => !s.playbook && s.status !== "rejected"
+      const response = await fetch("/api/backfill-playbooks", { method: "POST" });
+      const body = await response.json();
+      if (!response.ok) {
+        throw new Error(body.error || "Backfill failed");
+      }
+      return body as { queued: number };
+    },
+    onSuccess: ({ queued }) => {
+      toast.success(
+        queued > 0
+          ? `Queued ${queued} playbook job(s)`
+          : "No playbooks needed backfill"
       );
-      if (eligible.length === 0) return { completed: 0, lastError: null as string | null };
-      setBackfillProgress({ done: 0, total: eligible.length });
-      let completed = 0;
-      let lastError: string | null = null;
-      for (const s of eligible) {
-        try {
-          await generatePlaybookForSignal(s.id);
-          completed++;
-          setBackfillProgress({ done: completed, total: eligible.length });
-          qc.invalidateQueries({ queryKey: ["signals"] });
-        } catch (e) {
-          lastError = e instanceof Error ? e.message : "Generation failed";
-          console.error(
-            `Playbook generation failed for ${s.account_name}:`,
-            e
-          );
-        }
-      }
-      return { completed, lastError };
+      qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
     },
-    onSuccess: ({ completed, lastError }) => {
-      setBackfillProgress(null);
-      if (completed > 0) {
-        toast.success(`Generated ${completed} playbook(s)`);
-      } else if (lastError) {
-        toast.error(lastError);
-      } else {
-        toast.info("No playbooks were generated");
-      }
-      qc.invalidateQueries({ queryKey: ["signals"] });
-    },
-    onError: (e) => {
-      setBackfillProgress(null);
-      toast.error(e instanceof Error ? e.message : "Backfill failed");
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Backfill failed");
     },
   });
-
-  const generateMut = useMutation({
-    mutationFn: (signalId: string) => generatePlaybookForSignal(signalId),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["signals"] });
-      toast.success("Playbook generated");
-    },
-    onError: (e) =>
-      toast.error(e instanceof Error ? e.message : "Generation failed"),
-  });
-
-  function tryApprove(name: string) {
-    const sig = signals?.find((s) => s.account_name === name);
-    const cached = (sig?.status ?? "pending") as SignalStatus;
-    if (isTerminal(cached)) {
-      toast.info(`Signal for ${name} is already ${cached}.`);
-      return;
-    }
-    approve.mutate(name, { onSuccess: () => toast.success("Approved") });
-  }
-
-  function tryReject(name: string) {
-    const sig = signals?.find((s) => s.account_name === name);
-    const cached = (sig?.status ?? "pending") as SignalStatus;
-    if (isTerminal(cached)) {
-      toast.info(`Signal for ${name} is already ${cached}.`);
-      return;
-    }
-    rejectMut.mutate(name, { onSuccess: () => toast.success("Rejected") });
-  }
 
   return (
-    <div className="p-6 sm:p-8 max-w-[1400px] space-y-6">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-semibold text-zinc-100">
-          Signals
-        </h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Open a row for signal + playbook detail. Non-terminal rows can be
-          approved or rejected.
-        </p>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="inline-flex flex-wrap items-center gap-1 rounded-lg border border-zinc-800 bg-zinc-900 p-1">
-          {FILTERS.map((f) => {
-            const active = filter === f;
-            return (
-              <button
-                type="button"
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium capitalize ${
-                  active
-                    ? "bg-zinc-100 text-zinc-900"
-                    : "text-zinc-400 hover:text-zinc-100"
-                }`}
-              >
-                {f}{" "}
-                <span
-                  className={`font-mono tabular-nums ${active ? "text-zinc-600" : "text-zinc-600"}`}
-                >
-                  {counts[f]}
-                </span>
-              </button>
-            );
-          })}
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold text-zinc-100 sm:text-2xl">
+            Signals
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            Prioritize, generate playbooks, and approve revenue signals.
+          </p>
         </div>
-
         {missingPlaybooks > 0 && (
           <button
             type="button"
             onClick={() => backfill.mutate()}
             disabled={backfill.isPending}
-            className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-md border border-emerald-500/40 text-emerald-300 font-medium hover:bg-emerald-500/10 disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-md border border-emerald-500/40 px-3 py-2 text-xs font-medium text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50"
           >
             {backfill.isPending ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
               <Sparkles className="h-3.5 w-3.5" />
             )}
-            {backfillProgress
-              ? `Generating ${backfillProgress.done}/${backfillProgress.total}\u2026`
-              : `Generate missing playbooks (${missingPlaybooks})`}
+            Queue missing playbooks ({missingPlaybooks})
           </button>
         )}
       </div>
 
-      <div className="rounded-lg border border-zinc-800 bg-zinc-900 overflow-x-auto">
-        <table className="w-full text-sm min-w-[640px]">
-          <thead className="bg-zinc-950 border-b border-zinc-800">
-            <tr className="text-left text-[11px] uppercase tracking-wide text-zinc-500">
-              <Th>Account</Th>
-              <Th>Source</Th>
-              <Th>Why now</Th>
-              <Th className="text-right">Velocity</Th>
-              <Th>Status</Th>
-              <Th>Playbook</Th>
-              <Th className="text-right pr-4 sm:pr-5">Action</Th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-800">
-            {isLoading && (
-              <tr>
-                <td colSpan={7} className="px-4 py-6 text-xs text-zinc-500">
-                  Loading signals…
-                </td>
-              </tr>
-            )}
-            {filtered.map((s: SignalRow) => {
-              const name = s.account_name ?? "";
-              const status = (s.status ?? "pending") as SignalStatus;
-              const showApprove = canTransition(status, "approved");
-              const showReject = canTransition(status, "rejected");
-              return (
-                <tr
-                  key={s.id}
-                  onClick={() => name && setReceiptFor({ name })}
-                  className="hover:bg-zinc-800/50 cursor-pointer"
-                >
-                  <Td className="font-medium text-zinc-100">
-                    {name || "—"}
-                  </Td>
-                  <Td>
-                    <SourceBadge source={s.source} />
-                  </Td>
-                  <Td className="text-zinc-400 max-w-[280px] sm:max-w-[320px]">
-                    {s.why_now ?? "—"}
-                  </Td>
-                  <Td className="text-right font-mono tabular-nums text-zinc-100">
-                    {s.velocity_score ?? 0}
-                  </Td>
-                  <Td>
-                    <StatusBadge status={status} />
-                  </Td>
-                  <Td>
-                    {s.playbook ? (
-                      <span className="text-[11px] text-emerald-400">
-                        Ready
-                      </span>
-                    ) : (
-                      <span className="text-[11px] text-zinc-500">—</span>
-                    )}
-                  </Td>
-                  <Td className="text-right pr-4 sm:pr-5">
-                    <span
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1.5"
-                    >
-                      {!s.playbook && s.status !== "rejected" && (
-                        <button
-                          type="button"
-                          onClick={() => generateMut.mutate(s.id)}
-                          disabled={
-                            generateMut.isPending &&
-                            generateMut.variables === s.id
-                          }
-                          title="Generate playbook"
-                          className="inline-flex items-center justify-center h-7 w-7 rounded-md border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50"
-                        >
-                          {generateMut.isPending &&
-                          generateMut.variables === s.id ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Sparkles className="h-3.5 w-3.5" />
-                          )}
-                        </button>
-                      )}
-                      {showApprove && name && (
-                        <button
-                          type="button"
-                          onClick={() => tryApprove(name)}
-                          disabled={
-                            approve.isPending && approve.variables === name
-                          }
-                          className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md bg-emerald-400 text-zinc-950 font-medium hover:bg-emerald-300 disabled:opacity-50"
-                        >
-                          {approve.isPending && approve.variables === name ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <CheckCircle2 className="h-3.5 w-3.5" />
-                          )}
-                          Approve
-                        </button>
-                      )}
-                      {showReject && name && (
-                        <button
-                          type="button"
-                          onClick={() => tryReject(name)}
-                          disabled={
-                            rejectMut.isPending &&
-                            rejectMut.variables === name
-                          }
-                          className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md border border-red-500/40 text-red-300 font-medium hover:bg-red-500/10 disabled:opacity-50"
-                        >
-                          {rejectMut.isPending &&
-                          rejectMut.variables === name ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <XCircle className="h-3.5 w-3.5" />
-                          )}
-                          Reject
-                        </button>
-                      )}
-                      {!showApprove && !showReject && (
-                        <span className="text-xs text-zinc-500">—</span>
-                      )}
-                    </span>
-                  </Td>
-                </tr>
-              );
-            })}
-            {!isLoading && filtered.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-4 py-6 text-xs text-zinc-500">
-                  No signals for this filter.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-      <ReceiptPanel
-        account={receiptFor}
-        onClose={() => setReceiptFor(null)}
-      />
+      <SignalsTable signals={signals} isLoading={isLoading} />
     </div>
-  );
-}
-
-function Th({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <th className={`px-3 sm:px-4 py-3 font-medium ${className}`}>
-      {children}
-    </th>
-  );
-}
-
-function Td({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return <td className={`px-3 sm:px-4 py-3 ${className}`}>{children}</td>;
-}
-
-function StatusBadge({ status }: { status: SignalStatus }) {
-  if (status === "approved") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-300">
-        <CheckCircle2 className="h-3 w-3 shrink-0" /> Approved
-      </span>
-    );
-  }
-  if (status === "rejected") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded border border-red-500/40 bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-red-300">
-        <XCircle className="h-3 w-3 shrink-0" /> Rejected
-      </span>
-    );
-  }
-  if (status === "held") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-200">
-        <AlertTriangle className="h-3 w-3 shrink-0" /> Held
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 rounded border border-zinc-600 bg-zinc-800/80 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
-      <Clock className="h-3 w-3 shrink-0" /> Pending
-    </span>
   );
 }

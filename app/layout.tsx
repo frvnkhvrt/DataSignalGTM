@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
+import { FeatureFlagsScript } from "@/components/feature-flags-script";
 
 export const metadata: Metadata = {
   title: "DataSignalGTM",
@@ -16,6 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <FeatureFlagsScript />
+      </head>
       <body className="bg-zinc-950 text-zinc-100 antialiased">
         <Providers>{children}</Providers>
         <Toaster theme="dark" position="top-right" />

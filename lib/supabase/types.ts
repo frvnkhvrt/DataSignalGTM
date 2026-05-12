@@ -14,6 +14,91 @@ export type Database = {
   }
   public: {
     Tables: {
+      subscriptions: {
+        Row: {
+          id: string
+          org_id: string
+          customer_id: string
+          status: string
+          price_id: string | null
+          current_period_end: string | null
+          cancel_at_period_end: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          org_id: string
+          customer_id: string
+          status: string
+          price_id?: string | null
+          current_period_end?: string | null
+          cancel_at_period_end?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          org_id?: string
+          customer_id?: string
+          status?: string
+          price_id?: string | null
+          current_period_end?: string | null
+          cancel_at_period_end?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_usage: {
+        Row: {
+          id: string
+          org_id: string
+          signal_id: string | null
+          model: string
+          duration_ms: number | null
+          success: boolean
+          error_message: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          org_id: string
+          signal_id?: string | null
+          model?: string
+          duration_ms?: number | null
+          success?: boolean
+          error_message?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          org_id?: string
+          signal_id?: string | null
+          model?: string
+          duration_ms?: number | null
+          success?: boolean
+          error_message?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       accounts: {
         Row: {
           created_at: string | null
@@ -24,6 +109,7 @@ export type Database = {
           id: string
           industry: string | null
           name: string
+          org_id: string
         }
         Insert: {
           created_at?: string | null
@@ -34,6 +120,7 @@ export type Database = {
           id?: string
           industry?: string | null
           name: string
+          org_id: string
         }
         Update: {
           created_at?: string | null
@@ -44,8 +131,17 @@ export type Database = {
           id?: string
           industry?: string | null
           name?: string
+          org_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "accounts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       audit_trail: {
         Row: {
@@ -55,6 +151,7 @@ export type Database = {
           created_at: string | null
           data_quality_score_at_time: number | null
           id: string
+          org_id: string
           reasoning: string | null
           signal_id: string | null
         }
@@ -65,6 +162,7 @@ export type Database = {
           created_at?: string | null
           data_quality_score_at_time?: number | null
           id?: string
+          org_id: string
           reasoning?: string | null
           signal_id?: string | null
         }
@@ -75,10 +173,19 @@ export type Database = {
           created_at?: string | null
           data_quality_score_at_time?: number | null
           id?: string
+          org_id?: string
           reasoning?: string | null
           signal_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "audit_trail_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       channel_actions: {
         Row: {
@@ -174,6 +281,7 @@ export type Database = {
           field_name: string | null
           id: string
           issue_type: string | null
+          org_id: string
           resolved_at: string | null
           score_impact: number
           severity: string | null
@@ -186,6 +294,7 @@ export type Database = {
           field_name?: string | null
           id?: string
           issue_type?: string | null
+          org_id: string
           resolved_at?: string | null
           score_impact?: number
           severity?: string | null
@@ -198,6 +307,7 @@ export type Database = {
           field_name?: string | null
           id?: string
           issue_type?: string | null
+          org_id?: string
           resolved_at?: string | null
           score_impact?: number
           severity?: string | null
@@ -205,6 +315,13 @@ export type Database = {
           suggested_fix?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "data_issues_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "data_issues_account_id_fkey"
             columns: ["account_id"]
@@ -226,7 +343,12 @@ export type Database = {
           id: string
           industry: string | null
           intent_score: number | null
+          org_id: string
           playbook: Json | null
+          playbook_error: string | null
+          playbook_generated_at: string | null
+          playbook_requested_at: string | null
+          playbook_status: string
           source: string | null
           status: string | null
           timing_score: number | null
@@ -245,7 +367,12 @@ export type Database = {
           id?: string
           industry?: string | null
           intent_score?: number | null
+          org_id: string
           playbook?: Json | null
+          playbook_error?: string | null
+          playbook_generated_at?: string | null
+          playbook_requested_at?: string | null
+          playbook_status?: string
           source?: string | null
           status?: string | null
           timing_score?: number | null
@@ -264,7 +391,12 @@ export type Database = {
           id?: string
           industry?: string | null
           intent_score?: number | null
+          org_id?: string
           playbook?: Json | null
+          playbook_error?: string | null
+          playbook_generated_at?: string | null
+          playbook_requested_at?: string | null
+          playbook_status?: string
           source?: string | null
           status?: string | null
           timing_score?: number | null
@@ -274,10 +406,134 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "signals_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "signals_account_id_fkey"
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          created_at: string
+          org_id: string
+          role: Database["public"]["Enums"]["organization_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          org_id: string
+          role?: Database["public"]["Enums"]["organization_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          org_id?: string
+          role?: Database["public"]["Enums"]["organization_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          subscription_tier: "free" | "pro" | "enterprise"
+          stripe_customer_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          subscription_tier?: "free" | "pro" | "enterprise"
+          stripe_customer_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          subscription_tier?: "free" | "pro" | "enterprise"
+          stripe_customer_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          onboarding_completed: boolean
+          onboarding_completed_at: string | null
+          org_id: string | null
+          role: Database["public"]["Enums"]["organization_role"]
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
+          org_id?: string | null
+          role?: Database["public"]["Enums"]["organization_role"]
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          onboarding_completed?: boolean
+          onboarding_completed_at?: string | null
+          org_id?: string | null
+          role?: Database["public"]["Enums"]["organization_role"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -329,7 +585,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      organization_role: "admin" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -456,6 +712,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      organization_role: ["admin", "member"],
+    },
   },
 } as const

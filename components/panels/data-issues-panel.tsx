@@ -21,7 +21,12 @@ import {
   Mail,
   HelpCircle,
 } from "lucide-react";
-import type { AccountRow, DataIssueCount, DataIssueRow } from "@/lib/gtm-queries";
+import { useCurrentOrg } from "@/lib/auth-context";
+import type {
+  AccountRow,
+  DataIssueCount,
+  DataIssueRow,
+} from "@/lib/gtm-queries";
 import {
   accountsByDqQuery,
   dqStatusLabel,
@@ -72,8 +77,11 @@ export function DataIssuesPanel({
   account: AccountRow | null;
   onClose: () => void;
 }) {
+  const org = useCurrentOrg();
+  const accountsQuery = accountsByDqQuery(org.id);
+  const countsQuery = dataIssueCountsQuery(org.id);
   const qc = useQueryClient();
-  const { data: cachedAccounts } = useQuery(accountsByDqQuery);
+  const { data: cachedAccounts } = useQuery(accountsQuery);
   const liveAccount = account?.id
     ? (cachedAccounts?.find((a) => a.id === account.id) ?? account)
     : account;
@@ -97,7 +105,7 @@ export function DataIssuesPanel({
         : "text-red-400";
 
   const { data: issues, isLoading } = useQuery({
-    ...dataIssuesForAccountQuery(account?.id ?? ""),
+    ...dataIssuesForAccountQuery(org.id, account?.id ?? ""),
     enabled: !!account,
   });
 
@@ -112,8 +120,8 @@ export function DataIssuesPanel({
   const lowCount = sorted.filter((i) => i.severity === "low").length;
 
   const invalidateAll = () => {
-    qc.invalidateQueries({ queryKey: ["data-issues"] });
-    qc.invalidateQueries({ queryKey: ["accounts"] });
+    qc.invalidateQueries({ queryKey: ["org", org.id, "data-issues"] });
+    qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
   };
 
   type MutCtx = {
@@ -125,15 +133,15 @@ export function DataIssuesPanel({
 
   const snapshotForOptimisticUpdate = async (queryKey: QueryKey) => {
     await qc.cancelQueries({ queryKey });
-    await qc.cancelQueries({ queryKey: ["accounts"] });
-    await qc.cancelQueries({ queryKey: dataIssueCountsQuery.queryKey });
+    await qc.cancelQueries({ queryKey: ["org", org.id, "accounts"] });
+    await qc.cancelQueries({ queryKey: countsQuery.queryKey });
 
     return {
       queryKey,
       prevIssues: qc.getQueryData<DataIssueRow[]>(queryKey),
-      prevCounts: qc.getQueryData<DataIssueCount[]>(dataIssueCountsQuery.queryKey),
+      prevCounts: qc.getQueryData<DataIssueCount[]>(countsQuery.queryKey),
       accountSnapshots: qc.getQueriesData<AccountRow[]>({
-        queryKey: ["accounts"],
+        queryKey: ["org", org.id, "accounts"],
       }),
     };
   };
@@ -141,14 +149,14 @@ export function DataIssuesPanel({
   const restoreOptimisticUpdate = (ctx?: MutCtx) => {
     if (!ctx) return;
     qc.setQueryData(ctx.queryKey, ctx.prevIssues);
-    qc.setQueryData(dataIssueCountsQuery.queryKey, ctx.prevCounts);
+    qc.setQueryData(countsQuery.queryKey, ctx.prevCounts);
     for (const [queryKey, data] of ctx.accountSnapshots) {
       qc.setQueryData(queryKey, data);
     }
   };
 
   const updateAccountScore = (accountId: string, score: number | null) => {
-    qc.setQueriesData<AccountRow[]>({ queryKey: ["accounts"] }, (old) =>
+    qc.setQueriesData<AccountRow[]>({ queryKey: ["org", org.id, "accounts"] }, (old) =>
       old?.map((a) =>
         a.id === accountId ? { ...a, data_quality_score: score } : a
       )
@@ -156,7 +164,7 @@ export function DataIssuesPanel({
   };
 
   const adjustAccountScore = (accountId: string, delta: number) => {
-    qc.setQueriesData<AccountRow[]>({ queryKey: ["accounts"] }, (old) =>
+    qc.setQueriesData<AccountRow[]>({ queryKey: ["org", org.id, "accounts"] }, (old) =>
       old?.map((a) => {
         if (a.id !== accountId) return a;
         const next = Math.max(
@@ -169,7 +177,7 @@ export function DataIssuesPanel({
   };
 
   const setIssueCount = (accountId: string, count: number) => {
-    qc.setQueryData<DataIssueCount[]>(dataIssueCountsQuery.queryKey, (old) => {
+    qc.setQueryData<DataIssueCount[]>(countsQuery.queryKey, (old) => {
       if (!old) return old;
       return old
         .map((c) =>
@@ -180,7 +188,7 @@ export function DataIssuesPanel({
   };
 
   const decrementIssueCount = (accountId: string, by = 1) => {
-    qc.setQueryData<DataIssueCount[]>(dataIssueCountsQuery.queryKey, (old) => {
+    qc.setQueryData<DataIssueCount[]>(countsQuery.queryKey, (old) => {
       if (!old) return old;
       return old
         .map((c) =>
@@ -195,7 +203,7 @@ export function DataIssuesPanel({
   const resolveMut = useMutation({
     mutationFn: ({ issue }: { issue: DataIssueRow }) => resolveGap(issue.id),
     onMutate: async ({ issue }) => {
-      const queryKey = ["data-issues", account?.id ?? ""];
+      const queryKey = ["org", org.id, "data-issues", account?.id ?? ""];
       const ctx = await snapshotForOptimisticUpdate(queryKey);
       qc.setQueryData<DataIssueRow[]>(queryKey, (old) =>
         old ? old.filter((i) => i.id !== issue.id) : old
@@ -221,7 +229,7 @@ export function DataIssuesPanel({
   const dismissMut = useMutation({
     mutationFn: ({ issue }: { issue: DataIssueRow }) => dismissGap(issue.id),
     onMutate: async ({ issue }) => {
-      const queryKey = ["data-issues", account?.id ?? ""];
+      const queryKey = ["org", org.id, "data-issues", account?.id ?? ""];
       const ctx = await snapshotForOptimisticUpdate(queryKey);
       qc.setQueryData<DataIssueRow[]>(queryKey, (old) =>
         old ? old.filter((i) => i.id !== issue.id) : old
@@ -247,7 +255,7 @@ export function DataIssuesPanel({
       return resolveAllGaps(account.id);
     },
     onMutate: async () => {
-      const queryKey = ["data-issues", account?.id ?? ""];
+      const queryKey = ["org", org.id, "data-issues", account?.id ?? ""];
       const ctx = await snapshotForOptimisticUpdate(queryKey);
       qc.setQueryData<DataIssueRow[]>(queryKey, () => []);
       if (account?.id) {

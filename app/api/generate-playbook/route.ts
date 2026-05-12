@@ -1,99 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { PLAYBOOK_GENERATE_EVENT, inngest } from "@/lib/inngest/client";
+import { createAdminClient, getAuthContext } from "@/lib/supabase/server";
 
 export const maxDuration = 60;
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
-const SYSTEM_PROMPT = `You are a GTM playbook specialist. Given an account profile and buyer signal, generate a personalized outreach playbook.
-Return ONLY valid JSON, no markdown, no preamble.
-Schema: {"role_target": string, "rationale": string, "channels": [string], "steps": [{"day": int, "channel": string, "action": string, "message_hint": string}]}`;
-
 const requestSchema = z.object({
-  account_name: z.string().min(1),
-  industry: z.string().nullable().optional(),
-  employee_count: z.number().int().nullable().optional(),
-  data_quality_score: z.number().int().min(0).max(100).nullable().optional(),
-  icp_fit_score: z.number().int().min(0).max(100).nullable().optional(),
-  why_now: z.string().min(1),
-  velocity_score: z.number().int().min(0).max(100).nullable().optional(),
-  fit_score: z.number().int().min(0).max(100).nullable().optional(),
-  intent_score: z.number().int().min(0).max(100).nullable().optional(),
-  timing_score: z.number().int().min(0).max(100).nullable().optional(),
-  composite_score: z.number().int().min(0).max(100).nullable().optional(),
+  signal_id: z.string().uuid(),
 });
 
 export type GeneratePlaybookRequest = z.infer<typeof requestSchema>;
-
-const playbookStepSchema = z.object({
-  day: z.number(),
-  channel: z.string(),
-  action: z.string(),
-  message_hint: z.string(),
-});
-
-const playbookSchema = z.object({
-  role_target: z.string(),
-  rationale: z.string(),
-  channels: z.array(z.string()),
-  steps: z.array(playbookStepSchema),
-});
-
-export type GeneratePlaybookResponse = z.infer<typeof playbookSchema>;
-
-function buildUserMessage(input: GeneratePlaybookRequest): string {
-  const parts = [
-    `Account: ${input.account_name}`,
-    input.industry ? `Industry: ${input.industry}` : null,
-    input.employee_count
-      ? `Size: ${input.employee_count} employees`
-      : null,
-    `Signal: ${input.why_now}`,
-    input.data_quality_score != null
-      ? `Data quality score: ${input.data_quality_score}/100`
-      : null,
-    input.icp_fit_score != null
-      ? `ICP fit score: ${input.icp_fit_score}/100`
-      : null,
-    input.velocity_score != null
-      ? `Velocity score: ${input.velocity_score}/100`
-      : null,
-    input.fit_score != null
-      ? `Fit score: ${input.fit_score}/100`
-      : null,
-    input.intent_score != null
-      ? `Intent score: ${input.intent_score}/100`
-      : null,
-    input.timing_score != null
-      ? `Timing score: ${input.timing_score}/100`
-      : null,
-    input.composite_score != null
-      ? `Composite score: ${input.composite_score}/100`
-      : null,
-    "Generate the playbook.",
-  ];
-  return parts.filter(Boolean).join("\n");
-}
-
-function extractJson(raw: string): string {
-  let text = raw.trim();
-  if (text.startsWith("```")) {
-    text = text.split("```")[1];
-    if (text.startsWith("json")) {
-      text = text.slice(4);
-    }
-  }
-  return text.trim();
-}
+export type GeneratePlaybookResponse = { queued: true; signal_id: string };
 
 export async function POST(request: NextRequest) {
-  if (!GEMINI_API_KEY) {
-    return NextResponse.json(
-      {
-        error: "Playbook generation is unavailable. GEMINI_API_KEY is not configured.",
-      },
-      { status: 503 }
-    );
+  const auth = await getAuthContext();
+  if (!auth) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
   let body: unknown;
@@ -117,62 +39,53 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const input = parsed.data;
-  const userMessage = buildUserMessage(input);
+  const db = createAdminClient();
+  const { data: signal, error: signalError } = await db
+    .from("signals")
+    .select("id,org_id,status")
+    .eq("id", parsed.data.signal_id)
+    .eq("org_id", auth.org.id)
+    .maybeSingle();
 
-  try {
-    const { GoogleGenerativeAI } = await import("@google/generative-ai");
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash-lite",
-      systemInstruction: SYSTEM_PROMPT,
-    });
-
-    const result = await model.generateContent(userMessage);
-    const rawText = result.response.text();
-    const jsonText = extractJson(rawText);
-
-    let playbookData: unknown;
-    try {
-      playbookData = JSON.parse(jsonText);
-    } catch {
-      return NextResponse.json(
-        {
-          error: "Gemini returned invalid JSON.",
-          raw: jsonText.slice(0, 500),
-        },
-        { status: 502 }
-      );
-    }
-
-    const validated = playbookSchema.safeParse(playbookData);
-    if (!validated.success) {
-      return NextResponse.json(
-        {
-          error: "Gemini returned JSON that does not match the playbook schema.",
-          details: validated.error.flatten().fieldErrors,
-          raw: playbookData,
-        },
-        { status: 502 }
-      );
-    }
-
-    return NextResponse.json(validated.data);
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Unknown error during generation.";
-    console.error("[generate-playbook]", message);
-
-    const isRateLimit =
-      message.includes("429") || message.includes("quota");
+  if (signalError) {
     return NextResponse.json(
-      {
-        error: isRateLimit
-          ? "Gemini rate limit exceeded. Please wait a minute and try again."
-          : "Playbook generation failed.",
-        detail: message,
-      },
-      { status: isRateLimit ? 429 : 500 }
+      { error: "Failed to load signal.", detail: signalError.message },
+      { status: 500 }
     );
   }
+
+  if (!signal) {
+    return NextResponse.json({ error: "Signal not found." }, { status: 404 });
+  }
+
+  const { error: updateError } = await db
+    .from("signals")
+    .update({
+      playbook_status: "queued",
+      playbook_error: null,
+      playbook_requested_at: new Date().toISOString(),
+    })
+    .eq("id", signal.id)
+    .eq("org_id", auth.org.id);
+
+  if (updateError) {
+    return NextResponse.json(
+      { error: "Failed to queue playbook.", detail: updateError.message },
+      { status: 500 }
+    );
+  }
+
+  await inngest.send({
+    name: PLAYBOOK_GENERATE_EVENT,
+    data: {
+      orgId: auth.org.id,
+      signalId: signal.id,
+      requestedBy: auth.user.id,
+    },
+  });
+
+  return NextResponse.json({
+    queued: true,
+    signal_id: signal.id,
+  } satisfies GeneratePlaybookResponse);
 }
