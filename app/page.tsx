@@ -102,7 +102,7 @@ export default function MarketingPage() {
         </div>
       </nav>
 
-      <main>
+      <main id="main-content" tabIndex={-1}>
         {/* Hero */}
         <section className="relative overflow-hidden py-24 sm:py-32">
           <div className="pointer-events-none absolute inset-0 flex items-start justify-center">

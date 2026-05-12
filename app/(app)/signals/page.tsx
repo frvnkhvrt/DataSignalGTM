@@ -6,11 +6,16 @@ import { toast } from "sonner";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { signalsRecentQuery } from "@/lib/gtm-queries";
 import { SignalsTable } from "@/components/tables/signals-table";
+import { Button } from "@/components/ui/button";
 
 export default function SignalsPage() {
   const org = useCurrentOrg();
   const qc = useQueryClient();
-  const { data: signals = [], isLoading } = useQuery(signalsRecentQuery(org.id));
+  const {
+    data: signals = [],
+    isLoading,
+    isFetching,
+  } = useQuery(signalsRecentQuery(org.id));
 
   const missingPlaybooks = signals.filter(
     (signal) =>
@@ -46,19 +51,20 @@ export default function SignalsPage() {
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-zinc-100 sm:text-2xl">
+          <h1 className="ds-heading text-2xl font-semibold text-foreground sm:text-3xl">
             Signals
           </h1>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Prioritize, generate playbooks, and approve revenue signals.
           </p>
         </div>
         {missingPlaybooks > 0 && (
-          <button
+          <Button
             type="button"
             onClick={() => backfill.mutate()}
             disabled={backfill.isPending}
-            className="inline-flex items-center justify-center gap-2 rounded-md border border-emerald-500/40 px-3 py-2 text-xs font-medium text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50"
+            variant="success"
+            size="sm"
           >
             {backfill.isPending ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -66,11 +72,15 @@ export default function SignalsPage() {
               <Sparkles className="h-3.5 w-3.5" />
             )}
             Queue missing playbooks ({missingPlaybooks})
-          </button>
+          </Button>
         )}
       </div>
 
-      <SignalsTable signals={signals} isLoading={isLoading} />
+      <SignalsTable
+        signals={signals}
+        isLoading={isLoading}
+        isRefetching={isFetching && !isLoading}
+      />
     </div>
   );
 }

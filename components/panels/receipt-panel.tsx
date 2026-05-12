@@ -69,7 +69,9 @@ export function ReceiptPanel({
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
       qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
-      toast.success("Approved");
+      toast.success("Signal approved", {
+        description: account?.name,
+      });
     },
     onError: (e) => {
       if (isApproveRequiresPlaybookError(e)) {
@@ -87,7 +89,9 @@ export function ReceiptPanel({
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
       qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
-      toast.success("Rejected");
+      toast.success("Signal rejected", {
+        description: account?.name,
+      });
     },
     onError: (e) =>
       isTransitionError(e)
@@ -99,7 +103,9 @@ export function ReceiptPanel({
     mutationFn: (signalId: string) => generatePlaybookForSignal(org.id, signalId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
-      toast.success("Playbook job queued");
+      toast.success("Playbook generation queued", {
+        description: "The playbook panel will update when it is ready.",
+      });
     },
     onError: (e) =>
       toast.error(e instanceof Error ? e.message : "Generation failed"),

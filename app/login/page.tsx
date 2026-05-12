@@ -10,7 +10,11 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-10 text-zinc-100">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-10 text-zinc-100"
+    >
       <LoginForm />
     </main>
   );

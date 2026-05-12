@@ -25,6 +25,13 @@ import {
 } from "lucide-react";
 import { DataIssuesPanel } from "@/components/panels/data-issues-panel";
 import { ReceiptPanel } from "@/components/panels/receipt-panel";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TableSkeleton } from "@/components/ui/skeleton";
 import {
   dqStatusLabel,
   dqTone,
@@ -34,6 +41,7 @@ import {
 } from "@/lib/gtm-queries";
 
 type AccountFilter = "all" | "healthy" | "held" | "critical";
+type Density = "comfortable" | "compact";
 
 function accountBucket(account: AccountRow): AccountFilter {
   const score = account.data_quality_score ?? 0;
@@ -53,7 +61,7 @@ function SortButton({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1 font-medium hover:text-zinc-200"
+      className="inline-flex items-center gap-1 font-medium text-muted-foreground hover:text-foreground"
     >
       {children}
       <ChevronsUpDown className="h-3 w-3" />
@@ -62,20 +70,13 @@ function SortButton({
 }
 
 function StatusChip({ tone, label }: { tone: Tone; label: string }) {
-  const styles =
-    tone === "good"
-      ? "border-emerald-500/40 text-emerald-300 bg-emerald-500/10"
-      : tone === "warn"
-        ? "border-amber-500/40 text-amber-200 bg-amber-500/10"
-        : "border-red-500/40 text-red-300 bg-red-500/10";
+  const variant = tone === "good" ? "success" : tone === "warn" ? "warning" : "destructive";
   const Icon = tone === "good" ? ShieldCheck : AlertTriangle;
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-[11px] font-medium uppercase ${styles}`}
-    >
+    <Badge variant={variant} shape="square" className="uppercase">
       <Icon className="h-3 w-3 shrink-0" />
       {label}
-    </span>
+    </Badge>
   );
 }
 
@@ -83,10 +84,12 @@ export function AccountsTable({
   accounts,
   issueCounts,
   isLoading,
+  isRefetching = false,
 }: {
   accounts: AccountRow[];
   issueCounts: DataIssueCount[];
   isLoading: boolean;
+  isRefetching?: boolean;
 }) {
   const [gapsFor, setGapsFor] = useState<AccountRow | null>(null);
   const [receiptFor, setReceiptFor] = useState<{
@@ -101,6 +104,7 @@ export function AccountsTable({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [density, setDensity] = useState<Density>("comfortable");
 
   const issueMap = useMemo(() => {
     const map = new Map<string, number>();
@@ -136,7 +140,7 @@ export function AccountsTable({
             aria-label="Select all visible accounts"
             checked={table.getIsAllPageRowsSelected()}
             onChange={table.getToggleAllPageRowsSelectedHandler()}
-            className="h-4 w-4 rounded border-zinc-700 bg-zinc-950"
+            className="h-4 w-4 rounded border-input bg-background"
           />
         ),
         cell: ({ row }) => (
@@ -146,7 +150,7 @@ export function AccountsTable({
             checked={row.getIsSelected()}
             onClick={(event) => event.stopPropagation()}
             onChange={row.getToggleSelectedHandler()}
-            className="h-4 w-4 rounded border-zinc-700 bg-zinc-950"
+            className="h-4 w-4 rounded border-input bg-background"
           />
         ),
       },
@@ -172,11 +176,11 @@ export function AccountsTable({
               onClick={() => openAccount(row.original)}
               className="text-left"
             >
-              <div className="font-medium text-zinc-100 hover:text-emerald-300">
+              <div className="font-medium text-foreground hover:text-primary">
                 {row.original.name}
               </div>
               {meta && (
-                <div className="mt-0.5 max-w-[220px] truncate text-[11px] text-zinc-500">
+                <div className="mt-0.5 max-w-[220px] truncate text-[11px] text-muted-foreground">
                   {meta}
                 </div>
               )}
@@ -188,7 +192,7 @@ export function AccountsTable({
         accessorKey: "industry",
         header: "Industry",
         cell: ({ row }) => (
-          <span className="text-zinc-400">{row.original.industry ?? "-"}</span>
+          <span className="text-muted-foreground">{row.original.industry ?? "-"}</span>
         ),
       },
       {
@@ -205,19 +209,19 @@ export function AccountsTable({
           const tone = dqTone(score);
           const bar =
             tone === "good"
-              ? "bg-emerald-500"
+              ? "bg-success"
               : tone === "warn"
-                ? "bg-amber-500"
-                : "bg-red-500";
+                ? "bg-warning"
+                : "bg-destructive";
           const text =
             tone === "good"
-              ? "text-emerald-400"
+              ? "text-success"
               : tone === "warn"
-                ? "text-amber-400"
-                : "text-red-400";
+                ? "text-warning"
+                : "text-destructive";
           return (
             <div className="flex min-w-40 items-center gap-3">
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-zinc-800">
+              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                 <div
                   className={`h-full rounded-full ${bar}`}
                   style={{ width: `${Math.min(100, score)}%` }}
@@ -238,7 +242,7 @@ export function AccountsTable({
           </SortButton>
         ),
         cell: ({ row }) => (
-          <span className="font-mono tabular-nums text-zinc-300">
+          <span className="font-mono tabular-nums text-muted-foreground">
             {row.original.icp_fit_score ?? 0}
           </span>
         ),
@@ -255,9 +259,9 @@ export function AccountsTable({
             <div className="flex items-center gap-2">
               <StatusChip tone={tone} label={dqStatusLabel(score)} />
               {gaps > 0 && (
-                <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-amber-300">
+                <Badge variant="warning" className="px-1.5 py-0 text-[10px] tabular-nums">
                   {gaps}
-                </span>
+                </Badge>
               )}
             </div>
           );
@@ -272,14 +276,12 @@ export function AccountsTable({
           const healthy = (account.data_quality_score ?? 0) >= 90;
           return (
             <div className="flex justify-end">
-              <button
+              <Button
                 type="button"
                 onClick={() => openAccount(account)}
-                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium ${
-                  healthy
-                    ? "bg-emerald-400 text-zinc-950 hover:bg-emerald-300"
-                    : "border border-amber-500/40 text-amber-200 hover:bg-amber-500/10"
-                }`}
+                variant={healthy ? "default" : "warning"}
+                size="sm"
+                aria-label={`${healthy ? "Open playbook for" : "Review data gaps for"} ${account.name}`}
               >
                 {healthy ? (
                   <ShieldCheck className="h-3.5 w-3.5" />
@@ -287,7 +289,7 @@ export function AccountsTable({
                   <Wrench className="h-3.5 w-3.5" />
                 )}
                 {healthy ? "Playbook" : "Review gaps"}
-              </button>
+              </Button>
             </div>
           );
         },
@@ -321,24 +323,36 @@ export function AccountsTable({
   });
 
   const selectedCount = table.getFilteredSelectedRowModel().rows.length;
+  const rowPadding = density === "compact" ? "px-3 py-2" : "px-3 py-3";
+  const visibleRowCount = table.getRowModel().rows.length;
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3 md:flex-row md:items-center md:justify-between">
+      <div role="status" aria-live="polite" className="sr-only">
+        {isRefetching
+          ? "Refreshing accounts."
+          : `${visibleRowCount} accounts shown. ${selectedCount} selected.`}
+      </div>
+      <Card className="relative flex flex-col gap-3 overflow-hidden bg-card/80 p-3 md:flex-row md:items-center md:justify-between">
+        {isRefetching && (
+          <div className="absolute inset-x-0 top-0 h-px overflow-hidden bg-primary/10">
+            <div className="h-full w-1/3 animate-pulse rounded-full bg-primary shadow-glow" />
+          </div>
+        )}
         <div className="flex flex-1 flex-col gap-2 sm:flex-row">
           <label htmlFor="account-search" className="sr-only">
             Search accounts
           </label>
-          <input
+          <Input
             id="account-search"
             value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
             placeholder="Search accounts..."
-            className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none sm:max-w-xs"
+            className="sm:max-w-xs"
           />
-          <select
+          <Select
             aria-label="Filter account health"
             value={
               (table.getColumn("data_quality_score")?.getFilterValue() as string) ??
@@ -349,28 +363,51 @@ export function AccountsTable({
                 .getColumn("data_quality_score")
                 ?.setFilterValue(event.target.value)
             }
-            className="rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-emerald-500 focus:outline-none"
           >
             <option value="all">All accounts</option>
             <option value="healthy">Healthy</option>
             <option value="held">Held</option>
             <option value="critical">Critical</option>
-          </select>
+          </Select>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-zinc-500">{selectedCount} selected</span>
+          <div className="inline-flex rounded-lg border border-border bg-background/40 p-1">
+            {(["comfortable", "compact"] as const).map((value) => (
+              <Button
+                key={value}
+                type="button"
+                variant={density === value ? "secondary" : "ghost"}
+                size="xs"
+                aria-pressed={density === value}
+                onClick={() => {
+                  setDensity(value);
+                  table.setPageSize(value === "compact" ? 14 : 10);
+                }}
+                className={
+                  density === value
+                    ? "bg-foreground text-background hover:bg-foreground/90"
+                    : ""
+                }
+              >
+                {value === "comfortable" ? "Comfort" : "Compact"}
+              </Button>
+            ))}
+          </div>
+          <span className="rounded-full border border-border bg-background/40 px-2 py-1 text-xs text-muted-foreground">
+            {selectedCount} selected
+          </span>
           <details className="relative">
-            <summary className="cursor-pointer rounded-md border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-300 hover:bg-zinc-800">
-              Columns
+            <summary className="ds-focus-ring cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-surface-elevated hover:text-foreground">
+              Columns<span className="sr-only"> visibility controls</span>
             </summary>
-            <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-zinc-800 bg-zinc-950 p-2 shadow-xl">
+            <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-border bg-popover p-2 shadow-elevated">
               {table
                 .getAllLeafColumns()
                 .filter((column) => column.getCanHide())
                 .map((column) => (
                   <label
                     key={column.id}
-                    className="flex items-center gap-2 rounded px-2 py-1.5 text-xs text-zinc-300 hover:bg-zinc-900"
+                    className="flex items-center gap-2 rounded px-2 py-1.5 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"
                   >
                     <input
                       type="checkbox"
@@ -383,16 +420,16 @@ export function AccountsTable({
             </div>
           </details>
         </div>
-      </div>
+      </Card>
 
-      <div className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
+      <Card className="overflow-hidden bg-card/80 p-0" aria-busy={isLoading || isRefetching}>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[880px] text-sm">
-            <thead className="border-b border-zinc-800 bg-zinc-950">
+            <thead className="border-b border-border bg-background/60">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
                   key={headerGroup.id}
-                  className="text-left text-[11px] uppercase tracking-wide text-zinc-500"
+                  className="text-left text-[11px] uppercase tracking-wide text-muted-foreground"
                 >
                   {headerGroup.headers.map((header) => (
                     <th key={header.id} className="px-3 py-3 font-medium">
@@ -407,26 +444,18 @@ export function AccountsTable({
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-zinc-800">
+            <tbody className="divide-y divide-border">
               {isLoading ? (
-                Array.from({ length: 7 }).map((_, index) => (
-                  <tr key={index}>
-                    {Array.from({ length: 7 }).map((__, cellIndex) => (
-                      <td key={cellIndex} className="px-3 py-3">
-                        <div className="h-4 rounded bg-zinc-800/80 animate-pulse" />
-                      </td>
-                    ))}
-                  </tr>
-                ))
+                <TableSkeleton rows={7} columns={7} />
               ) : table.getRowModel().rows.length > 0 ? (
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="hover:bg-zinc-800/40 data-[selected=true]:bg-zinc-800/70"
+                    className="ds-row transition-colors hover:bg-surface-elevated/70 data-[selected=true]:bg-primary/10 data-[selected=true]:shadow-[inset_3px_0_0_var(--color-primary)]"
                     data-selected={row.getIsSelected()}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-3 py-3 align-middle">
+                      <td key={cell.id} className={`${rowPadding} align-middle`}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
@@ -434,44 +463,61 @@ export function AccountsTable({
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan={table.getVisibleLeafColumns().length}
-                    className="px-4 py-10 text-center text-xs text-zinc-500"
-                  >
-                    <Building2 className="mx-auto mb-2 h-6 w-6 text-zinc-600" />
-                    No accounts match the current filters.
+                  <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-10">
+                    <EmptyState
+                      icon={<Building2 className="h-6 w-6" />}
+                      title="No accounts in this view"
+                      description="Clear the current filters or review a broader health segment to find matching accounts."
+                      action={
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            table.getColumn("name")?.setFilterValue("");
+                            table
+                              .getColumn("data_quality_score")
+                              ?.setFilterValue("all");
+                          }}
+                        >
+                          Clear filters
+                        </Button>
+                      }
+                    />
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
-      <div className="flex flex-col gap-3 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
         <div>
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount() || 1}
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="inline-flex items-center gap-1 rounded-md border border-zinc-700 px-3 py-1.5 text-zinc-300 hover:bg-zinc-800 disabled:opacity-40"
+            variant="outline"
+            size="sm"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
             Previous
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="inline-flex items-center gap-1 rounded-md border border-zinc-700 px-3 py-1.5 text-zinc-300 hover:bg-zinc-800 disabled:opacity-40"
+            variant="outline"
+            size="sm"
           >
             Next
             <ChevronRight className="h-3.5 w-3.5" />
-          </button>
+          </Button>
         </div>
       </div>
 

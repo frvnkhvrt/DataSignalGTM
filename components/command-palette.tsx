@@ -4,7 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Search, Sparkles, XCircle } from "lucide-react";
+import {
+  Building2,
+  CheckCircle2,
+  Clock,
+  LayoutDashboard,
+  Radio,
+  Search,
+  Sparkles,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { useFlags } from "@/lib/use-flags";
@@ -17,6 +26,33 @@ import {
 } from "@/lib/gtm-queries";
 import { canTransition } from "@/types/signal";
 import type { SignalStatus } from "@/types/signal";
+import { AnimatedDialog } from "@/components/ui/animated-dialog";
+import { Badge } from "@/components/ui/badge";
+
+const RECENT_KEY = "datasignalgtm.commandPalette.recent";
+const NAV_ITEMS = [
+  { label: "Go to Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Go to Signals", href: "/signals", icon: Radio },
+  { label: "Go to Accounts", href: "/accounts", icon: Building2 },
+] as const;
+
+function Highlight({ text, query }: { text: string; query: string }) {
+  const q = query.trim();
+  if (!q) return text;
+
+  const index = text.toLowerCase().indexOf(q.toLowerCase());
+  if (index === -1) return text;
+
+  return (
+    <>
+      {text.slice(0, index)}
+      <mark className="rounded bg-primary/20 px-0.5 text-primary">
+        {text.slice(index, index + q.length)}
+      </mark>
+      {text.slice(index + q.length)}
+    </>
+  );
+}
 
 export function CommandPalette() {
   const router = useRouter();
@@ -24,6 +60,16 @@ export function CommandPalette() {
   const flags = useFlags();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [recent, setRecent] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const stored = window.localStorage.getItem(RECENT_KEY);
+      return stored ? (JSON.parse(stored) as string[]) : [];
+    } catch {
+      return [];
+    }
+  });
   const { data: accounts = [] } = useQuery(accountsByDqQuery(org.id));
   const { data: signals = [] } = useQuery(signalsRecentQuery(org.id));
 
@@ -38,6 +84,24 @@ export function CommandPalette() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, []);
 
+  function remember(label: string) {
+    setRecent((current) => {
+      const next = [label, ...current.filter((item) => item !== label)].slice(0, 3);
+      try {
+        window.localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+      } catch {
+        // Recent commands are a convenience only.
+      }
+      return next;
+    });
+  }
+
+  function navigate(label: string, href: string) {
+    remember(label);
+    router.push(href);
+    setOpen(false);
+  }
+
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
     qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
@@ -47,7 +111,9 @@ export function CommandPalette() {
     mutationFn: (signalId: string) => generatePlaybookForSignal(org.id, signalId),
     onSuccess: () => {
       invalidate();
-      toast.success("Playbook job queued");
+      toast.success("Playbook generation queued", {
+        description: "We will notify you when the generated playbook is ready.",
+      });
       setOpen(false);
     },
     onError: (error) =>
@@ -67,8 +133,10 @@ export function CommandPalette() {
         : rejectSignal(org.id, accountName),
     onSuccess: (_data, variables) => {
       invalidate();
+      remember(`${variables.action === "approve" ? "Approve" : "Reject"} ${variables.accountName}`);
       toast.success(
-        variables.action === "approve" ? "Signal approved" : "Signal rejected"
+        variables.action === "approve" ? "Signal approved" : "Signal rejected",
+        { description: variables.accountName }
       );
       setOpen(false);
     },
@@ -87,52 +155,88 @@ export function CommandPalette() {
   if (!flags.enable_command_palette) return null;
 
   return (
-    <Command.Dialog
+    <AnimatedDialog
       open={open}
-      onOpenChange={setOpen}
-      label="Command palette"
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 px-3 pt-20"
+      onClose={() => setOpen(false)}
+      labelledBy="command-palette-title"
+      align="top"
+      className="max-w-2xl overflow-hidden"
     >
-      <div className="w-full max-w-2xl overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950 shadow-2xl">
-        <div className="flex items-center gap-2 border-b border-zinc-800 px-4">
-          <Search className="h-4 w-4 text-zinc-500" />
+      <Command className="bg-card">
+        <h2 id="command-palette-title" className="sr-only">
+          Command palette
+        </h2>
+        <div className="flex items-center gap-2 border-b border-border px-4">
+          <Search className="h-4 w-4 text-muted-foreground" />
           <Command.Input
+            value={search}
+            onValueChange={setSearch}
+            aria-label="Search commands, accounts, and signal actions"
             placeholder="Search accounts or run actions..."
-            className="h-12 flex-1 bg-transparent text-sm text-zinc-100 outline-none placeholder:text-zinc-600"
+            className="h-12 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
-          <kbd className="rounded border border-zinc-800 px-1.5 py-0.5 text-[10px] text-zinc-500">
+          <kbd className="rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] text-muted-foreground">
             Esc
           </kbd>
         </div>
         <Command.List className="max-h-[420px] overflow-y-auto p-2">
-          <Command.Empty className="px-3 py-8 text-center text-sm text-zinc-500">
-            No results found.
+          <Command.Empty className="px-3 py-8 text-center text-sm text-muted-foreground">
+            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface">
+              <Search className="h-4 w-4" />
+            </div>
+            No results found. Try an account name, &quot;approve&quot;, or
+            &quot;generate&quot;.
           </Command.Empty>
 
-          <Command.Group heading="Navigate" className="text-xs text-zinc-500">
-            <Command.Item
-              value="go to signals"
-              onSelect={() => {
-                router.push("/signals");
-                setOpen(false);
-              }}
-              className="cursor-pointer rounded-md px-3 py-2 text-sm text-zinc-200 aria-selected:bg-zinc-900"
-            >
-              Go to Signals
-            </Command.Item>
-            <Command.Item
-              value="go to accounts"
-              onSelect={() => {
-                router.push("/accounts");
-                setOpen(false);
-              }}
-              className="cursor-pointer rounded-md px-3 py-2 text-sm text-zinc-200 aria-selected:bg-zinc-900"
-            >
-              Go to Accounts
-            </Command.Item>
+          {recent.length > 0 && (
+            <Command.Group heading="Recently used" className="text-xs text-muted-foreground">
+              {recent.map((label) => (
+                <Command.Item
+                  key={label}
+                  value={`recent ${label}`}
+                  onSelect={() => {
+                    const nav = NAV_ITEMS.find((item) => item.label === label);
+                    if (nav) navigate(nav.label, nav.href);
+                    else if (label.startsWith("Generate ")) {
+                      const accountName = label.replace("Generate ", "");
+                      const signal = signalsByAccount.get(accountName);
+                      if (signal) generate.mutate(signal.id);
+                    } else if (label.startsWith("Approve ")) {
+                      transition.mutate({
+                        action: "approve",
+                        accountName: label.replace("Approve ", ""),
+                      });
+                    } else if (label.startsWith("Reject ")) {
+                      transition.mutate({
+                        action: "reject",
+                        accountName: label.replace("Reject ", ""),
+                      });
+                    }
+                  }}
+                  className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-primary/10 aria-selected:text-primary"
+                >
+                  <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Highlight text={label} query={search} />
+                </Command.Item>
+              ))}
+            </Command.Group>
+          )}
+
+          <Command.Group heading="Navigate" className="text-xs text-muted-foreground">
+            {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
+              <Command.Item
+                key={href}
+                value={label}
+                onSelect={() => navigate(label, href)}
+                className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-primary/10 aria-selected:text-primary"
+              >
+                <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                <Highlight text={label} query={search} />
+              </Command.Item>
+            ))}
           </Command.Group>
 
-          <Command.Group heading="Accounts" className="mt-2 text-xs text-zinc-500">
+          <Command.Group heading="Accounts" className="mt-2 text-xs text-muted-foreground">
             {accounts.map((account) => {
               const signal = signalsByAccount.get(account.name);
               const canGenerate =
@@ -148,32 +252,34 @@ export function CommandPalette() {
                   value={`${account.name} ${account.domain ?? ""} generate playbook`}
                   onSelect={() => {
                     if (canGenerate) {
+                      remember(`Generate ${account.name}`);
                       generate.mutate(signal.id);
                     } else {
-                      router.push("/accounts");
-                      setOpen(false);
+                      navigate("Go to Accounts", "/accounts");
                     }
                   }}
-                  className="flex cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-zinc-200 aria-selected:bg-zinc-900"
+                  className="flex cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-primary/10 aria-selected:text-primary"
                 >
                   <span className="min-w-0">
-                    <span className="block truncate font-medium">{account.name}</span>
-                    <span className="block truncate text-xs text-zinc-500">
+                    <span className="block truncate font-medium">
+                      <Highlight text={account.name} query={search} />
+                    </span>
+                    <span className="block truncate text-xs text-muted-foreground">
                       {account.domain ?? account.industry ?? "Account"}
                     </span>
                   </span>
                   {canGenerate && (
-                    <span className="inline-flex items-center gap-1 text-xs text-emerald-300">
+                    <Badge variant="brand">
                       <Sparkles className="h-3.5 w-3.5" />
                       Generate
-                    </span>
+                    </Badge>
                   )}
                 </Command.Item>
               );
             })}
           </Command.Group>
 
-          <Command.Group heading="Signals" className="mt-2 text-xs text-zinc-500">
+          <Command.Group heading="Signals" className="mt-2 text-xs text-muted-foreground">
             {signals.map((signal) => {
               const name = signal.account_name ?? "";
               const status = (signal.status ?? "pending") as SignalStatus;
@@ -191,10 +297,12 @@ export function CommandPalette() {
                           accountName: name,
                         })
                       }
-                      className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-zinc-200 aria-selected:bg-zinc-900"
+                      className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-success/10 aria-selected:text-success"
                     >
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                      Approve {name}
+                      <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                      <span>
+                        Approve <Highlight text={name} query={search} />
+                      </span>
                     </Command.Item>
                   )}
                   {canReject && (
@@ -206,10 +314,12 @@ export function CommandPalette() {
                           accountName: name,
                         })
                       }
-                      className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-zinc-200 aria-selected:bg-zinc-900"
+                      className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-destructive/10 aria-selected:text-destructive"
                     >
-                      <XCircle className="h-3.5 w-3.5 text-red-300" />
-                      Reject {name}
+                      <XCircle className="h-3.5 w-3.5 text-destructive" />
+                      <span>
+                        Reject <Highlight text={name} query={search} />
+                      </span>
                     </Command.Item>
                   )}
                 </div>
@@ -217,7 +327,7 @@ export function CommandPalette() {
             })}
           </Command.Group>
         </Command.List>
-      </div>
-    </Command.Dialog>
+      </Command>
+    </AnimatedDialog>
   );
 }

@@ -5,6 +5,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Activity, CheckCircle2, Clock, XCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useCurrentOrg } from "@/lib/auth-context";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TableSkeleton } from "@/components/ui/skeleton";
+import { Stagger, StaggerItem } from "@/components/ui/motion";
 
 type UsageRow = {
   id: string;
@@ -53,16 +59,16 @@ function StatCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-      <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-zinc-500">
+    <Card className="bg-card/80 p-4 transition-colors hover:bg-surface-elevated/80">
+      <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
         {icon}
         {label}
       </div>
-      <div className="mt-2 font-mono text-xl font-semibold text-zinc-100">
+      <div className="mt-2 font-mono text-xl font-semibold text-foreground">
         {value}
       </div>
-      {sub && <div className="mt-1 text-xs text-zinc-500">{sub}</div>}
-    </div>
+      {sub && <div className="mt-1 text-xs text-muted-foreground">{sub}</div>}
+    </Card>
   );
 }
 
@@ -72,7 +78,11 @@ const WINDOWS: TimeWindow[] = [7, 30, 90];
 export default function UsagePage() {
   const org = useCurrentOrg();
   const [window, setWindow] = useState<TimeWindow>(7);
-  const { data: rows = [], isLoading } = useQuery(usageQuery(org.id, window));
+  const {
+    data: rows = [],
+    isLoading,
+    isFetching,
+  } = useQuery(usageQuery(org.id, window));
 
   const total = rows.length;
   const succeeded = rows.filter((r) => r.success).length;
@@ -91,69 +101,86 @@ export default function UsagePage() {
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-zinc-100 sm:text-2xl">
+          <h1 className="ds-heading text-2xl font-semibold text-foreground sm:text-3xl">
             AI Usage &amp; Costs
           </h1>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             Playbook generation activity for this organisation.
           </p>
         </div>
-        <div className="inline-flex items-center gap-1 rounded-lg border border-zinc-800 bg-zinc-900 p-1">
+        <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-card p-1">
           {WINDOWS.map((w) => (
-            <button
+            <Button
               key={w}
               type="button"
               onClick={() => setWindow(w)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium ${
+              variant={window === w ? "secondary" : "ghost"}
+              size="xs"
+              className={
                 window === w
-                  ? "bg-zinc-100 text-zinc-900"
-                  : "text-zinc-400 hover:text-zinc-100"
-              }`}
+                  ? "bg-foreground text-background hover:bg-foreground/90"
+                  : undefined
+              }
             >
               {w}d
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <StatCard
-          label="Total jobs"
-          value={isLoading ? "—" : total}
-          icon={<Activity className="h-3.5 w-3.5" />}
-        />
-        <StatCard
-          label="Succeeded"
-          value={isLoading ? "—" : succeeded}
-          icon={<CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />}
-        />
-        <StatCard
-          label="Failed"
-          value={isLoading ? "—" : failed}
-          sub={total > 0 ? `${failRate}% failure rate` : undefined}
-          icon={<XCircle className="h-3.5 w-3.5 text-red-400" />}
-        />
-        <StatCard
-          label="Avg duration"
-          value={isLoading ? "—" : avgDuration != null ? `${avgDuration} ms` : "—"}
-          icon={<Clock className="h-3.5 w-3.5 text-zinc-400" />}
-        />
-        <StatCard
-          label="Est. cost (USD)"
-          value={isLoading ? "—" : `$${estimatedCost}`}
-          sub="~$0.075 / 1M tokens"
-          icon={<Activity className="h-3.5 w-3.5 text-zinc-400" />}
-        />
-      </div>
+      <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <StaggerItem>
+          <StatCard
+            label="Total jobs"
+            value={isLoading ? "—" : total}
+            icon={<Activity className="h-3.5 w-3.5" />}
+          />
+        </StaggerItem>
+        <StaggerItem>
+          <StatCard
+            label="Succeeded"
+            value={isLoading ? "—" : succeeded}
+            icon={<CheckCircle2 className="h-3.5 w-3.5 text-success" />}
+          />
+        </StaggerItem>
+        <StaggerItem>
+          <StatCard
+            label="Failed"
+            value={isLoading ? "—" : failed}
+            sub={total > 0 ? `${failRate}% failure rate` : undefined}
+            icon={<XCircle className="h-3.5 w-3.5 text-destructive" />}
+          />
+        </StaggerItem>
+        <StaggerItem>
+          <StatCard
+            label="Avg duration"
+            value={isLoading ? "—" : avgDuration != null ? `${avgDuration} ms` : "—"}
+            icon={<Clock className="h-3.5 w-3.5 text-muted-foreground" />}
+          />
+        </StaggerItem>
+        <StaggerItem>
+          <StatCard
+            label="Est. cost (USD)"
+            value={isLoading ? "—" : `$${estimatedCost}`}
+            sub="~$0.075 / 1M tokens"
+            icon={<Activity className="h-3.5 w-3.5 text-muted-foreground" />}
+          />
+        </StaggerItem>
+      </Stagger>
 
-      <div className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
-        <div className="border-b border-zinc-800 px-4 py-3">
-          <h2 className="text-sm font-semibold text-zinc-100">Recent jobs</h2>
+      <Card className="relative overflow-hidden bg-card/80 p-0">
+        {isFetching && !isLoading && (
+          <div className="absolute inset-x-0 top-0 h-px overflow-hidden bg-primary/10">
+            <div className="h-full w-1/3 animate-pulse rounded-full bg-primary shadow-glow" />
+          </div>
+        )}
+        <div className="border-b border-border px-4 py-3">
+          <h2 className="text-sm font-semibold text-foreground">Recent jobs</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[600px] text-sm">
-            <thead className="border-b border-zinc-800 bg-zinc-950">
-              <tr className="text-left text-[11px] uppercase tracking-wide text-zinc-500">
+            <thead className="border-b border-border bg-background/60">
+              <tr className="text-left text-[11px] uppercase tracking-wide text-muted-foreground">
                 <th className="px-4 py-3 font-medium">Time</th>
                 <th className="px-4 py-3 font-medium">Model</th>
                 <th className="px-4 py-3 font-medium">Status</th>
@@ -161,40 +188,32 @@ export default function UsagePage() {
                 <th className="px-4 py-3 font-medium">Error</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800">
+            <tbody className="divide-y divide-border">
               {isLoading
-                ? Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i}>
-                      {Array.from({ length: 5 }).map((__, j) => (
-                        <td key={j} className="px-4 py-3">
-                          <div className="h-4 animate-pulse rounded bg-zinc-800" />
-                        </td>
-                      ))}
-                    </tr>
-                  ))
+                ? <TableSkeleton rows={5} columns={5} />
                 : rows.slice(0, 50).map((row) => (
-                    <tr key={row.id} className="hover:bg-zinc-800/40">
-                      <td className="px-4 py-3 text-xs text-zinc-400">
+                    <tr key={row.id} className="ds-row hover:bg-surface-elevated/70">
+                      <td className="px-4 py-3 text-xs text-muted-foreground">
                         {new Date(row.created_at).toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs text-zinc-300">
+                      <td className="px-4 py-3 font-mono text-xs text-foreground">
                         {row.model}
                       </td>
                       <td className="px-4 py-3">
                         {row.success ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400">
+                          <Badge variant="success" shape="square">
                             <CheckCircle2 className="h-3 w-3" /> OK
-                          </span>
+                          </Badge>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] text-red-300">
+                          <Badge variant="destructive" shape="square">
                             <XCircle className="h-3 w-3" /> Failed
-                          </span>
+                          </Badge>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-right font-mono text-xs text-zinc-400">
+                      <td className="px-4 py-3 text-right font-mono text-xs text-muted-foreground">
                         {row.duration_ms != null ? `${row.duration_ms} ms` : "—"}
                       </td>
-                      <td className="max-w-[260px] truncate px-4 py-3 text-xs text-zinc-500">
+                      <td className="max-w-[260px] truncate px-4 py-3 text-xs text-muted-foreground">
                         {row.error_message ?? "—"}
                       </td>
                     </tr>
@@ -203,16 +222,20 @@ export default function UsagePage() {
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-4 py-8 text-center text-xs text-zinc-500"
+                    className="px-4 py-10"
                   >
-                    No AI jobs recorded in this window.
+                    <EmptyState
+                      icon={<Activity className="h-6 w-6" />}
+                      title="No AI jobs yet"
+                      description="Generate a playbook from Signals to see duration, success rate, and estimated cost here."
+                    />
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

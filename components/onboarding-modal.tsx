@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
   Brain,
@@ -13,6 +14,8 @@ import {
 import { supabase } from "@/lib/supabase/client";
 import { useAuthContext } from "@/lib/auth-context";
 import { track } from "@/lib/analytics";
+import { AnimatedDialog } from "@/components/ui/animated-dialog";
+import { Button } from "@/components/ui/button";
 
 interface Step {
   id: string;
@@ -65,6 +68,7 @@ export function OnboardingModal({
   const { user } = useAuthContext();
   const [step, setStep] = useState(0);
   const [completing, setCompleting] = useState(false);
+  const reducedMotion = useReducedMotion();
 
   async function handleComplete() {
     setCompleting(true);
@@ -95,17 +99,23 @@ export function OnboardingModal({
   const isLast = step === STEPS.length - 1;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="relative w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl">
+    <AnimatedDialog
+      open
+      onClose={handleDismiss}
+      labelledBy="onboarding-title"
+      className="relative max-w-md overflow-hidden rounded-2xl"
+    >
         {/* Dismiss */}
-        <button
+        <Button
           type="button"
           onClick={handleDismiss}
-          className="absolute right-4 top-4 text-zinc-600 hover:text-zinc-400"
+          className="absolute right-4 top-4"
+          variant="ghost"
+          size="icon"
           aria-label="Skip onboarding"
         >
           <X className="h-4 w-4" />
-        </button>
+        </Button>
 
         {/* Progress dots */}
         <div className="flex items-center gap-1.5 px-6 pt-5">
@@ -116,36 +126,45 @@ export function OnboardingModal({
               onClick={() => setStep(i)}
               className={`h-1.5 rounded-full transition-all ${
                 i === step
-                  ? "w-6 bg-emerald-400"
+                  ? "w-6 bg-primary shadow-glow"
                   : i < step
-                    ? "w-1.5 bg-emerald-800"
-                    : "w-1.5 bg-zinc-800"
+                    ? "w-1.5 bg-primary/35"
+                    : "w-1.5 bg-muted"
               }`}
               aria-label={`Step ${i + 1}`}
             />
           ))}
-          <span className="ml-auto text-xs text-zinc-600">
+          <span className="ml-auto text-xs text-muted-foreground">
             {step + 1} / {STEPS.length}
           </span>
         </div>
 
         {/* Content */}
-        <div className="px-6 py-6">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900">
-            {current.icon}
-          </div>
-          <h2 className="mb-2 text-lg font-semibold text-zinc-100">
-            {current.title}
-          </h2>
-          <p className="text-sm leading-relaxed text-zinc-400">
-            {current.description}
-          </p>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current.id}
+            initial={reducedMotion ? false : { opacity: 0, y: 10, filter: "blur(4px)" }}
+            animate={reducedMotion ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={reducedMotion ? undefined : { opacity: 0, y: -8, filter: "blur(4px)" }}
+            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+            className="px-6 py-6"
+          >
+            <div className="ds-empty-orb mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-border">
+              {current.icon}
+            </div>
+            <h2 id="onboarding-title" className="ds-heading mb-2 text-lg font-semibold text-foreground">
+              {current.title}
+            </h2>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              {current.description}
+            </p>
+          </motion.div>
+        </AnimatePresence>
 
         {/* Checklist on last step */}
         {isLast && (
-          <div className="mx-6 mb-6 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          <div className="mx-6 mb-6 rounded-lg border border-border bg-surface p-4">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Quick-start checklist
             </p>
             {[
@@ -153,8 +172,8 @@ export function OnboardingModal({
               "Generate an AI playbook for a high-score account",
               "Connect an intent data source via webhook",
             ].map((item) => (
-              <div key={item} className="flex items-start gap-2 py-1 text-xs text-zinc-400">
-                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zinc-700" />
+              <div key={item} className="flex items-start gap-2 py-1 text-xs text-muted-foreground">
+                <CheckCircle2 className="ds-success-pop mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
                 {item}
               </div>
             ))}
@@ -162,26 +181,26 @@ export function OnboardingModal({
         )}
 
         {/* Actions */}
-        <div className="flex items-center justify-between border-t border-zinc-800 px-6 py-4">
-          <button
+        <div className="flex items-center justify-between border-t border-border px-6 py-4">
+          <Button
             type="button"
             onClick={handleDismiss}
-            className="text-xs text-zinc-600 hover:text-zinc-400"
+            variant="ghost"
+            size="sm"
           >
             Skip
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
             disabled={completing}
             onClick={isLast ? handleComplete : () => setStep((s) => s + 1)}
-            className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-emerald-400 disabled:opacity-50"
+            size="lg"
           >
             {current.cta}
             {!isLast && <ArrowRight className="h-4 w-4" />}
-          </button>
+          </Button>
         </div>
-      </div>
-    </div>
+    </AnimatedDialog>
   );
 }

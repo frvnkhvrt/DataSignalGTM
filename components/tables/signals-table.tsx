@@ -39,10 +39,19 @@ import { useCurrentOrg } from "@/lib/auth-context";
 import { useFlags } from "@/lib/use-flags";
 import { SourceBadge } from "@/components/source-badge";
 import { ReceiptPanel } from "@/components/panels/receipt-panel";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { EmptyState } from "@/components/ui/empty-state";
+import { TableSkeleton } from "@/components/ui/skeleton";
+import { AnimatedDialog } from "@/components/ui/animated-dialog";
 import type { SignalStatus } from "@/types/signal";
 import { canTransition } from "@/types/signal";
 
 type BulkAction = "approve" | "reject";
+type Density = "comfortable" | "compact";
 
 function signalStatus(value: string | null): SignalStatus {
   return (value ?? "pending") as SignalStatus;
@@ -59,7 +68,7 @@ function SortButton({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1 text-left font-medium hover:text-zinc-200"
+      className="inline-flex items-center gap-1 text-left font-medium text-muted-foreground hover:text-foreground"
     >
       {children}
       <ChevronsUpDown className="h-3 w-3" />
@@ -70,29 +79,29 @@ function SortButton({
 function StatusBadge({ status }: { status: SignalStatus }) {
   if (status === "approved") {
     return (
-      <span className="inline-flex items-center gap-1 rounded border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-300">
+      <Badge variant="success" shape="square">
         <CheckCircle2 className="h-3 w-3 shrink-0" /> Approved
-      </span>
+      </Badge>
     );
   }
   if (status === "rejected") {
     return (
-      <span className="inline-flex items-center gap-1 rounded border border-red-500/40 bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-red-300">
+      <Badge variant="destructive" shape="square">
         <XCircle className="h-3 w-3 shrink-0" /> Rejected
-      </span>
+      </Badge>
     );
   }
   if (status === "held") {
     return (
-      <span className="inline-flex items-center gap-1 rounded border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-200">
+      <Badge variant="warning" shape="square">
         <AlertTriangle className="h-3 w-3 shrink-0" /> Held
-      </span>
+      </Badge>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded border border-zinc-600 bg-zinc-800/80 px-2 py-0.5 text-[11px] font-medium text-zinc-300">
+    <Badge variant="muted" shape="square">
       <Clock className="h-3 w-3 shrink-0" /> Pending
-    </span>
+    </Badge>
   );
 }
 
@@ -127,9 +136,11 @@ function PlaybookState({ signal }: { signal: SignalRow }) {
 export function SignalsTable({
   signals,
   isLoading,
+  isRefetching = false,
 }: {
   signals: SignalRow[];
   isLoading: boolean;
+  isRefetching?: boolean;
 }) {
   const org = useCurrentOrg();
   const qc = useQueryClient();
@@ -140,6 +151,7 @@ export function SignalsTable({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkAction, setBulkAction] = useState<BulkAction | null>(null);
+  const [density, setDensity] = useState<Density>("comfortable");
 
   const invalidateSignals = () => {
     qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
@@ -148,7 +160,16 @@ export function SignalsTable({
 
   const approve = useMutation({
     mutationFn: (name: string) => approveSignal(org.id, name),
-    onSuccess: invalidateSignals,
+    onSuccess: (_data, name) => {
+      invalidateSignals();
+      toast.success("Signal approved", {
+        description: name,
+        action: {
+          label: "View",
+          onClick: () => setReceiptFor({ name }),
+        },
+      });
+    },
     onError: (error) => {
       if (isApproveRequiresPlaybookError(error)) toast.error(error.message);
       else if (isTransitionError(error)) toast.info(error.message);
@@ -158,7 +179,10 @@ export function SignalsTable({
 
   const reject = useMutation({
     mutationFn: (name: string) => rejectSignal(org.id, name),
-    onSuccess: invalidateSignals,
+    onSuccess: (_data, name) => {
+      invalidateSignals();
+      toast.success("Signal rejected", { description: name });
+    },
     onError: (error) =>
       isTransitionError(error)
         ? toast.info(error.message)
@@ -169,7 +193,9 @@ export function SignalsTable({
     mutationFn: (signalId: string) => generatePlaybookForSignal(org.id, signalId),
     onSuccess: () => {
       invalidateSignals();
-      toast.success("Playbook job queued");
+      toast.success("Playbook generation queued", {
+        description: "We will update the table when the playbook is ready.",
+      });
     },
     onError: (error) =>
       toast.error(error instanceof Error ? error.message : "Generation failed"),
@@ -196,7 +222,15 @@ export function SignalsTable({
       setRowSelection({});
       setBulkAction(null);
       invalidateSignals();
-      toast.success(`${action === "approve" ? "Approved" : "Rejected"} ${count} signal(s)`);
+      toast.success(
+        `${action === "approve" ? "Approved" : "Rejected"} ${count} signal(s)`,
+        {
+          description:
+            action === "approve"
+              ? "Approved signals are ready for follow-up."
+              : "Rejected signals were removed from the active queue.",
+        }
+      );
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "Bulk action failed");
@@ -215,7 +249,7 @@ export function SignalsTable({
             aria-label="Select all visible signals"
             checked={table.getIsAllPageRowsSelected()}
             onChange={table.getToggleAllPageRowsSelectedHandler()}
-            className="h-4 w-4 rounded border-zinc-700 bg-zinc-950"
+            className="h-4 w-4 rounded border-input bg-background"
           />
         ),
         cell: ({ row }) => (
@@ -225,7 +259,7 @@ export function SignalsTable({
             checked={row.getIsSelected()}
             onClick={(event) => event.stopPropagation()}
             onChange={row.getToggleSelectedHandler()}
-            className="h-4 w-4 rounded border-zinc-700 bg-zinc-950"
+            className="h-4 w-4 rounded border-input bg-background"
           />
         ),
       },
@@ -243,7 +277,7 @@ export function SignalsTable({
               row.original.account_name &&
               setReceiptFor({ name: row.original.account_name })
             }
-            className="text-left font-medium text-zinc-100 hover:text-emerald-300"
+            className="text-left font-medium text-foreground hover:text-primary"
           >
             {row.original.account_name ?? "-"}
           </button>
@@ -258,7 +292,7 @@ export function SignalsTable({
         accessorKey: "why_now",
         header: "Why now",
         cell: ({ row }) => (
-          <span className="line-clamp-2 text-zinc-400">
+          <span className="line-clamp-2 text-muted-foreground">
             {row.original.why_now ?? "-"}
           </span>
         ),
@@ -271,7 +305,7 @@ export function SignalsTable({
           </SortButton>
         ),
         cell: ({ row }) => (
-          <span className="font-mono tabular-nums text-zinc-100">
+          <span className="font-mono tabular-nums text-foreground">
             {row.original.velocity_score ?? 0}
           </span>
         ),
@@ -305,7 +339,7 @@ export function SignalsTable({
           return (
             <div className="flex justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
               {!signal.playbook && signal.status !== "rejected" && (
-                <button
+                <Button
                   type="button"
                   onClick={() => generate.mutate(signal.id)}
                   disabled={
@@ -313,7 +347,9 @@ export function SignalsTable({
                     (generate.isPending && generate.variables === signal.id)
                   }
                   title="Generate playbook"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50"
+                  aria-label={`Generate playbook for ${name || "signal"}`}
+                  variant="success"
+                  size="icon"
                 >
                   {busyPlaybook ||
                   (generate.isPending && generate.variables === signal.id) ? (
@@ -321,29 +357,32 @@ export function SignalsTable({
                   ) : (
                     <Sparkles className="h-3.5 w-3.5" />
                   )}
-                </button>
+                </Button>
               )}
               {canApprove && name && (
-                <button
+                <Button
                   type="button"
                   onClick={() => approve.mutate(name)}
                   disabled={approve.isPending && approve.variables === name}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-emerald-400 px-2.5 py-1.5 text-xs font-medium text-zinc-950 hover:bg-emerald-300 disabled:opacity-50"
+                  aria-label={`Approve signal for ${name}`}
+                  size="sm"
                 >
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Approve
-                </button>
+                </Button>
               )}
               {canReject && name && (
-                <button
+                <Button
                   type="button"
                   onClick={() => reject.mutate(name)}
                   disabled={reject.isPending && reject.variables === name}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-red-500/40 px-2.5 py-1.5 text-xs font-medium text-red-300 hover:bg-red-500/10 disabled:opacity-50"
+                  aria-label={`Reject signal for ${name}`}
+                  variant="destructive"
+                  size="sm"
                 >
                   <XCircle className="h-3.5 w-3.5" />
                   Reject
-                </button>
+                </Button>
               )}
             </div>
           );
@@ -384,74 +423,108 @@ export function SignalsTable({
     .rows.map((row) => row.original)
     .filter((signal) => signal.account_name);
   const selectedNames = selectedSignals.map((signal) => signal.account_name!);
+  const rowPadding = density === "compact" ? "px-3 py-2" : "px-3 py-3";
+  const visibleRowCount = table.getRowModel().rows.length;
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-3 md:flex-row md:items-center md:justify-between">
+      <div role="status" aria-live="polite" className="sr-only">
+        {isRefetching
+          ? "Refreshing signals."
+          : `${visibleRowCount} signals shown. ${selectedSignals.length} selected.`}
+      </div>
+      <Card className="relative flex flex-col gap-3 overflow-hidden bg-card/80 p-3 md:flex-row md:items-center md:justify-between">
+        {isRefetching && (
+          <div className="absolute inset-x-0 top-0 h-px overflow-hidden bg-primary/10">
+            <div className="h-full w-1/3 animate-pulse rounded-full bg-primary shadow-glow" />
+          </div>
+        )}
         <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
           <label className="sr-only" htmlFor="signal-search">
             Search signals
           </label>
-          <input
+          <Input
             id="signal-search"
             value={(table.getColumn("account_name")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
               table.getColumn("account_name")?.setFilterValue(event.target.value)
             }
             placeholder="Search accounts..."
-            className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none sm:max-w-xs"
+            className="sm:max-w-xs"
           />
-          <select
+          <Select
             aria-label="Filter signal status"
             value={(table.getColumn("status")?.getFilterValue() as string) ?? "all"}
             onChange={(event) =>
               table.getColumn("status")?.setFilterValue(event.target.value)
             }
-            className="rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 focus:border-emerald-500 focus:outline-none"
           >
             <option value="all">All statuses</option>
             <option value="pending">Pending</option>
             <option value="held">Held</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
-          </select>
+          </Select>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex rounded-lg border border-border bg-background/40 p-1">
+            {(["comfortable", "compact"] as const).map((value) => (
+              <Button
+                key={value}
+                type="button"
+                variant={density === value ? "secondary" : "ghost"}
+                size="xs"
+                aria-pressed={density === value}
+                onClick={() => {
+                  setDensity(value);
+                  table.setPageSize(value === "compact" ? 12 : 8);
+                }}
+                className={
+                  density === value
+                    ? "bg-foreground text-background hover:bg-foreground/90"
+                    : ""
+                }
+              >
+                {value === "comfortable" ? "Comfort" : "Compact"}
+              </Button>
+            ))}
+          </div>
           {flags.enable_bulk_actions && (
             <>
-              <span className="text-xs text-zinc-500">
+              <span className="rounded-full border border-border bg-background/40 px-2 py-1 text-xs text-muted-foreground">
                 {selectedSignals.length} selected
               </span>
-              <button
+              <Button
                 type="button"
                 onClick={() => setBulkAction("approve")}
                 disabled={selectedSignals.length === 0}
-                className="rounded-md bg-emerald-400 px-3 py-2 text-xs font-medium text-zinc-950 hover:bg-emerald-300 disabled:opacity-40"
+                size="sm"
               >
                 Bulk approve
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => setBulkAction("reject")}
                 disabled={selectedSignals.length === 0}
-                className="rounded-md border border-red-500/40 px-3 py-2 text-xs font-medium text-red-300 hover:bg-red-500/10 disabled:opacity-40"
+                variant="destructive"
+                size="sm"
               >
                 Bulk reject
-              </button>
+              </Button>
             </>
           )}
           <details className="relative">
-            <summary className="cursor-pointer rounded-md border border-zinc-700 px-3 py-2 text-xs font-medium text-zinc-300 hover:bg-zinc-800">
-              Columns
+            <summary className="ds-focus-ring cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-surface-elevated hover:text-foreground">
+              Columns<span className="sr-only"> visibility controls</span>
             </summary>
-            <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-zinc-800 bg-zinc-950 p-2 shadow-xl">
+            <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-border bg-popover p-2 shadow-elevated">
               {table
                 .getAllLeafColumns()
                 .filter((column) => column.getCanHide())
                 .map((column) => (
                   <label
                     key={column.id}
-                    className="flex items-center gap-2 rounded px-2 py-1.5 text-xs text-zinc-300 hover:bg-zinc-900"
+                    className="flex items-center gap-2 rounded px-2 py-1.5 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"
                   >
                     <input
                       type="checkbox"
@@ -464,16 +537,16 @@ export function SignalsTable({
             </div>
           </details>
         </div>
-      </div>
+      </Card>
 
-      <div className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
+      <Card className="overflow-hidden bg-card/80 p-0" aria-busy={isLoading || isRefetching}>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] text-sm">
-            <thead className="border-b border-zinc-800 bg-zinc-950">
+            <thead className="border-b border-border bg-background/60">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
                   key={headerGroup.id}
-                  className="text-left text-[11px] uppercase tracking-wide text-zinc-500"
+                  className="text-left text-[11px] uppercase tracking-wide text-muted-foreground"
                 >
                   {headerGroup.headers.map((header) => (
                     <th key={header.id} className="px-3 py-3 font-medium">
@@ -488,26 +561,18 @@ export function SignalsTable({
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-zinc-800">
+            <tbody className="divide-y divide-border">
               {isLoading ? (
-                Array.from({ length: 6 }).map((_, index) => (
-                  <tr key={index}>
-                    {Array.from({ length: 8 }).map((__, cellIndex) => (
-                      <td key={cellIndex} className="px-3 py-3">
-                        <div className="h-4 rounded bg-zinc-800/80 animate-pulse" />
-                      </td>
-                    ))}
-                  </tr>
-                ))
+                <TableSkeleton rows={6} columns={8} />
               ) : table.getRowModel().rows.length > 0 ? (
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="hover:bg-zinc-800/40 data-[selected=true]:bg-zinc-800/70"
+                    className="ds-row transition-colors hover:bg-surface-elevated/70 data-[selected=true]:bg-primary/10 data-[selected=true]:shadow-[inset_3px_0_0_var(--color-primary)]"
                     data-selected={row.getIsSelected()}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-3 py-3 align-middle">
+                      <td key={cell.id} className={`${rowPadding} align-middle`}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
@@ -515,86 +580,101 @@ export function SignalsTable({
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan={table.getVisibleLeafColumns().length}
-                    className="px-4 py-10 text-center text-xs text-zinc-500"
-                  >
-                    No signals match the current filters.
+                  <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-10">
+                    <EmptyState
+                      icon={<Sparkles className="h-6 w-6" />}
+                      title="No signals in this view"
+                      description="Try clearing filters, widening the status selection, or queueing playbooks for fresh buying signals."
+                      action={
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            table.getColumn("account_name")?.setFilterValue("");
+                            table.getColumn("status")?.setFilterValue("all");
+                          }}
+                        >
+                          Clear filters
+                        </Button>
+                      }
+                    />
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
-      <div className="flex flex-col gap-3 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
         <div>
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount() || 1}
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="inline-flex items-center gap-1 rounded-md border border-zinc-700 px-3 py-1.5 text-zinc-300 hover:bg-zinc-800 disabled:opacity-40"
+            variant="outline"
+            size="sm"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
             Previous
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="inline-flex items-center gap-1 rounded-md border border-zinc-700 px-3 py-1.5 text-zinc-300 hover:bg-zinc-800 disabled:opacity-40"
+            variant="outline"
+            size="sm"
           >
             Next
             <ChevronRight className="h-3.5 w-3.5" />
-          </button>
+          </Button>
         </div>
       </div>
 
-      {bulkAction && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-          role="presentation"
-          onClick={() => setBulkAction(null)}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="bulk-action-title"
-            className="w-full max-w-md rounded-lg border border-zinc-800 bg-zinc-950 p-5 shadow-xl"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h2 id="bulk-action-title" className="text-base font-semibold text-zinc-100">
+      <AnimatedDialog
+        open={!!bulkAction}
+        onClose={() => {
+          if (!bulk.isPending) setBulkAction(null);
+        }}
+        labelledBy="bulk-action-title"
+        className="max-w-md p-5"
+      >
+        {bulkAction && (
+          <>
+            <h2 id="bulk-action-title" className="text-base font-semibold text-foreground">
               Confirm bulk {bulkAction}
             </h2>
-            <p className="mt-2 text-sm text-zinc-400">
+            <p className="mt-2 text-sm text-muted-foreground">
               This will {bulkAction} {selectedNames.length} selected signal(s).
             </p>
             <div className="mt-5 flex justify-end gap-2">
-              <button
+              <Button
                 type="button"
                 onClick={() => setBulkAction(null)}
                 disabled={bulk.isPending}
-                className="rounded-md border border-zinc-700 px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800"
+                variant="outline"
+                size="sm"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => bulk.mutate({ action: bulkAction, names: selectedNames })}
                 disabled={bulk.isPending}
-                className="rounded-md bg-emerald-400 px-3 py-2 text-xs font-medium text-zinc-950 hover:bg-emerald-300 disabled:opacity-50"
+                size="sm"
+                aria-live="polite"
               >
                 {bulk.isPending ? "Working..." : "Confirm"}
-              </button>
+              </Button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </AnimatedDialog>
 
       <ReceiptPanel account={receiptFor} onClose={() => setReceiptFor(null)} />
     </div>

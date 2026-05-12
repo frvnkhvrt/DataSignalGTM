@@ -166,6 +166,24 @@ The first test layer focuses on behavior with high regression risk:
 
 Future phases should add API route tests, Supabase policy tests, and end-to-end flows for auth, org isolation, and AI job processing.
 
+## UI/UX Production Checklist
+
+Use this checklist before shipping interface changes:
+
+- Keyboard: tab through sidebar, top bar, command palette, tables, dialogs, billing, and help without traps.
+- Screen reader: verify Signals approval announces status/toast feedback and table selected counts.
+- Focus: opening and closing command palette, onboarding, billing portal actions, and playbook panels returns focus predictably.
+- Motion: OS-level reduced motion disables transitions, shimmer, and page movement without hiding content.
+- Performance: dashboard charts load dynamically; table density changes do not reflow full pages unnecessarily.
+- Responsive: mobile bottom navigation, table horizontal scroll, and dialog touch targets remain usable.
+- Print: usage reports, help docs, and playbook-like panels print without navigation chrome.
+
+Manual accessibility smoke tests:
+
+1. Signals approval: use keyboard only to filter, approve a signal, open the toast action, and confirm focus returns to the triggering control or panel.
+2. Onboarding: run Tab and Shift+Tab through each step; Escape should dismiss, and reduced motion should remove step animation.
+3. Billing: navigate every plan action by keyboard, confirm current-plan state is announced visually and textually, and verify errors use toast feedback.
+
 ## Security Notes
 
 Phase 1 replaces the original public demo policies with organization-scoped RLS. Application rows now carry `org_id`, and policies require an authenticated user with a matching `organization_members` row.

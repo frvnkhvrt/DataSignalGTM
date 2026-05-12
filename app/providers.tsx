@@ -7,27 +7,32 @@ import {
   supabaseMissingVars,
 } from "@/lib/supabase/client";
 import { AnalyticsProvider } from "@/components/analytics-provider";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function MissingEnvBanner() {
   return (
     <div className="flex min-h-screen items-center justify-center p-8">
-      <div className="max-w-lg rounded-lg border border-red-800 bg-red-950/60 p-6 text-sm">
-        <h2 className="mb-2 text-lg font-semibold text-red-300">
+      <Card className="max-w-lg border-destructive/35 bg-destructive/10 text-sm">
+        <CardHeader>
+          <CardTitle className="text-destructive">
           Supabase not configured
-        </h2>
-        <p className="mb-3 text-zinc-300">
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+        <p className="mb-3 text-muted-foreground">
           The following environment variable(s) are missing:
         </p>
-        <ul className="mb-4 list-inside list-disc font-mono text-red-400">
+        <ul className="mb-4 list-inside list-disc font-mono text-destructive">
           {supabaseMissingVars.map((v) => (
             <li key={v}>{v}</li>
           ))}
         </ul>
-        <p className="text-zinc-400">
+        <p className="text-muted-foreground">
           Add them in your Vercel project settings or in{" "}
-          <code className="text-zinc-300">.env.local</code>, then redeploy.
+          <code className="text-foreground">.env.local</code>, then redeploy.
         </p>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -39,7 +44,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultOptions: {
           queries: {
             staleTime: 30_000,
+            gcTime: 5 * 60_000,
             refetchOnWindowFocus: false,
+            retry: 1,
           },
         },
       })

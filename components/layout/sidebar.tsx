@@ -1,51 +1,137 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Radio, Building2, Activity, BarChart3, CreditCard } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  Activity,
+  BarChart3,
+  BookOpen,
+  Building2,
+  ChevronLeft,
+  ChevronRight,
+  CreditCard,
+  LayoutDashboard,
+  Radio,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
-const nav = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/signals", label: "Signals", icon: Radio },
-  { href: "/accounts", label: "Accounts", icon: Building2 },
-  { href: "/admin/usage", label: "AI Usage", icon: BarChart3 },
-  { href: "/settings/billing", label: "Billing", icon: CreditCard },
+const navGroups = [
+  {
+    label: "Workspace",
+    items: [
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/signals", label: "Signals", icon: Radio },
+      { href: "/accounts", label: "Accounts", icon: Building2 },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      { href: "/admin/usage", label: "AI Usage", icon: BarChart3 },
+      { href: "/settings/billing", label: "Billing", icon: CreditCard },
+    ],
+  },
 ] as const;
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("datasignalgtm.sidebar.collapsed") === "true";
+  });
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--sidebar-width",
+      collapsed ? "4.5rem" : "15rem"
+    );
+    window.localStorage.setItem(
+      "datasignalgtm.sidebar.collapsed",
+      String(collapsed)
+    );
+  }, [collapsed]);
 
   return (
-    <aside className="fixed inset-x-0 bottom-0 z-20 flex h-16 border-t border-zinc-800 bg-zinc-950 sm:inset-x-auto sm:inset-y-0 sm:left-0 sm:h-auto sm:w-60 sm:flex-col sm:border-r sm:border-t-0">
-      <div className="hidden h-14 items-center gap-2 border-b border-zinc-800 px-5 sm:flex">
-        <div className="h-7 w-7 rounded-md bg-zinc-800 flex items-center justify-center">
-          <Activity className="h-4 w-4 text-zinc-300" />
+    <aside className="fixed inset-x-0 bottom-0 z-20 flex h-16 border-t border-border bg-background/88 backdrop-blur-xl transition-[width] duration-300 ease-[var(--ease-premium)] sm:inset-x-auto sm:inset-y-0 sm:left-0 sm:h-auto sm:w-[var(--sidebar-width)] sm:flex-col sm:border-r sm:border-t-0">
+      <div className="hidden h-14 items-center gap-2 border-b border-border px-4 sm:flex">
+        <div className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/20 bg-primary/10 shadow-glow">
+          <Activity className="h-4 w-4 text-primary" />
         </div>
-        <span className="text-sm font-semibold text-zinc-100">
+        <span className={`font-display text-sm font-semibold tracking-[-0.02em] text-foreground transition-opacity ${collapsed ? "sr-only opacity-0" : "opacity-100"}`}>
           DataSignalGTM
         </span>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="ml-auto hidden sm:inline-flex"
+          onClick={() => setCollapsed((value) => !value)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
+        </Button>
       </div>
-      <nav className="grid flex-1 grid-cols-3 gap-1 px-2 py-2 sm:block sm:space-y-0.5 sm:px-3 sm:py-4">
-        {nav.map(({ href, label, icon: Icon }) => {
-          const active =
-            href === "/dashboard"
-              ? pathname === "/dashboard"
-              : pathname.startsWith(href);
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex flex-col items-center justify-center gap-1 rounded-md border-l-0 border-t-2 px-2 py-2 text-[11px] sm:flex-row sm:justify-start sm:gap-3 sm:border-l-2 sm:border-t-0 sm:px-3 sm:text-sm ${
-                active
-                  ? "border-emerald-400 bg-zinc-800/80 text-zinc-100"
-                  : "border-transparent text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900"
+      <nav className="grid flex-1 grid-cols-3 gap-1 px-2 py-2 sm:block sm:space-y-5 sm:px-3 sm:py-4">
+        {navGroups.map((group) => (
+          <div key={group.label} className="contents sm:block">
+            <div
+              className={`hidden px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground sm:block ${
+                collapsed ? "sr-only" : ""
               }`}
             >
-              <Icon className="h-4 w-4 shrink-0" />
-              {label}
-            </Link>
-          );
-        })}
+              {group.label}
+            </div>
+            <div className="contents sm:block sm:space-y-1">
+              {group.items.map(({ href, label, icon: Icon }) => {
+                const active =
+                  href === "/dashboard"
+                    ? pathname === "/dashboard"
+                    : pathname.startsWith(href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    aria-current={active ? "page" : undefined}
+                    title={collapsed ? label : undefined}
+                    onFocus={() => router.prefetch(href)}
+                    onMouseEnter={() => router.prefetch(href)}
+                    className={`ds-focus-ring flex flex-col items-center justify-center gap-1 rounded-md border-l-0 border-t-2 px-2 py-2 text-[11px] sm:flex-row sm:gap-3 sm:border-l-2 sm:border-t-0 sm:px-3 sm:text-sm ${
+                      collapsed ? "sm:justify-center" : "sm:justify-start"
+                    } ${
+                      active
+                        ? "border-primary bg-primary/10 text-foreground shadow-soft"
+                        : "border-transparent text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span className={collapsed ? "sm:sr-only" : ""}>{label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+        <div className="hidden sm:mt-auto sm:block sm:border-t sm:border-border sm:pt-4">
+          <Link
+            href="/help"
+            title={collapsed ? "Help" : undefined}
+            onFocus={() => router.prefetch("/help")}
+            onMouseEnter={() => router.prefetch("/help")}
+            className={`ds-focus-ring flex items-center gap-3 rounded-md border-l-2 border-transparent px-3 py-2 text-sm text-muted-foreground hover:bg-surface-elevated hover:text-foreground ${
+              collapsed ? "justify-center" : ""
+            }`}
+          >
+            <BookOpen className="h-4 w-4 shrink-0" />
+            <span className={collapsed ? "sr-only" : ""}>Help</span>
+          </Link>
+        </div>
       </nav>
     </aside>
   );

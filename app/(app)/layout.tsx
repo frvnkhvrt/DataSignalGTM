@@ -33,11 +33,13 @@ export default async function AppLayout({
       <RulesEngineSync orgId={auth.org.id} />
       <CommandPalette />
       <OnboardingGuard>
-        <div className="min-h-screen bg-zinc-950 text-zinc-100">
+        <div className="ds-page text-foreground">
           <Sidebar />
-          <div className="pb-16 sm:pb-0 sm:pl-60">
+          <div className="pb-16 transition-[padding] duration-300 ease-[var(--ease-premium)] sm:pb-0 sm:pl-[var(--sidebar-width)]">
             <TopBar />
-            <main>{children}</main>
+            <main id="main-content" tabIndex={-1}>
+              {children}
+            </main>
           </div>
         </div>
       </OnboardingGuard>
