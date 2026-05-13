@@ -23,6 +23,22 @@ const iconTone: Record<KpiTone, string> = {
   info: "text-info",
 };
 
+const iconGlow: Record<KpiTone, string> = {
+  default: "",
+  success: "shadow-[0_0_12px_color-mix(in_oklch,var(--success)_22%,transparent)]",
+  warning: "shadow-[0_0_12px_color-mix(in_oklch,var(--warning)_22%,transparent)]",
+  destructive: "shadow-[0_0_12px_color-mix(in_oklch,var(--destructive)_22%,transparent)]",
+  info: "shadow-[0_0_12px_color-mix(in_oklch,var(--info)_22%,transparent)]",
+};
+
+const accentTone: Record<KpiTone, string> = {
+  default: "border-l-border",
+  success: "border-l-success/60",
+  warning: "border-l-warning/60",
+  destructive: "border-l-destructive/60",
+  info: "border-l-info/60",
+};
+
 /**
  * Unified KPI / metric tile used across Dashboard, Accounts, and Usage.
  *
@@ -55,14 +71,20 @@ export function KpiCard({
   return (
     <Card
       variant="translucent"
-      className={cn("p-4 transition-colors hover:bg-surface-elevated/80", className)}
+      className={cn(
+        "p-4 transition-[background-color,box-shadow,border-color] duration-200 hover:bg-surface-elevated/80",
+        "border-l-2",
+        accentTone[tone],
+        className
+      )}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="ds-eyebrow">{label}</div>
         <div
           className={cn(
-            "rounded-lg border border-border bg-background/40 p-1.5",
-            iconTone[tone]
+            "rounded-lg border border-border bg-background/40 p-1.5 transition-shadow duration-200",
+            iconTone[tone],
+            iconGlow[tone]
           )}
         >
           {icon}
@@ -72,7 +94,7 @@ export function KpiCard({
       <motion.div
         key={String(value)}
         className={cn(
-          "mt-3 font-mono tabular-nums font-semibold",
+          "mt-2.5 font-mono tabular-nums font-semibold",
           valueTone[tone],
           size === "default" ? "text-3xl" : "text-xl"
         )}
@@ -88,9 +110,9 @@ export function KpiCard({
       </motion.div>
 
       {description && (
-        <p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p>
+        <p className="mt-1.5 text-xs leading-5 text-muted-foreground">{description}</p>
       )}
-      {sub && <div className="mt-1 text-xs text-muted-foreground">{sub}</div>}
+      {sub && <div className="mt-1.5 text-xs text-muted-foreground">{sub}</div>}
     </Card>
   );
 }

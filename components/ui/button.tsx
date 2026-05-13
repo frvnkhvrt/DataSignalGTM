@@ -9,19 +9,19 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-glow hover:bg-primary/90 hover:shadow-glow-strong",
+          "bg-gradient-to-b from-primary to-primary/88 text-primary-foreground shadow-glow shadow-[inset_0_1px_0_rgb(255_255_255_/_0.15)] hover:from-primary/95 hover:to-primary/80 hover:shadow-glow-strong",
         secondary:
-          "border border-border bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border border-border bg-secondary text-secondary-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] hover:bg-secondary/80",
         outline:
-          "border border-border bg-background/40 text-foreground hover:border-border/80 hover:bg-surface-elevated hover:shadow-soft",
+          "border border-border bg-background/40 text-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] hover:border-border/80 hover:bg-surface-elevated hover:shadow-soft",
         ghost:
           "text-muted-foreground hover:bg-surface-elevated hover:text-foreground",
         destructive:
-          "border border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/15",
+          "border border-destructive/40 bg-destructive/10 text-destructive shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] hover:bg-destructive/15",
         success:
-          "border border-success/40 bg-success/10 text-success hover:bg-success/15",
+          "border border-success/40 bg-success/10 text-success shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] hover:bg-success/15",
         warning:
-          "border border-warning/40 bg-warning/10 text-warning hover:bg-warning/15",
+          "border border-warning/40 bg-warning/10 text-warning shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] hover:bg-warning/15",
       },
       size: {
         xs: "h-7 rounded-sm px-2 text-xs",

@@ -49,7 +49,10 @@ export function TopBar() {
   const subtitle = subtitleForPath(pathname);
 
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-border bg-background/82 px-4 backdrop-blur-xl sm:px-6">
+    <header
+      className="sticky top-0 z-10 flex h-14 items-center justify-between bg-background/82 px-4 backdrop-blur-xl sm:px-6"
+      style={{ boxShadow: "inset 0 -1px 0 var(--color-border), inset 0 1px 0 rgb(255 255 255 / 0.03)" }}
+    >
       {/* Contextual breadcrumb — cross-fades on route change for a premium feel */}
       <AnimatePresence mode="wait" initial={false}>
         <motion.p
@@ -64,11 +67,11 @@ export function TopBar() {
         </motion.p>
       </AnimatePresence>
       <div className="flex items-center gap-3">
-        <div className="hidden items-center gap-1 rounded-md border border-border bg-background/40 px-2 py-1 text-[11px] text-muted-foreground lg:flex">
+        <div className="hidden items-center gap-1.5 rounded-md border border-border bg-background/40 px-2 py-1 text-[11px] text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)] lg:flex">
           <Command className="h-3 w-3" />
-          <kbd className="rounded bg-muted px-1.5 font-mono">{shortcut}</kbd>
+          <kbd className="rounded bg-muted/80 px-1.5 py-0.5 font-mono leading-none shadow-[inset_0_-1px_0_rgb(0_0_0_/_0.1)]">{shortcut}</kbd>
         </div>
-        <div className="hidden text-right sm:block">
+        <div className="hidden rounded-md border border-border/50 bg-background/30 px-2.5 py-1.5 text-right shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] sm:block">
           <div className="text-xs font-medium text-foreground">{org.name}</div>
           <div className="text-[11px] text-muted-foreground">
             {user.email ?? "Authenticated user"} · {org.role}

@@ -24,12 +24,15 @@ function EmptyState({
   return (
     <Card
       className={cn(
-        "mx-auto flex max-w-lg flex-col items-center border-dashed bg-card/60 px-6 py-10 text-center",
+        "mx-auto flex max-w-lg flex-col items-center border-border/50 bg-card/50 px-6 py-10 text-center",
+        "shadow-[inset_0_1px_0_0_rgb(255_255_255_/_0.04)]",
+        "[background-image:radial-gradient(ellipse_60%_50%_at_50%_0%,color-mix(in_oklch,var(--primary)_5%,transparent),transparent)]",
         className
       )}
     >
       <motion.div
-        className="ds-empty-orb mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-border text-primary shadow-soft"
+        className="ds-empty-orb mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 text-primary"
+        style={{ boxShadow: "inset 0 1px 0 rgb(255 255 255 / 0.1), 0 0 20px color-mix(in oklch, var(--primary) 14%, transparent), 0 4px 12px rgb(0 0 0 / 0.18)" }}
         initial={reduced ? {} : { scale: 0.55, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={

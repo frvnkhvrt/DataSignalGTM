@@ -443,9 +443,9 @@ export function SignalsTable({
           ? "Refreshing signals."
           : `${visibleRowCount} signals shown. ${selectedSignals.length} selected.`}
       </div>
-      <Card className="relative flex flex-col gap-3 overflow-hidden bg-card/80 p-3 md:flex-row md:items-center md:justify-between">
+      <Card className="relative flex flex-col gap-3 overflow-hidden bg-card/80 p-3 ds-card-inner-glow md:flex-row md:items-center md:justify-between">
         {isRefetching && (
-          <div className="absolute inset-x-0 top-0 h-px overflow-hidden bg-primary/10">
+          <div className="absolute inset-x-0 top-0 h-px overflow-hidden">
             <div className="h-full w-1/3 animate-pulse rounded-full bg-primary shadow-glow" />
           </div>
         )}
@@ -553,14 +553,15 @@ export function SignalsTable({
         </div>
       </Card>
 
-      <Card className="overflow-hidden bg-card/80 p-0" aria-busy={isLoading || isRefetching}>
+      <Card className="overflow-hidden bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] text-sm">
-            <thead className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-sm">
+            <thead className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
                   key={headerGroup.id}
                   className="text-left text-[11px] uppercase tracking-wide text-muted-foreground"
+                  style={{ boxShadow: "inset 0 -1px 0 0 var(--color-border), inset 0 1px 0 rgb(255 255 255 / 0.03)" }}
                 >
                   {headerGroup.headers.map((header) => (
                     <th key={header.id} className="px-3 py-3 font-medium">
@@ -602,7 +603,9 @@ export function SignalsTable({
                         key={row.id}
                         as="tr"
                         className={[
-                          "ds-row transition-colors hover:bg-surface-elevated/70 data-[selected=true]:bg-primary/10 data-[selected=true]:shadow-[inset_3px_0_0_var(--color-primary)]",
+                          "ds-row transition-colors hover:bg-surface-elevated/70",
+                          "data-[selected=true]:bg-gradient-to-r data-[selected=true]:from-primary/12 data-[selected=true]:to-primary/4",
+                          "data-[selected=true]:shadow-[inset_2px_0_0_var(--color-primary)]",
                           isRecentlyUpdated("signals", row.original.id) ? "ds-row-updated" : "",
                         ].join(" ")}
                         data-selected={row.getIsSelected()}
@@ -654,11 +657,11 @@ export function SignalsTable({
       </Card>
 
       <div className="flex flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <span className="inline-flex items-center rounded-full border border-border bg-background/40 px-3 py-1 text-[11px] font-medium tabular-nums shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)]">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount() || 1}
-        </div>
-        <div className="flex items-center gap-2">
+        </span>
+        <div className="flex items-center gap-1.5">
           <Button
             type="button"
             onClick={() => table.previousPage()}

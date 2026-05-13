@@ -19,12 +19,20 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:border-border group-[.toaster]:bg-card/95 group-[.toaster]:text-foreground group-[.toaster]:shadow-elevated group-[.toaster]:backdrop-blur-xl",
+            "group toast group-[.toaster]:border-border group-[.toaster]:bg-card/95 group-[.toaster]:text-foreground group-[.toaster]:shadow-elevated group-[.toaster]:backdrop-blur-xl group-[.toaster]:[box-shadow:inset_0_1px_0_0_rgb(255_255_255_/_0.07),0_24px_70px_rgb(0_0_0_/_0.42)]",
           description: "group-[.toast]:text-muted-foreground",
           actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground group-[.toast]:shadow-glow",
+            "group-[.toast]:bg-gradient-to-b group-[.toast]:from-primary group-[.toast]:to-primary/88 group-[.toast]:text-primary-foreground group-[.toast]:shadow-glow group-[.toast]:[box-shadow:inset_0_1px_0_rgb(255_255_255_/_0.15)]",
           cancelButton:
             "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+          success:
+            "group-[.toaster]:[box-shadow:inset_2px_0_0_var(--color-success),inset_0_1px_0_0_rgb(255_255_255_/_0.07),0_24px_70px_rgb(0_0_0_/_0.42)]",
+          error:
+            "group-[.toaster]:[box-shadow:inset_2px_0_0_var(--color-destructive),inset_0_1px_0_0_rgb(255_255_255_/_0.07),0_24px_70px_rgb(0_0_0_/_0.42)]",
+          info:
+            "group-[.toaster]:[box-shadow:inset_2px_0_0_var(--color-info),inset_0_1px_0_0_rgb(255_255_255_/_0.07),0_24px_70px_rgb(0_0_0_/_0.42)]",
+          warning:
+            "group-[.toaster]:[box-shadow:inset_2px_0_0_var(--color-warning),inset_0_1px_0_0_rgb(255_255_255_/_0.07),0_24px_70px_rgb(0_0_0_/_0.42)]",
         },
       }}
       {...props}

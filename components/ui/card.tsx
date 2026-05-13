@@ -7,14 +7,14 @@ const cardVariants = cva("rounded-xl border border-border text-card-foreground",
   variants: {
     variant: {
       /** Opaque card — default for most app surfaces. */
-      default: "bg-card",
+      default: "bg-card shadow-[inset_0_1px_0_0_rgb(255_255_255_/_0.05),0_0_0_1px_rgb(255_255_255_/_0.02)_inset]",
       /** 80 % opacity — for stat tiles, panels, and data grids. */
-      translucent: "bg-card/80",
+      translucent: "bg-card/80 ds-card-inner-glow",
       /** Blurred glass — for marketing overlays and feature cards. */
-      glass: "bg-card/65 backdrop-blur-xl shadow-soft",
+      glass: "bg-card/65 backdrop-blur-xl shadow-soft ds-card-inner-glow",
       /** Translucent + hover transition — for clickable card links. */
       interactive:
-        "bg-card/80 transition-[background-color,box-shadow] hover:bg-surface-elevated/80 hover:shadow-soft cursor-pointer",
+        "bg-card/80 ds-card-inner-glow transition-[background-color,box-shadow] hover:bg-surface-elevated/80 hover:shadow-soft hover:ds-card-inner-glow cursor-pointer",
       /** No fill — for nested areas that should inherit the parent surface. */
       ghost: "border-transparent bg-transparent",
     },

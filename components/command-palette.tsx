@@ -199,12 +199,12 @@ export function CommandPalette() {
       align="top"
       className="max-w-2xl overflow-hidden"
     >
-      <Command className="bg-card">
+      <Command className="bg-transparent">
         <h2 id="command-palette-title" className="sr-only">
           Command palette
         </h2>
-        <div className="flex items-center gap-2 border-b border-border px-4">
-          <Search className="h-4 w-4 text-muted-foreground" />
+        <div className="relative flex items-center gap-2 px-4">
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
           <Command.Input
             value={search}
             onValueChange={setSearch}
@@ -212,9 +212,11 @@ export function CommandPalette() {
             placeholder="Search accounts or run actions..."
             className="h-12 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
-          <kbd className="rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] text-muted-foreground">
+          <kbd className="rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)]">
             Esc
           </kbd>
+          {/* Gradient-faded separator under the search bar */}
+          <div className="ds-separator absolute inset-x-0 bottom-0" />
         </div>
         <Command.List className="max-h-[420px] overflow-y-auto p-2">
           <Command.Empty className="px-3 py-8 text-center text-sm text-muted-foreground">
@@ -223,7 +225,7 @@ export function CommandPalette() {
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-              className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface"
+              className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)]"
             >
               <Search className="h-4 w-4" />
             </motion.div>
@@ -232,7 +234,7 @@ export function CommandPalette() {
           </Command.Empty>
 
           {recent.length > 0 && (
-            <Command.Group heading="Recently used" className="text-xs text-muted-foreground">
+            <Command.Group heading="Recently used" className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70">
               {recent.map((label) => (
                 <Command.Item
                   key={label}
@@ -269,7 +271,8 @@ export function CommandPalette() {
                     }
                   }}
                   className={cn(
-                    "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-primary/10 aria-selected:text-primary",
+                    "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground",
+                    "aria-selected:bg-gradient-to-r aria-selected:from-primary/12 aria-selected:to-primary/6 aria-selected:text-primary aria-selected:shadow-[inset_2px_0_0_var(--color-primary)]",
                     isDemo && isMutableRecentLabel(label) && "cursor-not-allowed opacity-55"
                   )}
                 >
@@ -280,13 +283,13 @@ export function CommandPalette() {
             </Command.Group>
           )}
 
-          <Command.Group heading="Navigate" className="text-xs text-muted-foreground">
+          <Command.Group heading="Navigate" className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70">
             {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
               <CmdItem
                 key={href}
                 value={label}
                 onSelect={() => navigate(label, href)}
-                className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-primary/10 aria-selected:text-primary"
+                className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-gradient-to-r aria-selected:from-primary/12 aria-selected:to-primary/6 aria-selected:text-primary aria-selected:shadow-[inset_2px_0_0_var(--color-primary)]"
               >
                 <Icon className="h-3.5 w-3.5 text-muted-foreground" />
                 <Highlight text={label} query={search} />
@@ -294,7 +297,7 @@ export function CommandPalette() {
             ))}
           </Command.Group>
 
-          <Command.Group heading="Accounts" className="mt-2 text-xs text-muted-foreground">
+          <Command.Group heading="Accounts" className="mt-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70">
             {accounts.map((account) => {
               const signal = signalsByAccount.get(account.name);
               const canGenerate =
@@ -321,7 +324,7 @@ export function CommandPalette() {
                     }
                   }}
                   className={cn(
-                    "flex cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-primary/10 aria-selected:text-primary",
+                    "flex cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-gradient-to-r aria-selected:from-primary/12 aria-selected:to-primary/6 aria-selected:text-primary aria-selected:shadow-[inset_2px_0_0_var(--color-primary)]",
                     isDemo && canGenerate && "cursor-not-allowed opacity-55"
                   )}
                 >
@@ -344,7 +347,7 @@ export function CommandPalette() {
             })}
           </Command.Group>
 
-          <Command.Group heading="Signals" className="mt-2 text-xs text-muted-foreground">
+          <Command.Group heading="Signals" className="mt-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70">
             {signals.map((signal) => {
               const name = signal.account_name ?? "";
               const status = (signal.status ?? "pending") as SignalStatus;
@@ -367,7 +370,7 @@ export function CommandPalette() {
                         });
                       }}
                       className={cn(
-                        "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-success/10 aria-selected:text-success",
+                        "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-gradient-to-r aria-selected:from-success/12 aria-selected:to-success/6 aria-selected:text-success aria-selected:shadow-[inset_2px_0_0_var(--color-success)]",
                         isDemo && "cursor-not-allowed opacity-55"
                       )}
                     >
@@ -391,7 +394,7 @@ export function CommandPalette() {
                         });
                       }}
                       className={cn(
-                        "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-destructive/10 aria-selected:text-destructive",
+                        "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-gradient-to-r aria-selected:from-destructive/12 aria-selected:to-destructive/6 aria-selected:text-destructive aria-selected:shadow-[inset_2px_0_0_var(--color-destructive)]",
                         isDemo && "cursor-not-allowed opacity-55"
                       )}
                     >
