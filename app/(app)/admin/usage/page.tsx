@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Activity, CheckCircle2, Clock, XCircle } from "lucide-react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { Badge } from "@/components/ui/badge";
@@ -89,7 +90,7 @@ export default function UsagePage() {
   }
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="min-w-0 space-y-6 p-4 sm:p-6 lg:p-8">
       <PageHeader
         eyebrow="Operations"
         title="AI Usage &amp; Costs"
@@ -116,7 +117,7 @@ export default function UsagePage() {
         }
       />
 
-      <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <Stagger className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <StaggerItem>
           <KpiCard
             label="Total jobs"
@@ -164,12 +165,16 @@ export default function UsagePage() {
       )}
 
       {/* Usage table */}
-      <div className="overflow-hidden rounded-xl border border-border bg-card/80">
-        <div className="border-b border-border px-4 py-3">
+      <div className="min-w-0 overflow-hidden rounded-xl border border-border/80 bg-card/80 shadow-soft ds-card-inner-glow">
+        <div className="border-b border-border/70 bg-background/40 px-4 py-3 backdrop-blur-sm">
           <p className="text-sm font-medium text-foreground">Generation log</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Playbook jobs for the selected window
+          </p>
         </div>
-        <table className="w-full text-sm" aria-busy={isLoading}>
-          <thead className="border-b border-border bg-background/60">
+        <div className="min-w-0 overflow-x-auto overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch]">
+          <table className="min-w-[640px] w-full text-sm" aria-busy={isLoading}>
+          <thead className="sticky top-0 z-10 border-b border-border/70 bg-background/[0.96] shadow-[0_6px_16px_-8px_rgb(0_0_0/0.22)] backdrop-blur-md">
             <tr>
               {["Time", "Model", "Status", "Duration", "Error"].map((h) => (
                 <th
@@ -186,13 +191,21 @@ export default function UsagePage() {
               <TableSkeleton rows={6} columns={5} />
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center">
-                  <EmptyState
-                    icon={<Activity className="h-6 w-6" />}
-                    title="No usage data"
-                    description={`No playbook jobs in the last ${window} days.`}
-                    className="mx-auto max-w-xs border-0 bg-transparent shadow-none"
-                  />
+                <td colSpan={5} className="min-w-0 p-0">
+                  <div className="flex justify-center px-4 py-12 sm:py-14">
+                    <EmptyState
+                      density="compact"
+                      icon={<Activity className="h-6 w-6" />}
+                      title="No usage data"
+                      description={`No playbook jobs recorded in the last ${window} days. Generate a playbook from a signal or check your webhook activity.`}
+                      action={
+                        <Button asChild variant="outline" size="sm">
+                          <Link href="/signals">Open signals</Link>
+                        </Button>
+                      }
+                      className="max-w-md border-border/60 bg-card/70"
+                    />
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -220,6 +233,7 @@ export default function UsagePage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

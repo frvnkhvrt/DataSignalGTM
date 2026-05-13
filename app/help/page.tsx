@@ -20,7 +20,7 @@ export default function GettingStartedPage() {
       </div>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">
+        <h2 className="ds-heading text-xl font-semibold text-foreground">
           1. Create an account
         </h2>
         <p>
@@ -35,7 +35,7 @@ export default function GettingStartedPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">
+        <h2 className="ds-heading text-xl font-semibold text-foreground">
           2. Explore the dashboard
         </h2>
         <p>
@@ -67,7 +67,7 @@ export default function GettingStartedPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">3. Add signals</h2>
+        <h2 className="ds-heading text-xl font-semibold text-foreground">3. Add signals</h2>
         <p>
           You have three options:
         </p>
@@ -99,7 +99,7 @@ export default function GettingStartedPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">
+        <h2 className="ds-heading text-xl font-semibold text-foreground">
           4. Review & approve signals
         </h2>
         <p>
@@ -115,7 +115,7 @@ export default function GettingStartedPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">
+        <h2 className="ds-heading text-xl font-semibold text-foreground">
           5. Generate an AI playbook
         </h2>
         <p>

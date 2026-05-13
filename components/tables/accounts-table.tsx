@@ -412,8 +412,8 @@ export function AccountsTable({
       </Card>
 
       <Card className="min-w-0 overflow-hidden bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
-        <div className="overflow-x-auto overscroll-x-contain">
-          <Table className="min-w-[800px]">
+        <div className="min-w-0 overflow-x-auto overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch]">
+          <Table className="min-w-[760px]">
             <TableHeader className="sticky top-0 z-10 border-b border-border/70 bg-background/[0.96] shadow-[0_6px_16px_-8px_rgb(0_0_0/0.28)] backdrop-blur-md">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
@@ -501,9 +501,10 @@ export function AccountsTable({
                   <TableRow className="border-0 hover:bg-transparent">
                     <TableCell
                       colSpan={table.getVisibleLeafColumns().length}
-                      className="px-4 py-10"
+                      className="min-w-0 px-4 py-10"
                     >
                       <EmptyState
+                        density="compact"
                         icon={<Building2 className="h-6 w-6" />}
                         title="No accounts in this view"
                         description="Clear the current filters or review a broader health segment to find matching accounts."

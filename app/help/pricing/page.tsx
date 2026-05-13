@@ -15,7 +15,7 @@ export default function PricingDocsPage() {
       </div>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">Plan comparison</h2>
+        <h2 className="ds-heading text-xl font-semibold text-foreground">Plan comparison</h2>
         <div className="overflow-x-auto overscroll-x-contain rounded-lg border border-border/80 bg-background/30">
           <table className="w-full min-w-0 text-sm">
             <thead className="border-b border-border/80 bg-muted/50 text-left text-[11px] uppercase tracking-wide text-muted-foreground backdrop-blur-sm">
@@ -57,7 +57,7 @@ export default function PricingDocsPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">What happens when I hit my limit?</h2>
+        <h2 className="ds-heading text-xl font-semibold text-foreground">What happens when I hit my limit?</h2>
         <p className="text-sm">
           On the <strong className="text-foreground">Free</strong> plan:
         </p>
@@ -76,7 +76,7 @@ export default function PricingDocsPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-foreground">Billing FAQ</h2>
+        <h2 className="ds-heading text-xl font-semibold text-foreground">Billing FAQ</h2>
         <div className="space-y-4">
           {[
             {

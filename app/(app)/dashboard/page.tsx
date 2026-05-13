@@ -206,7 +206,7 @@ export default function DashboardPage() {
 
       {/* Bottom panels — last to arrive */}
       <PageReveal order={3}>
-        <section className="grid min-w-0 gap-4 lg:gap-5 xl:grid-cols-[1.22fr_0.78fr]">
+        <section className="grid min-w-0 gap-4 lg:grid-cols-[1.22fr_0.78fr] lg:gap-5 xl:grid-cols-[1.22fr_0.78fr]">
           <Card variant="translucent" className="min-w-0 shadow-soft ds-card-inner-glow">
             <CardHeader className="flex flex-row items-start justify-between gap-3 sm:items-center">
               <div className="min-w-0">
@@ -222,12 +222,18 @@ export default function DashboardPage() {
                 View all
               </Link>
             </CardHeader>
-            <CardContent>
+            <CardContent className="min-w-0">
               {topSignals.length === 0 ? (
                 <EmptyState
+                  density="compact"
                   icon={<Radio className="h-6 w-6" />}
                   title="No signals yet"
                   description="Connect a webhook source or reset demo data to populate the review queue."
+                  action={
+                    <Button asChild variant="outline" size="sm">
+                      <Link href="/help/webhook">Webhook setup</Link>
+                    </Button>
+                  }
                 />
               ) : (
                 <MotionList className="divide-y divide-border">
@@ -281,9 +287,10 @@ export default function DashboardPage() {
                 View accounts
               </Link>
             </CardHeader>
-            <CardContent>
+            <CardContent className="min-w-0">
               {atRiskAccounts.length === 0 ? (
                 <EmptyState
+                  density="compact"
                   icon={<Database className="h-6 w-6" />}
                   title="No at-risk accounts"
                   description="Your account data quality is in good shape for this workspace."

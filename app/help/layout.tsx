@@ -26,15 +26,15 @@ export default function HelpLayout({
         </div>
       </nav>
 
-      <div className="mx-auto max-w-6xl px-4 pb-12 pt-6 sm:px-6 sm:pb-14 sm:pt-8">
+      <div className="mx-auto max-w-6xl min-w-0 px-4 pb-12 pt-6 sm:px-6 sm:pb-14 sm:pt-8">
         <div className="mb-6 lg:hidden">
           <HelpNav variant="rail" />
         </div>
 
-        <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,17rem)_1fr] lg:gap-10">
+        <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,17rem)_1fr] lg:items-start lg:gap-8 xl:gap-10">
           <aside className="hidden min-w-0 lg:block">
-            <div className="sticky top-20 max-h-[calc(100vh-6rem)] space-y-4 overflow-x-hidden overflow-y-auto overscroll-y-contain pb-1 pr-0.5">
-              <Card variant="translucent" className="p-4 shadow-soft ds-card-inner-glow">
+            <div className="sticky top-20 max-h-[calc(100vh-6rem)] space-y-4 overflow-x-hidden overflow-y-auto overscroll-y-contain pb-1 pr-1">
+              <Card variant="translucent" className="p-4 shadow-soft ring-1 ring-border/30 ds-card-inner-glow">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/22 bg-primary/10 text-primary ds-inset-top-soft">
                   <LifeBuoy className="h-5 w-5" strokeWidth={2} />
                 </div>
@@ -50,7 +50,7 @@ export default function HelpLayout({
           </aside>
 
           <main id="main-content" tabIndex={-1} className="min-w-0">
-            <div className="rounded-2xl border border-border/70 bg-card/65 p-6 shadow-soft ring-1 ring-black/[0.04] backdrop-blur-xl dark:ring-white/[0.06] sm:p-8 ds-card-inner-glow">
+            <div className="rounded-2xl border border-border/70 bg-card/65 p-6 shadow-soft ring-1 ring-black/[0.04] backdrop-blur-xl dark:ring-white/[0.07] sm:p-8 ds-card-inner-glow">
               {children}
             </div>
           </main>
