@@ -45,13 +45,14 @@ function Reveal({ delay = 0, children, ...props }: RevealProps) {
   const reducedMotion = useReducedMotion();
 
   if (reducedMotion) {
-    return <div>{children}</div>;
+    return <div {...(props as React.HTMLAttributes<HTMLDivElement>)}>{children}</div>;
   }
 
   return (
     <motion.div
       initial="hidden"
-      animate="visible"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.24 }}
       variants={revealVariants}
       transition={{ ...transition, delay }}
       {...props}
@@ -65,13 +66,14 @@ function Stagger({ children, ...props }: MotionDivProps) {
   const reducedMotion = useReducedMotion();
 
   if (reducedMotion) {
-    return <div>{children}</div>;
+    return <div {...(props as React.HTMLAttributes<HTMLDivElement>)}>{children}</div>;
   }
 
   return (
     <motion.div
       initial="hidden"
-      animate="visible"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.18 }}
       variants={staggerVariants}
       {...props}
     >
@@ -84,11 +86,17 @@ function StaggerItem({ children, ...props }: MotionDivProps) {
   const reducedMotion = useReducedMotion();
 
   if (reducedMotion) {
-    return <div>{children}</div>;
+    return <div {...(props as React.HTMLAttributes<HTMLDivElement>)}>{children}</div>;
   }
 
   return (
-    <motion.div variants={revealVariants} {...props}>
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.24 }}
+      variants={revealVariants}
+      {...props}
+    >
       {children}
     </motion.div>
   );

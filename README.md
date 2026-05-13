@@ -46,14 +46,14 @@ flowchart LR
 ### Prerequisites
 
 - Node.js 18.18 or newer
-- npm
+- pnpm (install via `corepack enable` or `npm install -g pnpm`)
 - Supabase CLI
 - A Gemini API key if you want live playbook generation
 
 ### Setup
 
 ```bash
-npm install
+pnpm install
 cp .env.local.example .env.local
 ```
 
@@ -66,7 +66,7 @@ npx inngest-cli@latest dev -u http://localhost:3000/api/inngest
 ### Run With The Hosted Supabase Project
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
@@ -88,7 +88,7 @@ supabase db reset
 Copy the local API URL and anon key from the Supabase CLI output into `.env.local`, then start the app:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 The current migrations include demo accounts, signals, data issues, and RPCs for data quality gap resolution.
@@ -162,12 +162,12 @@ member cannot reset the shared workspace.
 ## Scripts
 
 ```bash
-npm run dev          # Start the Next.js dev server
-npm run lint         # Run ESLint
-npm run typecheck    # Run TypeScript without emitting files
-npm run test:run     # Run Vitest once
-npm run build        # Create a production build
-npm run ci           # Lint, typecheck, test, and build
+pnpm dev          # Start the Next.js dev server
+pnpm lint         # Run ESLint
+pnpm typecheck    # Run TypeScript without emitting files
+pnpm test:run     # Run Vitest once
+pnpm build        # Create a production build
+pnpm ci           # Lint, typecheck, test, and build
 ```
 
 ## Screenshots And GIFs
@@ -229,7 +229,7 @@ In production on Vercel, serverless functions can open many concurrent Postgres 
 ## Contributing
 
 1. Create a focused branch for each change.
-2. Run `npm run ci` before opening a pull request.
+2. Run `pnpm ci` before opening a pull request.
 3. Use conventional commits, for example `feat: add signal table filters` or `fix: guard invalid signal transitions`.
 4. Keep database changes in Supabase migrations and document any RLS implications.
 5. Prefer small, reviewable PRs that preserve the dashboard, signal workflow, and demo data path.
