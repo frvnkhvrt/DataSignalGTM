@@ -12,6 +12,7 @@ function titleForPath(pathname: string): string {
   if (pathname.startsWith("/signals")) return "Signals";
   if (pathname.startsWith("/accounts")) return "Accounts";
   if (pathname.startsWith("/admin/usage")) return "AI Usage";
+  if (pathname.startsWith("/admin")) return "Admin";
   if (pathname.startsWith("/settings/billing")) return "Billing";
   if (pathname.startsWith("/settings")) return "Settings";
   if (pathname.startsWith("/help")) return "Help";
@@ -23,6 +24,7 @@ function subtitleForPath(pathname: string): string {
   if (pathname.startsWith("/signals")) return "Review lifecycle and playbook readiness";
   if (pathname.startsWith("/accounts")) return "Data quality and ICP fit";
   if (pathname.startsWith("/admin/usage")) return "Generation activity and cost signals";
+  if (pathname.startsWith("/admin")) return "Internal demo management tools";
   if (pathname.startsWith("/settings/billing")) return "Plan, limits, and invoices";
   return "Workspace";
 }

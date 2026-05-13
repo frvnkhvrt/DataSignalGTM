@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { AlertTriangle, Loader2, RotateCcw } from "lucide-react";
+import { AlertTriangle, Loader2, RotateCcw, ShieldAlert } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 export default function AdminPage() {
   const [resetKey, setResetKey] = useState("");
@@ -32,86 +36,96 @@ export default function AdminPage() {
   });
 
   return (
-    <div className="p-6 sm:p-8 max-w-[600px] space-y-6">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <div>
-        <h1 className="text-xl sm:text-2xl font-semibold text-zinc-100">
+        <Badge variant="warning" className="mb-3">
+          <ShieldAlert className="h-3 w-3" />
+          Internal
+        </Badge>
+        <h1 className="ds-heading text-2xl font-semibold text-foreground sm:text-3xl">
           Admin
         </h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Internal tools for demo management.
+        <p className="mt-2 text-sm text-muted-foreground">
+          Internal tools for demo management. These actions are irreversible.
         </p>
       </div>
 
-      <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-5 space-y-4">
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-amber-400" />
-          <h2 className="text-sm font-semibold text-zinc-100">
-            Reset Demo Data
-          </h2>
-        </div>
-        <p className="text-xs text-zinc-400">
-          Clears all data and restores the canonical demo state (accounts,
-          signals, playbooks, data issues). This action cannot be undone.
-        </p>
-        <div>
-          <label
-            htmlFor="reset-key"
-            className="text-xs text-zinc-500 block mb-1"
-          >
-            Reset key
-          </label>
-          <input
-            id="reset-key"
-            type="password"
-            value={resetKey}
-            onChange={(e) => setResetKey(e.target.value)}
-            placeholder="Enter DEMO_RESET_KEY"
-            className="w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
-          />
-        </div>
-
-        {!showConfirm ? (
-          <button
-            type="button"
-            onClick={() => setShowConfirm(true)}
-            disabled={!resetKey.trim()}
-            className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded-md border border-red-500/40 text-red-300 font-medium hover:bg-red-500/10 disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            Reset Demo Data
-          </button>
-        ) : (
-          <div className="rounded-md border border-red-500/30 bg-red-500/5 p-3 space-y-3">
-            <p className="text-xs text-red-300">
-              All current data will be permanently deleted and replaced with
-              demo defaults. Continue?
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => reset.mutate()}
-                disabled={reset.isPending}
-                className="inline-flex items-center gap-2 text-xs px-4 py-2 rounded-md bg-red-500 text-white font-medium hover:bg-red-400 disabled:opacity-50"
-              >
-                {reset.isPending ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <AlertTriangle className="h-3.5 w-3.5" />
-                )}
-                Confirm Reset
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowConfirm(false)}
-                disabled={reset.isPending}
-                className="text-xs px-3 py-2 rounded-md border border-zinc-700 text-zinc-400 hover:bg-zinc-800"
-              >
-                Cancel
-              </button>
-            </div>
+      <Card className="max-w-lg">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-warning" />
+            <CardTitle>Reset Demo Data</CardTitle>
           </div>
-        )}
-      </div>
+          <p className="text-xs text-muted-foreground">
+            Clears all data and restores the canonical demo state — accounts,
+            signals, playbooks, and data issues. This action cannot be undone.
+          </p>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          <div className="space-y-1.5">
+            <label
+              htmlFor="reset-key"
+              className="text-xs font-medium text-muted-foreground"
+            >
+              Reset key
+            </label>
+            <Input
+              id="reset-key"
+              type="password"
+              value={resetKey}
+              onChange={(e) => setResetKey(e.target.value)}
+              placeholder="Enter DEMO_RESET_KEY"
+              disabled={reset.isPending}
+            />
+          </div>
+
+          {!showConfirm ? (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={() => setShowConfirm(true)}
+              disabled={!resetKey.trim() || reset.isPending}
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              Reset Demo Data
+            </Button>
+          ) : (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 space-y-3">
+              <p className="text-xs leading-5 text-destructive">
+                All current data will be permanently deleted and replaced with
+                demo defaults. This cannot be undone. Continue?
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => reset.mutate()}
+                  disabled={reset.isPending}
+                >
+                  {reset.isPending ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                  )}
+                  Confirm Reset
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowConfirm(false)}
+                  disabled={reset.isPending}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

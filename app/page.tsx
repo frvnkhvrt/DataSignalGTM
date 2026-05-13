@@ -455,15 +455,15 @@ export default function MarketingPage() {
                 </p>
               </div>
             </Reveal>
-            <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Stagger className="grid gap-4 pt-5 sm:grid-cols-2 lg:grid-cols-3">
               {PLANS.map((plan) => (
                 <StaggerItem key={plan.id}>
                   <Card
                     elevated={plan.highlighted}
                     className={cn(
-                      "group relative flex h-full flex-col overflow-hidden border-border/70 bg-card/65 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:bg-surface-elevated/75 hover:shadow-elevated",
+                      "group relative flex h-full flex-col border-border/70 bg-card/65 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:bg-surface-elevated/75 hover:shadow-elevated",
                       plan.highlighted &&
-                        "border-primary/60 bg-primary/10 shadow-[0_1px_0_rgb(255_255_255_/_0.05)_inset,0_30px_90px_rgb(0_0_0_/_0.45),0_0_80px_rgb(16_185_129_/_0.18)]"
+                        "border-primary/60 bg-primary/10 pt-9 shadow-[0_1px_0_rgb(255_255_255_/_0.05)_inset,0_30px_90px_rgb(0_0_0_/_0.45),0_0_80px_rgb(16_185_129_/_0.18)]"
                     )}
                   >
                     <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-primary/55 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -471,11 +471,14 @@ export default function MarketingPage() {
                       <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
                     )}
                     {plan.highlighted && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground shadow-glow">
+                      <div className="absolute -top-px left-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <Badge
+                          className="bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground shadow-glow"
+                          shape="pill"
+                        >
                           <Zap className="h-3 w-3" />
                           Most popular
-                        </span>
+                        </Badge>
                       </div>
                     )}
                     <div className="relative mb-5">

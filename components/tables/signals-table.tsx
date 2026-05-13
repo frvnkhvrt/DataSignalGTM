@@ -69,7 +69,7 @@ function SortButton({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1 text-left font-medium text-muted-foreground hover:text-foreground"
+      className="ds-focus-ring inline-flex items-center gap-1 rounded text-left font-medium text-muted-foreground transition-colors hover:text-foreground"
     >
       {children}
       <ChevronsUpDown className="h-3 w-3" />
@@ -108,14 +108,14 @@ function StatusBadge({ status }: { status: SignalStatus }) {
 
 function PlaybookState({ signal }: { signal: SignalRow }) {
   if (signal.playbook) {
-    return <span className="text-[11px] text-emerald-400">Ready</span>;
+    return <span className="text-[11px] font-medium text-success">Ready</span>;
   }
   if (
     signal.playbook_status === "queued" ||
     signal.playbook_status === "generating"
   ) {
     return (
-      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-300">
+      <span className="inline-flex items-center gap-1 text-[11px] text-primary">
         <Loader2 className="h-3 w-3 animate-spin" />
         Generating
       </span>
@@ -124,14 +124,14 @@ function PlaybookState({ signal }: { signal: SignalRow }) {
   if (signal.playbook_status === "failed") {
     return (
       <span
-        className="text-[11px] text-red-300"
+        className="text-[11px] text-destructive"
         title={signal.playbook_error ?? "Generation failed"}
       >
         Failed
       </span>
     );
   }
-  return <span className="text-[11px] text-zinc-500">-</span>;
+  return <span className="text-[11px] text-muted-foreground">—</span>;
 }
 
 export function SignalsTable({

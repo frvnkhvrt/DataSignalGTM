@@ -48,7 +48,7 @@ function StatCard({
 
   return (
     <Card className="bg-card/80 p-4 transition-colors hover:bg-surface-elevated/80">
-      <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
         {icon}
         {label}
       </div>
@@ -81,7 +81,7 @@ export default function AccountsPage() {
         </p>
       </div>
 
-      <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <StaggerItem>
           <StatCard
             label="Total"

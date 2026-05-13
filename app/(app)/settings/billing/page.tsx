@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase/client";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { PLANS, type PlanTier } from "@/lib/stripe";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,13 +60,18 @@ function PlanCard({
 
   return (
     <Card
-      className={`relative flex flex-col bg-card/80 ${
-        plan.highlighted ? "border-primary/50 shadow-glow" : ""
-      }`}
+      elevated={plan.highlighted}
+      className={cn(
+        "group relative flex flex-col bg-card/80 transition-all duration-300 hover:shadow-elevated",
+        plan.highlighted
+          ? "border-primary/50 pt-9 shadow-glow hover:border-primary/70"
+          : "hover:border-border/80"
+      )}
     >
+      <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       {plan.highlighted && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <Badge variant="brand" className="bg-primary text-primary-foreground">
+        <div className="absolute -top-px left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <Badge className="bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground shadow-glow" shape="pill">
             <Zap className="h-3 w-3" />
             Most popular
           </Badge>
@@ -212,7 +218,7 @@ export default function BillingPage() {
         </Card>
       )}
 
-      <Stagger className="grid gap-4 lg:grid-cols-3">
+      <Stagger className="grid gap-4 pt-5 lg:grid-cols-3">
         {PLANS.map((plan) => (
           <StaggerItem key={plan.id}>
             <PlanCard
