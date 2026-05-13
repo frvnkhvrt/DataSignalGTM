@@ -268,18 +268,22 @@ export function SignalsTable({
             Account
           </SortButton>
         ),
-        cell: ({ row }) => (
-          <button
-            type="button"
-            onClick={() =>
-              row.original.account_name &&
-              setReceiptFor({ name: row.original.account_name })
-            }
-            className="ds-focus-ring rounded-md text-left font-medium text-foreground transition-[color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary"
-          >
-            {row.original.account_name ?? "-"}
-          </button>
-        ),
+        cell: ({ row }) => {
+          const name = row.original.account_name ?? "-";
+          return (
+            <button
+              type="button"
+              onClick={() =>
+                row.original.account_name &&
+                setReceiptFor({ name: row.original.account_name })
+              }
+              className="ds-focus-ring min-w-0 max-w-[12rem] truncate rounded-md text-left text-sm font-medium text-foreground transition-[color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary sm:max-w-[16rem]"
+              title={name}
+            >
+              {name}
+            </button>
+          );
+        },
       },
       {
         accessorKey: "source",
@@ -290,7 +294,10 @@ export function SignalsTable({
         accessorKey: "why_now",
         header: "Why now",
         cell: ({ row }) => (
-          <span className="line-clamp-2 text-muted-foreground">
+          <span
+            className="line-clamp-2 max-w-[12rem] text-muted-foreground sm:max-w-[16rem]"
+            title={row.original.why_now ?? undefined}
+          >
             {row.original.why_now ?? "-"}
           </span>
         ),
@@ -431,19 +438,19 @@ export function SignalsTable({
   const visibleRowCount = table.getRowModel().rows.length;
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4">
       <div role="status" aria-live="polite" className="sr-only">
         {isRefetching
           ? "Refreshing signals."
           : `${visibleRowCount} signals shown. ${selectedSignals.length} selected.`}
       </div>
-      <Card className="relative flex flex-col gap-3 overflow-hidden bg-card/80 p-3 ds-card-inner-glow md:flex-row md:items-center md:justify-between">
+      <Card className="relative flex min-w-0 flex-col gap-3 overflow-hidden bg-card/80 p-3 ds-card-inner-glow md:flex-row md:items-center md:justify-between md:gap-4">
         {isRefetching && (
           <div className="absolute inset-x-0 top-0 h-px overflow-hidden">
             <div className="ds-refetch-stripe" />
           </div>
         )}
-        <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center">
           <label className="sr-only" htmlFor="signal-search">
             Search signals
           </label>
@@ -462,7 +469,7 @@ export function SignalsTable({
           >
             <SelectTrigger
               aria-label="Filter signal status"
-              className="w-full min-w-0 sm:max-w-[200px] sm:min-w-[200px]"
+              className="w-full min-w-0 sm:max-w-[200px]"
             >
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -475,8 +482,8 @@ export function SignalsTable({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex rounded-lg border border-border bg-background/40 p-1">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <div className="inline-flex rounded-lg border border-border/80 bg-background/45 p-1 ds-inset-top-soft shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none">
             {(["comfortable", "compact"] as const).map((value) => (
               <Button
                 key={value}
@@ -500,7 +507,7 @@ export function SignalsTable({
           </div>
           {flags.enable_bulk_actions && (
             <>
-              <span className="rounded-full border border-border bg-background/40 px-2 py-1 text-xs text-muted-foreground">
+              <span className="rounded-full border border-border/80 bg-background/45 px-2 py-1 text-xs tabular-nums text-muted-foreground transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] ds-inset-top-mid">
                 {selectedSignals.length} selected
               </span>
               <DemoLimitedAction action="bulk_approve" surface="signals_table">
@@ -526,14 +533,14 @@ export function SignalsTable({
               </DemoLimitedAction>
             </>
           )}
-              <TableColumnsMenu table={table} />
+          <TableColumnsMenu table={table} />
         </div>
       </Card>
 
-      <Card className="overflow-hidden bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
-        <div className="overflow-x-auto">
-          <Table className="min-w-[980px]">
-            <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm">
+      <Card className="min-w-0 overflow-hidden bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
+        <div className="overflow-x-auto overscroll-x-contain">
+          <Table className="min-w-[880px]">
+            <TableHeader className="sticky top-0 z-10 border-b border-border/70 bg-background/[0.96] shadow-[0_6px_16px_-8px_rgb(0_0_0/0.28)] backdrop-blur-md">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}

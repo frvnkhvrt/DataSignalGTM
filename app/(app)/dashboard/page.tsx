@@ -78,7 +78,7 @@ export default function DashboardPage() {
 
   if (isError) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8">
+      <div className="min-w-0 p-4 sm:p-6 lg:p-8">
         <QueryError
           message="Could not load dashboard data. Check your connection and try again."
           onRetry={() => {
@@ -92,12 +92,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8 p-4 sm:p-6 lg:p-8">
+    <div className="min-w-0 space-y-6 p-4 sm:space-y-7 sm:p-6 lg:p-8">
       {/* Hero — immediate entrance */}
       <PageReveal order={0}>
-        <section className="ds-card-inner-glow overflow-hidden rounded-2xl border border-border bg-card/60 p-5 shadow-soft">
+        <section className="ds-card-inner-glow overflow-hidden rounded-2xl border border-border/70 bg-card/65 p-5 shadow-soft backdrop-blur-sm sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
+            <div className="min-w-0">
               <Badge variant="brand" className="mb-3">
                 <Sparkles className="h-3 w-3" />
                 Executive overview
@@ -110,7 +110,7 @@ export default function DashboardPage() {
                 into Signals for workflow and Accounts for data quality remediation.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex shrink-0 flex-wrap gap-2">
               <Button asChild variant="default" size="default">
                 <Link href="/signals">
                   Review signals
@@ -128,7 +128,7 @@ export default function DashboardPage() {
       {/* Metric cards — staggered */}
       <PageReveal order={1}>
         {isLoading ? (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid min-w-0 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
               <Skeleton
                 key={index}
@@ -137,7 +137,7 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : (
-          <Stagger className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <Stagger className="grid min-w-0 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
             <StaggerItem>
               <MotionCard>
                 <KpiCard
@@ -197,10 +197,10 @@ export default function DashboardPage() {
 
       {/* Bottom panels — last to arrive */}
       <PageReveal order={3}>
-        <section className="grid gap-4 xl:grid-cols-[1.3fr_0.7fr]">
-          <Card variant="translucent" className="shadow-soft">
-            <CardHeader className="flex flex-row items-center justify-between gap-3">
-              <div>
+        <section className="grid min-w-0 gap-4 lg:gap-5 xl:grid-cols-[1.22fr_0.78fr]">
+          <Card variant="translucent" className="min-w-0 shadow-soft">
+            <CardHeader className="flex flex-row items-start justify-between gap-3 sm:items-center">
+              <div className="min-w-0">
                 <CardTitle className="ds-heading">Recent signal queue</CardTitle>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Triage these before moving to account remediation.
@@ -208,7 +208,7 @@ export default function DashboardPage() {
               </div>
               <Link
                 href="/signals"
-                className="text-xs font-medium text-primary hover:text-primary/80"
+                className="ds-focus-ring shrink-0 rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
               >
                 View all
               </Link>
@@ -224,16 +224,31 @@ export default function DashboardPage() {
                 <MotionList className="divide-y divide-border">
                   <AnimatePresence initial={false}>
                     {topSignals.map((signal) => (
-                      <MotionListItem key={signal.id} className="flex items-center justify-between gap-3 py-3">
-                        <div className="min-w-0">
-                          <div className="truncate text-sm font-medium text-foreground">
+                      <MotionListItem
+                        key={signal.id}
+                        className="flex items-center justify-between gap-3 rounded-lg py-3 pl-1 pr-1 transition-[background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/35"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div
+                            className="truncate text-sm font-medium text-foreground"
+                            title={signal.account_name ?? "Unknown account"}
+                          >
                             {signal.account_name ?? "Unknown account"}
                           </div>
-                          <p className="line-clamp-1 text-xs text-muted-foreground">
+                          <p
+                            className="line-clamp-1 text-xs text-muted-foreground"
+                            title={
+                              signal.why_now ??
+                              signal.source ??
+                              "Signal context pending"
+                            }
+                          >
                             {signal.why_now ?? signal.source ?? "Signal context pending"}
                           </p>
                         </div>
-                        <StatusPill status={(signal.status ?? "pending") as SignalStatus} />
+                        <div className="shrink-0">
+                          <StatusPill status={(signal.status ?? "pending") as SignalStatus} />
+                        </div>
                       </MotionListItem>
                     ))}
                   </AnimatePresence>
@@ -242,7 +257,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card variant="translucent" className="shadow-soft">
+          <Card variant="translucent" className="min-w-0 shadow-soft">
             <CardHeader>
               <CardTitle className="ds-heading">Data quality focus</CardTitle>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -263,12 +278,12 @@ export default function DashboardPage() {
                       <MotionListItem key={account.id}>
                         <Link
                           href="/accounts"
-                          className="ds-focus-ring ds-inset-top-soft flex items-center justify-between rounded-lg border border-border bg-background/35 px-3 py-2 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/80 hover:bg-surface-elevated"
+                          className="ds-focus-ring ds-inset-top-soft flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border bg-background/35 px-3 py-2 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/80 hover:bg-surface-elevated"
                         >
-                          <span className="truncate text-sm font-medium text-foreground">
+                          <span className="truncate text-sm font-medium text-foreground" title={account.name}>
                             {account.name}
                           </span>
-                          <span className="font-mono text-xs text-warning">
+                          <span className="shrink-0 font-mono text-xs tabular-nums text-warning">
                             {account.data_quality_score ?? 0} DQ
                           </span>
                         </Link>

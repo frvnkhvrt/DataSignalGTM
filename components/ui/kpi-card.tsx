@@ -73,7 +73,7 @@ export function KpiCard({
     <Card
       variant="translucent"
       className={cn(
-        "p-4 transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)] hover:bg-surface-elevated/80",
+        "p-4 transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/80",
         "border-l-2",
         accentTone[tone],
         className
@@ -83,7 +83,7 @@ export function KpiCard({
         <div className="ds-eyebrow">{label}</div>
         <div
           className={cn(
-            "rounded-lg border border-border bg-background/40 p-1.5 transition-[box-shadow] duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)]",
+            "rounded-lg border border-border bg-background/40 p-1.5 ds-inset-top-soft transition-[box-shadow] duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)] motion-reduce:transition-none",
             iconTone[tone],
             iconGlow[tone]
           )}

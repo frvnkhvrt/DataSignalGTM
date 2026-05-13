@@ -171,13 +171,17 @@ export function AccountsTable({
             <button
               type="button"
               onClick={() => openAccount(row.original)}
-              className="ds-focus-ring rounded-md text-left transition-[color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)]"
+              className="ds-focus-ring min-w-0 max-w-[14rem] rounded-md text-left transition-[color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] sm:max-w-[18rem]"
+              title={row.original.name}
             >
-              <div className="font-medium text-foreground hover:text-primary">
+              <div className="truncate font-medium text-foreground hover:text-primary">
                 {row.original.name}
               </div>
               {meta && (
-                <div className="mt-0.5 max-w-[220px] truncate text-[11px] text-muted-foreground">
+                <div
+                  className="mt-0.5 truncate text-[11px] text-muted-foreground"
+                  title={meta}
+                >
                   {meta}
                 </div>
               )}
@@ -188,9 +192,14 @@ export function AccountsTable({
       {
         accessorKey: "industry",
         header: "Industry",
-        cell: ({ row }) => (
-          <span className="text-muted-foreground">{row.original.industry ?? "-"}</span>
-        ),
+        cell: ({ row }) => {
+          const industry = row.original.industry ?? "-";
+          return (
+            <span className="block max-w-[6.5rem] truncate text-muted-foreground sm:max-w-[9rem]" title={industry}>
+              {industry}
+            </span>
+          );
+        },
       },
       {
         accessorKey: "data_quality_score",
@@ -217,7 +226,7 @@ export function AccountsTable({
                 ? "text-warning"
                 : "text-destructive";
           return (
-            <div className="flex min-w-40 items-center gap-3">
+            <div className="flex min-w-0 max-w-[10rem] items-center gap-2 sm:max-w-[12rem] sm:gap-3">
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                 <div
                   className={`h-full rounded-full ${bar}`}
@@ -278,6 +287,7 @@ export function AccountsTable({
                 onClick={() => openAccount(account)}
                 variant={healthy ? "default" : "warning"}
                 size="sm"
+                className="shrink-0 whitespace-nowrap"
                 aria-label={`${healthy ? "Open playbook for" : "Review data gaps for"} ${account.name}`}
               >
                 {healthy ? (
@@ -324,19 +334,19 @@ export function AccountsTable({
   const visibleRowCount = table.getRowModel().rows.length;
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4">
       <div role="status" aria-live="polite" className="sr-only">
         {isRefetching
           ? "Refreshing accounts."
           : `${visibleRowCount} accounts shown. ${selectedCount} selected.`}
       </div>
-      <Card className="relative flex flex-col gap-3 overflow-hidden bg-card/80 p-3 ds-card-inner-glow md:flex-row md:items-center md:justify-between">
+      <Card className="relative flex min-w-0 flex-col gap-3 overflow-hidden bg-card/80 p-3 ds-card-inner-glow md:flex-row md:items-center md:justify-between md:gap-4">
         {isRefetching && (
           <div className="absolute inset-x-0 top-0 h-px overflow-hidden">
             <div className="ds-refetch-stripe" />
           </div>
         )}
-        <div className="flex flex-1 flex-col gap-2 sm:flex-row">
+        <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row">
           <label htmlFor="account-search" className="sr-only">
             Search accounts
           </label>
@@ -359,7 +369,7 @@ export function AccountsTable({
           >
             <SelectTrigger
               aria-label="Filter account health"
-              className="w-full min-w-0 sm:max-w-[200px] sm:min-w-[200px]"
+              className="w-full min-w-0 sm:max-w-[200px]"
             >
               <SelectValue placeholder="Health" />
             </SelectTrigger>
@@ -371,8 +381,8 @@ export function AccountsTable({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="inline-flex rounded-lg border border-border bg-background/40 p-1">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
+          <div className="inline-flex rounded-lg border border-border/80 bg-background/45 p-1 ds-inset-top-soft shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none">
             {(["comfortable", "compact"] as const).map((value) => (
               <Button
                 key={value}
@@ -394,17 +404,17 @@ export function AccountsTable({
               </Button>
             ))}
           </div>
-          <span className="rounded-full border border-border bg-background/40 px-2 py-1 text-xs text-muted-foreground ds-inset-top-mid">
+          <span className="rounded-full border border-border/80 bg-background/45 px-2 py-1 text-xs tabular-nums text-muted-foreground transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] ds-inset-top-mid">
             {selectedCount} selected
           </span>
           <TableColumnsMenu table={table} />
         </div>
       </Card>
 
-      <Card className="overflow-hidden bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
-        <div className="overflow-x-auto">
-          <Table className="min-w-[880px]">
-            <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm">
+      <Card className="min-w-0 overflow-hidden bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
+        <div className="overflow-x-auto overscroll-x-contain">
+          <Table className="min-w-[800px]">
+            <TableHeader className="sticky top-0 z-10 border-b border-border/70 bg-background/[0.96] shadow-[0_6px_16px_-8px_rgb(0_0_0/0.28)] backdrop-blur-md">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}

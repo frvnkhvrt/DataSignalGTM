@@ -42,16 +42,16 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="bg-card/80">
+    <Card className="min-w-0 border border-border/65 bg-card/70 shadow-soft backdrop-blur-md ds-card-inner-glow">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <CardTitle className="ds-heading text-base">{title}</CardTitle>
             <p className="mt-1 text-xs leading-5 text-muted-foreground">{subtitle}</p>
           </div>
           <Link
             href={href}
-            className="shrink-0 text-xs font-medium text-primary hover:text-primary/80"
+            className="ds-focus-ring shrink-0 rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
           >
             View details
           </Link>
@@ -169,17 +169,19 @@ export function DashboardCharts({
   );
 
   return (
-    <section className="space-y-3">
-      <div className="flex items-end justify-between gap-3">
-        <div>
+    <section className="min-w-0 space-y-3">
+      <div className="flex flex-col gap-2 min-[400px]:flex-row min-[400px]:items-end min-[400px]:justify-between">
+        <div className="min-w-0">
           <p className="ds-eyebrow">Data design</p>
           <h2 className="ds-heading mt-1 text-2xl font-semibold text-foreground">
             Health, velocity, and fit
           </h2>
         </div>
-        <Badge variant="muted">Interactive hover insights</Badge>
+        <Badge variant="muted" className="w-fit shrink-0">
+          Interactive hover insights
+        </Badge>
       </div>
-      <Stagger className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+      <Stagger className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-3">
         <StaggerItem>
           <ChartCard
             title="DQ Score Trend"
