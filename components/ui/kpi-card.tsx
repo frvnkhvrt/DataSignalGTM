@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { spring } from "@/components/ui/motion";
 import { cn } from "@/lib/utils";
 
@@ -73,13 +73,12 @@ export function KpiCard({
     <Card
       variant="translucent"
       className={cn(
-        "p-4 transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/80",
-        "border-l-2",
+        "gap-0 border-l-2 p-0 transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/80",
         accentTone[tone],
         className
       )}
     >
-      <div className="flex items-center justify-between gap-3">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
         <div className="ds-eyebrow">{label}</div>
         <div
           className={cn(
@@ -90,30 +89,28 @@ export function KpiCard({
         >
           {icon}
         </div>
-      </div>
+      </CardHeader>
 
-      <motion.div
-        key={String(value)}
-        className={cn(
-          "mt-2.5 font-mono tabular-nums font-semibold",
-          valueTone[tone],
-          size === "default" ? "text-3xl" : "text-xl"
+      <CardContent className="space-y-1.5 px-4 pb-4 pt-0">
+        <motion.div
+          key={String(value)}
+          className={cn(
+            "font-mono tabular-nums font-semibold",
+            valueTone[tone],
+            size === "default" ? "text-3xl" : "text-xl"
+          )}
+          initial={reduced ? {} : { opacity: 0, scale: 0.82 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={reduced ? { duration: 0 } : spring.metricPop}
+        >
+          {value}
+        </motion.div>
+
+        {description && (
+          <p className="text-xs leading-5 text-muted-foreground">{description}</p>
         )}
-        initial={reduced ? {} : { opacity: 0, scale: 0.82 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={
-          reduced
-            ? { duration: 0 }
-            : spring.metricPop
-        }
-      >
-        {value}
-      </motion.div>
-
-      {description && (
-        <p className="mt-1.5 text-xs leading-5 text-muted-foreground">{description}</p>
-      )}
-      {sub && <div className="mt-1.5 text-xs text-muted-foreground">{sub}</div>}
+        {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
+      </CardContent>
     </Card>
   );
 }
