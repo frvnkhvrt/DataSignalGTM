@@ -116,16 +116,16 @@ export default function MarketingPage() {
               Now in public beta
             </Badge>
             <h1 className="mt-6 bg-gradient-to-b from-zinc-50 to-zinc-400 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-6xl lg:text-7xl">
-              Convierte señales de compra en
+              Turn buying signals into
               <br />
               <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                pipeline listo para cerrar
+                pipeline ready to close
               </span>
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg">
-              DataSignalGTM detecta cuentas con intención real, prioriza las
-              oportunidades con mejor fit y convierte cada señal en un playbook
-              accionable para que tu equipo venda con foco.
+              DataSignalGTM detects accounts with real buying intent, prioritises
+              the best-fit opportunities, and turns every signal into an actionable
+              playbook so your team sells with focus.
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <Link
@@ -135,7 +135,7 @@ export default function MarketingPage() {
                   "h-auto rounded-xl bg-emerald-500 px-8 py-4 text-base font-semibold text-zinc-950 shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-emerald-400/30"
                 )}
               >
-                Probar Demo Gratis
+                Try free demo
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
@@ -145,11 +145,11 @@ export default function MarketingPage() {
                   "h-auto rounded-xl border-zinc-700 bg-zinc-950/40 px-8 py-4 text-base font-medium text-zinc-200 transition-colors duration-200 hover:bg-zinc-900"
                 )}
               >
-                Iniciar sesión
+                Sign in
               </Link>
             </div>
             <p className="mt-4 text-xs text-zinc-600">
-              Sin tarjeta de crédito • Acceso instantáneo
+              No credit card · Instant access
             </p>
           </div>
         </section>
