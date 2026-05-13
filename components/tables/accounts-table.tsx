@@ -411,10 +411,10 @@ export function AccountsTable({
         </div>
       </Card>
 
-      <Card className="min-w-0 overflow-hidden bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
-        <div className="min-w-0 overflow-x-auto overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch]">
-          <Table className="min-w-[760px]">
-            <TableHeader className="sticky top-0 z-10 isolate border-b border-border/70 bg-background/[0.96] shadow-[0_6px_16px_-8px_rgb(0_0_0/0.28)] ring-1 ring-border/15 backdrop-blur-md">
+      <Card className="min-w-0 bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
+        <div className="min-w-0 overflow-x-auto overscroll-x-contain overscroll-y-contain touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-gutter:stable] max-lg:max-h-[min(70vh,28rem)] max-lg:overflow-y-auto max-lg:rounded-b-xl">
+          <Table className="min-w-[min(100%,48rem)]">
+            <TableHeader className="sticky top-0 z-20 isolate border-b border-border/70 bg-background/[0.97] shadow-[0_6px_16px_-8px_rgb(0_0_0/0.28)] ring-1 ring-border/15 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 dark:supports-[backdrop-filter]:bg-background/70">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
@@ -480,11 +480,24 @@ export function AccountsTable({
                         ].join(" ")}
                         data-selected={row.getIsSelected()}
                       >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id} className={cn(rowPadding, "align-middle")}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
-                        ))}
+                        {row.getVisibleCells().map((cell) => {
+                          const colId = cell.column.id;
+                          return (
+                            <TableCell
+                              key={cell.id}
+                              className={cn(
+                                rowPadding,
+                                "align-middle",
+                                colId === "name" && "min-w-0",
+                                colId === "industry" && "min-w-0 whitespace-normal",
+                                colId === "data_quality_score" && "min-w-0",
+                                colId === "status" && "whitespace-normal"
+                              )}
+                            >
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          );
+                        })}
                       </MotionListItem>
                     ))}
                   </AnimatePresence>
