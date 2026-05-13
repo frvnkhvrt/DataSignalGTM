@@ -9,6 +9,7 @@ type ClientAuthContext = {
     id: string;
     email: string | null;
   };
+  isDemo: boolean;
 };
 
 const AuthContext = createContext<ClientAuthContext | null>(null);

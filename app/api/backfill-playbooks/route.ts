@@ -13,6 +13,13 @@ export async function POST() {
     );
   }
 
+  if (auth.isDemo) {
+    return NextResponse.json(
+      { error: "Demo mode is read-only for playbook backfills." },
+      { status: 403 }
+    );
+  }
+
   if (auth.org.role !== "admin") {
     return NextResponse.json(
       { error: "Only organization admins can backfill playbooks." },

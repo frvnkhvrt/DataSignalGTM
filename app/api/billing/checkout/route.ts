@@ -10,6 +10,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
+  if (auth.isDemo) {
+    return NextResponse.json(
+      { error: "Billing checkout is disabled in demo mode." },
+      { status: 403 }
+    );
+  }
+
   let priceId: string;
   try {
     const body = (await request.json()) as { priceId?: string };

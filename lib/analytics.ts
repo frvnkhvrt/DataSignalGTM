@@ -8,6 +8,21 @@
 
 export type AnalyticsEvent =
   | { event: "dashboard_viewed"; properties?: { org_id: string } }
+  | { event: "demo_started"; properties: { org_id: string; created_user: boolean } }
+  | {
+      event: "demo_reset";
+      properties: {
+        org_id: string;
+        accounts: number;
+        signals: number;
+        data_issues: number;
+        playbooks: number;
+      };
+    }
+  | {
+      event: "demo_limitation_viewed";
+      properties: { org_id: string; action: string; surface: string };
+    }
   | { event: "account_viewed"; properties: { org_id: string; account_name: string } }
   | {
       event: "playbook_generated";

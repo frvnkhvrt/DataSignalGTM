@@ -1,6 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type User } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import {
+  DEMO_ORG_ID,
+  DEMO_ORG_NAME,
+  DEMO_ORG_SLUG,
+  hasDemoAppMetadata,
+  isDemoEmail,
+} from "@/lib/demo";
 import { getPublicEnv, getRequiredServerEnv } from "@/lib/env";
 import type { Database } from "./types";
 
@@ -14,6 +21,7 @@ export type CurrentOrg = {
 export type AuthContext = {
   user: User;
   org: CurrentOrg;
+  isDemo: boolean;
 };
 
 /**
@@ -148,6 +156,67 @@ async function createPersonalOrg(user: User): Promise<CurrentOrg> {
   };
 }
 
+async function createDemoOrgMembership(user: User): Promise<CurrentOrg> {
+  const admin = createAdminClient();
+  const { data: existingOrg, error: lookupError } = await admin
+    .from("organizations")
+    .select("id,name,slug")
+    .eq("slug", DEMO_ORG_SLUG)
+    .maybeSingle();
+
+  if (lookupError) throw lookupError;
+
+  const org =
+    existingOrg ??
+    (
+      await admin
+        .from("organizations")
+        .insert({
+          id: DEMO_ORG_ID,
+          name: DEMO_ORG_NAME,
+          slug: DEMO_ORG_SLUG,
+        })
+        .select("id,name,slug")
+        .single()
+    ).data;
+
+  if (!org) {
+    throw new Error("Unable to create or load the demo organization.");
+  }
+
+  const { error: profileError } = await admin.from("profiles").upsert({
+    id: user.id,
+    org_id: org.id,
+    role: "member",
+    full_name: profileName(user),
+    avatar_url: null,
+    onboarding_completed: true,
+    onboarding_completed_at: new Date().toISOString(),
+  });
+
+  if (profileError) throw profileError;
+
+  const { error: memberError } = await admin
+    .from("organization_members")
+    .upsert(
+      {
+        org_id: org.id,
+        user_id: user.id,
+        role: "member",
+      },
+      { onConflict: "org_id,user_id" }
+    );
+
+  if (memberError) throw memberError;
+
+  return {
+    id: org.id,
+    name: org.name,
+    slug: org.slug,
+    role: "member",
+  };
+}
+
 export async function getCurrentOrg(user: User): Promise<CurrentOrg | null> {
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
@@ -179,7 +248,11 @@ export async function getAuthContext(): Promise<AuthContext | null> {
   const user = await getCurrentUser();
   if (!user) return null;
 
-  const org = (await getCurrentOrg(user)) ?? (await createPersonalOrg(user));
+  const isDemo = isDemoEmail(user.email) || hasDemoAppMetadata(user.app_metadata);
+  const org =
+    isDemo
+      ? await createDemoOrgMembership(user)
+      : ((await getCurrentOrg(user)) ?? (await createPersonalOrg(user)));
 
-  return { user, org };
+  return { user, org, isDemo };
 }

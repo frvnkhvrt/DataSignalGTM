@@ -18,6 +18,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
+  if (auth.isDemo) {
+    return NextResponse.json(
+      { error: "Demo mode is read-only for playbook generation." },
+      { status: 403 }
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();

@@ -5,6 +5,7 @@ import { Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { signalsRecentQuery } from "@/lib/gtm-queries";
+import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 import { SignalsTable } from "@/components/tables/signals-table";
 import { Button } from "@/components/ui/button";
 
@@ -59,20 +60,22 @@ export default function SignalsPage() {
           </p>
         </div>
         {missingPlaybooks > 0 && (
-          <Button
-            type="button"
-            onClick={() => backfill.mutate()}
-            disabled={backfill.isPending}
-            variant="success"
-            size="sm"
-          >
-            {backfill.isPending ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Sparkles className="h-3.5 w-3.5" />
-            )}
-            Queue missing playbooks ({missingPlaybooks})
-          </Button>
+          <DemoLimitedAction action="backfill_playbooks" surface="signals_page">
+            <Button
+              type="button"
+              onClick={() => backfill.mutate()}
+              disabled={backfill.isPending}
+              variant="success"
+              size="sm"
+            >
+              {backfill.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="h-3.5 w-3.5" />
+              )}
+              Queue missing playbooks ({missingPlaybooks})
+            </Button>
+          </DemoLimitedAction>
         )}
       </div>
 

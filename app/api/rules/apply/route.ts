@@ -8,6 +8,13 @@ export async function POST() {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
+  if (auth.isDemo) {
+    return NextResponse.json(
+      { error: "Demo mode is read-only for rules automation." },
+      { status: 403 }
+    );
+  }
+
   const db = createAdminClient();
   const result = await applySignalRulesForOrg({
     db,

@@ -24,10 +24,12 @@ import {
   rejectSignal,
   signalsRecentQuery,
 } from "@/lib/gtm-queries";
+import { useDemoLimitation } from "@/components/demo/demo-limited-action";
 import { canTransition } from "@/types/signal";
 import type { SignalStatus } from "@/types/signal";
 import { AnimatedDialog } from "@/components/ui/animated-dialog";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const RECENT_KEY = "datasignalgtm.commandPalette.recent";
 const NAV_ITEMS = [
@@ -59,6 +61,7 @@ export function CommandPalette() {
   const org = useCurrentOrg();
   const flags = useFlags();
   const qc = useQueryClient();
+  const { isDemo, showDemoLimitation } = useDemoLimitation("command_palette");
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [recent, setRecent] = useState<string[]>(() => {
@@ -100,6 +103,14 @@ export function CommandPalette() {
     remember(label);
     router.push(href);
     setOpen(false);
+  }
+
+  function isMutableRecentLabel(label: string) {
+    return (
+      label.startsWith("Generate ") ||
+      label.startsWith("Approve ") ||
+      label.startsWith("Reject ")
+    );
   }
 
   const invalidate = () => {
@@ -198,22 +209,37 @@ export function CommandPalette() {
                     const nav = NAV_ITEMS.find((item) => item.label === label);
                     if (nav) navigate(nav.label, nav.href);
                     else if (label.startsWith("Generate ")) {
+                      if (isDemo) {
+                        showDemoLimitation("generate_playbook_recent");
+                        return;
+                      }
                       const accountName = label.replace("Generate ", "");
                       const signal = signalsByAccount.get(accountName);
                       if (signal) generate.mutate(signal.id);
                     } else if (label.startsWith("Approve ")) {
+                      if (isDemo) {
+                        showDemoLimitation("approve_signal_recent");
+                        return;
+                      }
                       transition.mutate({
                         action: "approve",
                         accountName: label.replace("Approve ", ""),
                       });
                     } else if (label.startsWith("Reject ")) {
+                      if (isDemo) {
+                        showDemoLimitation("reject_signal_recent");
+                        return;
+                      }
                       transition.mutate({
                         action: "reject",
                         accountName: label.replace("Reject ", ""),
                       });
                     }
                   }}
-                  className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-primary/10 aria-selected:text-primary"
+                  className={cn(
+                    "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-primary/10 aria-selected:text-primary",
+                    isDemo && isMutableRecentLabel(label) && "cursor-not-allowed opacity-55"
+                  )}
                 >
                   <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                   <Highlight text={label} query={search} />
@@ -252,13 +278,20 @@ export function CommandPalette() {
                   value={`${account.name} ${account.domain ?? ""} generate playbook`}
                   onSelect={() => {
                     if (canGenerate) {
+                      if (isDemo) {
+                        showDemoLimitation("generate_playbook");
+                        return;
+                      }
                       remember(`Generate ${account.name}`);
                       generate.mutate(signal.id);
                     } else {
                       navigate("Go to Accounts", "/accounts");
                     }
                   }}
-                  className="flex cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-primary/10 aria-selected:text-primary"
+                  className={cn(
+                    "flex cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-primary/10 aria-selected:text-primary",
+                    isDemo && canGenerate && "cursor-not-allowed opacity-55"
+                  )}
                 >
                   <span className="min-w-0">
                     <span className="block truncate font-medium">
@@ -271,7 +304,7 @@ export function CommandPalette() {
                   {canGenerate && (
                     <Badge variant="brand">
                       <Sparkles className="h-3.5 w-3.5" />
-                      Generate
+                      {isDemo ? "Locked" : "Generate"}
                     </Badge>
                   )}
                 </Command.Item>
@@ -291,13 +324,20 @@ export function CommandPalette() {
                   {canApprove && (
                     <Command.Item
                       value={`approve ${name}`}
-                      onSelect={() =>
+                      onSelect={() => {
+                        if (isDemo) {
+                          showDemoLimitation("approve_signal");
+                          return;
+                        }
                         transition.mutate({
                           action: "approve",
                           accountName: name,
-                        })
-                      }
-                      className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-success/10 aria-selected:text-success"
+                        });
+                      }}
+                      className={cn(
+                        "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-success/10 aria-selected:text-success",
+                        isDemo && "cursor-not-allowed opacity-55"
+                      )}
                     >
                       <CheckCircle2 className="h-3.5 w-3.5 text-success" />
                       <span>
@@ -308,13 +348,20 @@ export function CommandPalette() {
                   {canReject && (
                     <Command.Item
                       value={`reject ${name}`}
-                      onSelect={() =>
+                      onSelect={() => {
+                        if (isDemo) {
+                          showDemoLimitation("reject_signal");
+                          return;
+                        }
                         transition.mutate({
                           action: "reject",
                           accountName: name,
-                        })
-                      }
-                      className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-destructive/10 aria-selected:text-destructive"
+                        });
+                      }}
+                      className={cn(
+                        "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-destructive/10 aria-selected:text-destructive",
+                        isDemo && "cursor-not-allowed opacity-55"
+                      )}
                     >
                       <XCircle className="h-3.5 w-3.5 text-destructive" />
                       <span>

@@ -124,6 +124,7 @@ For hosted Supabase:
 | `INNGEST_EVENT_KEY` | Hosted jobs | Server | Lets the app send events to Inngest outside local dev. |
 | `INNGEST_SIGNING_KEY` | Hosted jobs | Server | Lets Inngest securely invoke `/api/inngest` in deployed environments. |
 | `DEMO_RESET_KEY` | Optional | Server | Enables protected demo reset tooling. |
+| `DEMO_USER_PASSWORD` | Optional | Server | Overrides the instant demo password. Defaults to `demo2026!`. |
 | `NEXT_PUBLIC_SENTRY_DSN` | Optional | Browser + server | Sentry DSN for error tracking and performance monitoring. |
 | `SENTRY_AUTH_TOKEN` | CI/CD only | Build step | Authorises Sentry CLI source-map uploads. |
 | `NEXT_PUBLIC_POSTHOG_KEY` | Optional | Browser | PostHog project API key for product analytics. |
@@ -135,6 +136,28 @@ For hosted Supabase:
 | `STRIPE_PRO_PRICE_ID` | Billing | Server | Stripe Price ID for the Pro tier subscription. |
 | `NEXT_PUBLIC_APP_URL` | Billing | Browser+Server | App base URL for Stripe success/cancel redirects. |
 | `SIGNAL_WEBHOOK_SECRET` | Webhook | Server | Bearer token securing `POST /api/webhooks/signals`. |
+
+## Instant Demo
+
+The public hero links to `/demo`, which signs visitors into the shared demo
+workspace and redirects them to `/dashboard`.
+
+- Demo email: `demo@datasignalgtm.com`
+- Default password: `demo2026!`
+- Demo org slug: `datasignal-demo`
+
+The `/demo` route first tries `supabase.auth.signInWithPassword`. If the demo
+Auth user does not exist, it uses `SUPABASE_SERVICE_ROLE_KEY` to create or repair
+the user, confirm the email, mark `app_metadata.is_demo = true`, and attach the
+user to the existing demo organization as a member.
+
+Demo sessions are treated as read-only: the dashboard shows a banner, server
+routes that mutate shared data return `403`, and the demo RLS migration blocks
+writes for users flagged as demo or signed in with the demo email.
+
+To reset demo data, sign in with a non-demo admin member of the demo org, set
+`DEMO_RESET_KEY`, then open `/admin` and run **Reset Demo Data**. The public demo
+member cannot reset the shared workspace.
 
 ## Scripts
 

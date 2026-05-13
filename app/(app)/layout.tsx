@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { RealtimeSync } from "@/components/auth/realtime-sync";
 import { CommandPalette } from "@/components/command-palette";
 import { OnboardingGuard } from "@/components/onboarding-guard";
+import { DemoBanner } from "@/components/layout/demo-banner";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/layout/top-bar";
 import { RulesEngineSync } from "@/components/rules-engine-sync";
@@ -27,6 +28,7 @@ export default async function AppLayout({
           id: auth.user.id,
           email: auth.user.email ?? null,
         },
+        isDemo: auth.isDemo,
       }}
     >
       <RealtimeSync orgId={auth.org.id} />
@@ -37,6 +39,7 @@ export default async function AppLayout({
           <Sidebar />
           <div className="pb-16 transition-[padding] duration-300 ease-[var(--ease-premium)] sm:pb-0 sm:pl-[var(--sidebar-width)]">
             <TopBar />
+            <DemoBanner />
             <main id="main-content" tabIndex={-1}>
               {children}
             </main>

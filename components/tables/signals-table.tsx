@@ -49,6 +49,7 @@ import { TableSkeleton } from "@/components/ui/skeleton";
 import { AnimatedDialog } from "@/components/ui/animated-dialog";
 import type { SignalStatus } from "@/types/signal";
 import { canTransition } from "@/types/signal";
+import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 
 type BulkAction = "approve" | "reject";
 type Density = "comfortable" | "compact";
@@ -339,50 +340,56 @@ export function SignalsTable({
           return (
             <div className="flex justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
               {!signal.playbook && signal.status !== "rejected" && (
-                <Button
-                  type="button"
-                  onClick={() => generate.mutate(signal.id)}
-                  disabled={
-                    busyPlaybook ||
-                    (generate.isPending && generate.variables === signal.id)
-                  }
-                  title="Generate playbook"
-                  aria-label={`Generate playbook for ${name || "signal"}`}
-                  variant="success"
-                  size="icon"
-                >
-                  {busyPlaybook ||
-                  (generate.isPending && generate.variables === signal.id) ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Sparkles className="h-3.5 w-3.5" />
-                  )}
-                </Button>
+                <DemoLimitedAction action="generate_playbook" surface="signals_table">
+                  <Button
+                    type="button"
+                    onClick={() => generate.mutate(signal.id)}
+                    disabled={
+                      busyPlaybook ||
+                      (generate.isPending && generate.variables === signal.id)
+                    }
+                    title="Generate playbook"
+                    aria-label={`Generate playbook for ${name || "signal"}`}
+                    variant="success"
+                    size="icon"
+                  >
+                    {busyPlaybook ||
+                    (generate.isPending && generate.variables === signal.id) ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+                </DemoLimitedAction>
               )}
               {canApprove && name && (
-                <Button
-                  type="button"
-                  onClick={() => approve.mutate(name)}
-                  disabled={approve.isPending && approve.variables === name}
-                  aria-label={`Approve signal for ${name}`}
-                  size="sm"
-                >
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  Approve
-                </Button>
+                <DemoLimitedAction action="approve_signal" surface="signals_table">
+                  <Button
+                    type="button"
+                    onClick={() => approve.mutate(name)}
+                    disabled={approve.isPending && approve.variables === name}
+                    aria-label={`Approve signal for ${name}`}
+                    size="sm"
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Approve
+                  </Button>
+                </DemoLimitedAction>
               )}
               {canReject && name && (
-                <Button
-                  type="button"
-                  onClick={() => reject.mutate(name)}
-                  disabled={reject.isPending && reject.variables === name}
-                  aria-label={`Reject signal for ${name}`}
-                  variant="destructive"
-                  size="sm"
-                >
-                  <XCircle className="h-3.5 w-3.5" />
-                  Reject
-                </Button>
+                <DemoLimitedAction action="reject_signal" surface="signals_table">
+                  <Button
+                    type="button"
+                    onClick={() => reject.mutate(name)}
+                    disabled={reject.isPending && reject.variables === name}
+                    aria-label={`Reject signal for ${name}`}
+                    variant="destructive"
+                    size="sm"
+                  >
+                    <XCircle className="h-3.5 w-3.5" />
+                    Reject
+                  </Button>
+                </DemoLimitedAction>
               )}
             </div>
           );
@@ -494,23 +501,27 @@ export function SignalsTable({
               <span className="rounded-full border border-border bg-background/40 px-2 py-1 text-xs text-muted-foreground">
                 {selectedSignals.length} selected
               </span>
-              <Button
-                type="button"
-                onClick={() => setBulkAction("approve")}
-                disabled={selectedSignals.length === 0}
-                size="sm"
-              >
-                Bulk approve
-              </Button>
-              <Button
-                type="button"
-                onClick={() => setBulkAction("reject")}
-                disabled={selectedSignals.length === 0}
-                variant="destructive"
-                size="sm"
-              >
-                Bulk reject
-              </Button>
+              <DemoLimitedAction action="bulk_approve" surface="signals_table">
+                <Button
+                  type="button"
+                  onClick={() => setBulkAction("approve")}
+                  disabled={selectedSignals.length === 0}
+                  size="sm"
+                >
+                  Bulk approve
+                </Button>
+              </DemoLimitedAction>
+              <DemoLimitedAction action="bulk_reject" surface="signals_table">
+                <Button
+                  type="button"
+                  onClick={() => setBulkAction("reject")}
+                  disabled={selectedSignals.length === 0}
+                  variant="destructive"
+                  size="sm"
+                >
+                  Bulk reject
+                </Button>
+              </DemoLimitedAction>
             </>
           )}
           <details className="relative">
@@ -662,15 +673,17 @@ export function SignalsTable({
               >
                 Cancel
               </Button>
-              <Button
-                type="button"
-                onClick={() => bulk.mutate({ action: bulkAction, names: selectedNames })}
-                disabled={bulk.isPending}
-                size="sm"
-                aria-live="polite"
-              >
-                {bulk.isPending ? "Working..." : "Confirm"}
-              </Button>
+              <DemoLimitedAction action={`bulk_${bulkAction}`} surface="signals_table">
+                <Button
+                  type="button"
+                  onClick={() => bulk.mutate({ action: bulkAction, names: selectedNames })}
+                  disabled={bulk.isPending}
+                  size="sm"
+                  aria-live="polite"
+                >
+                  {bulk.isPending ? "Working..." : "Confirm"}
+                </Button>
+              </DemoLimitedAction>
             </div>
           </>
         )}

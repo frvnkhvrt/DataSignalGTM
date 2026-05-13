@@ -9,6 +9,13 @@ export async function POST() {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
+  if (auth.isDemo) {
+    return NextResponse.json(
+      { error: "Billing portal is disabled in demo mode." },
+      { status: 403 }
+    );
+  }
+
   try {
     const stripe = getStripe();
     const db = createAdminClient();

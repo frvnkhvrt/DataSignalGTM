@@ -37,6 +37,7 @@ import {
   dismissGap,
   resolveAllGaps,
 } from "@/lib/gtm-queries";
+import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 
 const SEVERITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
@@ -404,17 +405,23 @@ export function DataIssuesPanel({
         {/* ── Resolve all bar ── */}
         {sorted.length >= 2 && (
           <div className="px-6 py-3 border-b border-zinc-800 shrink-0">
-            <button
-              type="button"
-              onClick={() => resolveAllMut.mutate()}
-              disabled={resolveAllMut.isPending}
-              className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50 transition-colors w-full justify-center"
+            <DemoLimitedAction
+              action="resolve_all_data_issues"
+              surface="data_issues_panel"
+              wrapperClassName="w-full"
             >
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              {resolveAllMut.isPending
-                ? "Resolving…"
-                : `Resolve all (${sorted.length})`}
-            </button>
+              <button
+                type="button"
+                onClick={() => resolveAllMut.mutate()}
+                disabled={resolveAllMut.isPending}
+                className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50 transition-colors w-full justify-center"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                {resolveAllMut.isPending
+                  ? "Resolving..."
+                  : `Resolve all (${sorted.length})`}
+              </button>
+            </DemoLimitedAction>
           </div>
         )}
 
@@ -516,24 +523,28 @@ function IssueCard({
       )}
 
       <div className="flex items-center gap-2 pt-1 pl-6">
-        <button
-          type="button"
-          onClick={onResolve}
-          disabled={busy}
-          className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50 transition-colors"
-        >
-          <CheckCircle2 className="h-3 w-3" />
-          Resolve
-        </button>
-        <button
-          type="button"
-          onClick={onDismiss}
-          disabled={busy}
-          className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded border border-zinc-700 text-zinc-400 hover:bg-zinc-800 disabled:opacity-50 transition-colors"
-        >
-          <XCircle className="h-3 w-3" />
-          Dismiss
-        </button>
+        <DemoLimitedAction action="resolve_data_issue" surface="data_issues_panel">
+          <button
+            type="button"
+            onClick={onResolve}
+            disabled={busy}
+            className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50 transition-colors"
+          >
+            <CheckCircle2 className="h-3 w-3" />
+            Resolve
+          </button>
+        </DemoLimitedAction>
+        <DemoLimitedAction action="dismiss_data_issue" surface="data_issues_panel">
+          <button
+            type="button"
+            onClick={onDismiss}
+            disabled={busy}
+            className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded border border-zinc-700 text-zinc-400 hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+          >
+            <XCircle className="h-3 w-3" />
+            Dismiss
+          </button>
+        </DemoLimitedAction>
         {busy && <Loader2 className="h-3 w-3 animate-spin text-zinc-500" />}
       </div>
     </div>

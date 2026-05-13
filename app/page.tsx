@@ -9,6 +9,8 @@ import {
   CheckCircle2,
   Github,
 } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { PLANS } from "@/lib/stripe";
 
 // ── Small reusable components ─────────────────────────────────────────────────
@@ -114,35 +116,40 @@ export default function MarketingPage() {
               Now in public beta
             </Badge>
             <h1 className="mt-6 bg-gradient-to-b from-zinc-50 to-zinc-400 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-6xl lg:text-7xl">
-              Turn buying signals into
+              Convierte señales de compra en
               <br />
               <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-                revenue
+                pipeline listo para cerrar
               </span>
-              , automatically
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg">
-              DataSignalGTM ingests intent signals from every source, scores
-              them against your ICP, auto-generates AI-powered playbooks, and
-              keeps your reps focused on accounts that are ready to buy.
+              DataSignalGTM detecta cuentas con intención real, prioriza las
+              oportunidades con mejor fit y convierte cada señal en un playbook
+              accionable para que tu equipo venda con foco.
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <Link
-                href="/login"
-                className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-6 py-3 text-sm font-semibold text-zinc-950 hover:bg-emerald-400"
+                href="/demo"
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "h-auto rounded-xl bg-emerald-500 px-8 py-4 text-base font-semibold text-zinc-950 shadow-lg shadow-emerald-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-emerald-400/30"
+                )}
               >
-                Start for free
+                Probar Demo Gratis
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <a
-                href="mailto:demo@datasignalgtm.com"
-                className="inline-flex items-center gap-2 rounded-lg border border-zinc-700 px-6 py-3 text-sm font-medium text-zinc-300 hover:bg-zinc-900"
+              <Link
+                href="/login"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "h-auto rounded-xl border-zinc-700 bg-zinc-950/40 px-8 py-4 text-base font-medium text-zinc-200 transition-colors duration-200 hover:bg-zinc-900"
+                )}
               >
-                Book a demo
-              </a>
+                Iniciar sesión
+              </Link>
             </div>
             <p className="mt-4 text-xs text-zinc-600">
-              Free plan · No credit card required · Setup in 5 minutes
+              Sin tarjeta de crédito • Acceso instantáneo
             </p>
           </div>
         </section>

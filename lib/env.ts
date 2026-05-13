@@ -27,6 +27,7 @@ const serverOnlyEnvSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: optionalSecret,
   GEMINI_API_KEY: optionalSecret,
   DEMO_RESET_KEY: optionalSecret,
+  DEMO_USER_PASSWORD: optionalSecret,
   INNGEST_EVENT_KEY: optionalSecret,
   INNGEST_SIGNING_KEY: optionalSecret,
   // Stripe (optional in dev — required in production for billing)

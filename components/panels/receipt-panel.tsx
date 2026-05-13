@@ -29,6 +29,7 @@ import {
   type PlaybookStep,
 } from "@/lib/gtm-queries";
 import { useCurrentOrg } from "@/lib/auth-context";
+import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 import type { SignalStatus } from "@/types/signal";
 import { isTerminal, canTransition } from "@/types/signal";
 
@@ -221,19 +222,21 @@ export function ReceiptPanel({
                     : "No playbook on this signal yet."}
               </div>
               {data?.id && (
-                <button
-                  type="button"
-                  disabled={generateMut.isPending || isGenerating}
-                  onClick={() => generateMut.mutate(data.id)}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-emerald-500/40 text-emerald-300 font-medium py-2.5 text-sm hover:bg-emerald-500/10 disabled:opacity-50"
-                >
-                  {generateMut.isPending || isGenerating ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Sparkles className="h-4 w-4" />
-                  )}
-                  {isGenerating ? "Generating..." : "Generate playbook"}
-                </button>
+                <DemoLimitedAction action="generate_playbook" surface="receipt_panel">
+                  <button
+                    type="button"
+                    disabled={generateMut.isPending || isGenerating}
+                    onClick={() => generateMut.mutate(data.id)}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-emerald-500/40 text-emerald-300 font-medium py-2.5 text-sm hover:bg-emerald-500/10 disabled:opacity-50"
+                  >
+                    {generateMut.isPending || isGenerating ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-4 w-4" />
+                    )}
+                    {isGenerating ? "Generating..." : "Generate playbook"}
+                  </button>
+                </DemoLimitedAction>
               )}
             </div>
           )}
@@ -316,34 +319,46 @@ export function ReceiptPanel({
         {!terminal && (
           <div className="px-6 py-4 flex gap-2">
             {canApprove && (
-              <button
-                type="button"
-                disabled={approve.isPending}
-                onClick={() => tryApprove()}
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-md bg-emerald-400 text-zinc-950 font-medium py-2.5 text-sm hover:bg-emerald-300 disabled:opacity-50"
+              <DemoLimitedAction
+                action="approve_signal"
+                surface="receipt_panel"
+                wrapperClassName="flex-1"
               >
-                {approve.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <CheckCircle2 className="h-4 w-4" />
-                )}
-                Approve
-              </button>
+                <button
+                  type="button"
+                  disabled={approve.isPending}
+                  onClick={() => tryApprove()}
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-md bg-emerald-400 text-zinc-950 font-medium py-2.5 text-sm hover:bg-emerald-300 disabled:opacity-50"
+                >
+                  {approve.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="h-4 w-4" />
+                  )}
+                  Approve
+                </button>
+              </DemoLimitedAction>
             )}
             {canReject && (
-              <button
-                type="button"
-                disabled={reject.isPending}
-                onClick={() => tryReject()}
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-md border border-red-500/40 text-red-300 font-medium py-2.5 text-sm hover:bg-red-500/10 disabled:opacity-50"
+              <DemoLimitedAction
+                action="reject_signal"
+                surface="receipt_panel"
+                wrapperClassName="flex-1"
               >
-                {reject.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <XCircle className="h-4 w-4" />
-                )}
-                Reject
-              </button>
+                <button
+                  type="button"
+                  disabled={reject.isPending}
+                  onClick={() => tryReject()}
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-md border border-red-500/40 text-red-300 font-medium py-2.5 text-sm hover:bg-red-500/10 disabled:opacity-50"
+                >
+                  {reject.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <XCircle className="h-4 w-4" />
+                  )}
+                  Reject
+                </button>
+              </DemoLimitedAction>
             )}
           </div>
         )}
