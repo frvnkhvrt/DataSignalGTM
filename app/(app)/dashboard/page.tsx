@@ -111,7 +111,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 p-4 sm:p-6 lg:p-8">
       {/* Hero — immediate entrance */}
-      <PageReveal delay={0}>
+      <PageReveal order={0}>
         <section className="overflow-hidden rounded-2xl border border-border bg-card/60 p-5 shadow-soft">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -147,7 +147,7 @@ export default function DashboardPage() {
       </PageReveal>
 
       {/* Metric cards — staggered */}
-      <PageReveal delay={0.08}>
+      <PageReveal order={1}>
         {isLoading ? (
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
@@ -208,12 +208,12 @@ export default function DashboardPage() {
       </PageReveal>
 
       {/* Charts — slightly later */}
-      <PageReveal delay={0.16}>
+      <PageReveal order={2}>
         <DashboardCharts accounts={accounts} signals={signals} />
       </PageReveal>
 
       {/* Bottom panels — last to arrive */}
-      <PageReveal delay={0.24}>
+      <PageReveal order={3}>
         <section className="grid gap-4 xl:grid-cols-[1.3fr_0.7fr]">
           <Card className="bg-card/80">
             <CardHeader className="flex flex-row items-center justify-between gap-3">

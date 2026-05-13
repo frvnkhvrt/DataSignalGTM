@@ -206,6 +206,9 @@ export function ReceiptPanel({
         </div>
 
         <div className="px-6 py-5 space-y-4 border-b border-zinc-800">
+          {/* min-h prevents the container from collapsing to the loading-spinner
+              height mid-crossfade, which would cause a jarring layout jump */}
+          <div className="min-h-[2.5rem]">
           <AnimatePresence mode="wait">
           {isLoading && (
             <motion.div
@@ -337,6 +340,7 @@ export function ReceiptPanel({
             </motion.div>
           )}
           </AnimatePresence>
+          </div>
         </div>
 
         {!terminal && (

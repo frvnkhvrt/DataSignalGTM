@@ -226,13 +226,32 @@ function StaggerItem({ children, ...props }: MotionDivProps) {
 
 // ── PageReveal ─────────────────────────────────────────────────────────────────
 
-/** Wraps a page section with a fade + slide entrance on mount (not scroll). */
+/**
+ * Base stagger step between sequential page sections.
+ * Four sections at 0.08s apart means the last beat starts at 240ms —
+ * well within the attention window without feeling slow.
+ */
+export const PAGE_REVEAL_STAGGER = 0.08;
+
+/**
+ * Wraps a page section with a fade + slide entrance on mount (not scroll).
+ *
+ * Prefer `order` (0-based index) so delay is derived automatically:
+ *   <PageReveal order={0}>   →  delay 0ms   (hero)
+ *   <PageReveal order={1}>   →  delay 80ms  (metrics)
+ *   <PageReveal order={2}>   →  delay 160ms (charts)
+ *   <PageReveal order={3}>   →  delay 240ms (panels)
+ *
+ * The legacy `delay` prop is still accepted for one-off overrides.
+ */
 function PageReveal({
+  order,
   delay = 0,
   children,
   ...props
-}: MotionDivProps & { delay?: number }) {
+}: MotionDivProps & { order?: number; delay?: number }) {
   const reduced = useReducedMotion();
+  const resolvedDelay = order !== undefined ? order * PAGE_REVEAL_STAGGER : delay;
 
   if (reduced) {
     return <div {...(props as React.HTMLAttributes<HTMLDivElement>)}>{children}</div>;
@@ -243,7 +262,7 @@ function PageReveal({
       initial="hidden"
       animate="visible"
       variants={slideUpBlur}
-      transition={{ duration: dur.reveal, ease: ease.premium, delay }}
+      transition={{ duration: dur.reveal, ease: ease.premium, delay: resolvedDelay }}
       {...props}
     >
       {children}
