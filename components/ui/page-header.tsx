@@ -26,17 +26,11 @@ export function PageHeader({
         className
       )}
     >
-      <div>
-        {eyebrow && (
-          <p className="ds-eyebrow mb-2 text-primary">{eyebrow}</p>
-        )}
-        <h1 className="ds-heading text-2xl font-semibold text-foreground sm:text-3xl">
-          {title}
-        </h1>
+      <div className="min-w-0">
+        {eyebrow && <p className="ds-eyebrow mb-2 text-primary">{eyebrow}</p>}
+        <h1 className="ds-heading text-2xl font-semibold text-foreground sm:text-3xl">{title}</h1>
         {description && (
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            {description}
-          </p>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">{description}</p>
         )}
       </div>
       {actions && (

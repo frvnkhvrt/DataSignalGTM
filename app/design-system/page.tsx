@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
-import { StatusPill } from "@/components/status-pill";
+import { StatusPill } from "@/components/ui/status-pill";
 import { Spinner } from "@/components/ui/spinner";
 
 export const metadata = {

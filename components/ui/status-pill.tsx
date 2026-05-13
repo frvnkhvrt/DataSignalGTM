@@ -15,6 +15,7 @@ const STATUS_LABELS: Record<SignalStatus, string> = {
   rejected: "Rejected",
 };
 
+/** Signal lifecycle chip — shadcn `Badge` + product ping for pending. */
 export function StatusPill({ status }: { status: SignalStatus }) {
   return (
     <Badge variant={STATUS_VARIANTS[status]} shape="square">

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { StatusPill } from "@/components/status-pill";
+import { StatusPill } from "@/components/ui/status-pill";
 import type { SignalStatus } from "@/types/signal";
 
 const CASES: Array<{ status: SignalStatus; label: string }> = [

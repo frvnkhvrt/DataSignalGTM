@@ -13,7 +13,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { StatusPill } from "@/components/status-pill";
+import { StatusPill } from "@/components/ui/status-pill";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
