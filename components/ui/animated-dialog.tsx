@@ -54,7 +54,13 @@ function AnimatedDialog({
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
-      if (previous?.isConnected) previous.focus();
+      // Restore focus to the trigger element. Fall back to document.body when
+      // the trigger has been removed from the DOM (e.g. optimistic UI updates).
+      if (previous?.isConnected) {
+        previous.focus();
+      } else {
+        document.body.focus();
+      }
     };
   }, [open]);
 

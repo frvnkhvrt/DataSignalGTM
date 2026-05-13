@@ -63,6 +63,9 @@ export function DemoLimitedAction({
       whileTap={reduced ? undefined : { scale: 0.97 }}
     >
       {cloneElement(children, {
+        // disabled=false intentionally: keeps the element keyboard-reachable so
+        // users discover the demo limitation via the toast + shake feedback.
+        // aria-disabled=true signals the semantic state to assistive technology.
         disabled: false,
         title: DEMO_TOOLTIP,
         "aria-disabled": true,
@@ -129,6 +132,9 @@ export function DemoLimitedActionShake({
       title={DEMO_TOOLTIP}
     >
       {cloneElement(children, {
+        // disabled=false intentionally: keeps the element keyboard-reachable so
+        // users discover the demo limitation via the toast + shake feedback.
+        // aria-disabled=true signals the semantic state to assistive technology.
         disabled: false,
         title: DEMO_TOOLTIP,
         "aria-disabled": true,
