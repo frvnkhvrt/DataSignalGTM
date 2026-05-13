@@ -104,7 +104,7 @@ export default function DashboardPage() {
     <div className="min-w-0 space-y-6 p-4 sm:space-y-7 sm:p-6 lg:p-8">
       {/* Hero — immediate entrance */}
       <PageReveal order={0}>
-        <section className="ds-card-inner-glow overflow-hidden rounded-2xl border border-border/70 bg-card/65 p-5 shadow-soft backdrop-blur-sm sm:p-6">
+        <section className="ds-card-inner-glow overflow-hidden rounded-2xl border border-border/70 bg-card/65 p-5 shadow-soft ring-1 ring-black/[0.04] backdrop-blur-sm dark:ring-white/[0.06] sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0">
               <Badge variant="brand" className="mb-3">
@@ -137,7 +137,7 @@ export default function DashboardPage() {
       {/* Metric cards — staggered */}
       <PageReveal order={1}>
         {isLoading ? (
-          <div className="grid min-w-0 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+          <div className="grid min-w-0 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, index) => (
               <Skeleton
                 key={index}
@@ -146,7 +146,7 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : (
-          <Stagger className="grid min-w-0 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+          <Stagger className="grid min-w-0 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             <StaggerItem>
               <MotionCard>
                 <KpiCard
@@ -206,8 +206,8 @@ export default function DashboardPage() {
 
       {/* Bottom panels — last to arrive */}
       <PageReveal order={3}>
-        <section className="grid min-w-0 gap-4 lg:grid-cols-[1.22fr_0.78fr] lg:gap-5 xl:grid-cols-[1.22fr_0.78fr]">
-          <Card variant="translucent" className="min-w-0 shadow-soft ds-card-inner-glow">
+        <section className="grid min-w-0 gap-4 lg:grid-cols-[1.22fr_0.78fr] lg:gap-5">
+          <Card variant="translucent" className="min-w-0 shadow-soft ring-1 ring-black/[0.03] dark:ring-white/[0.05] ds-card-inner-glow">
             <CardHeader className="flex flex-row items-start justify-between gap-3 sm:items-center">
               <div className="min-w-0">
                 <CardTitle className="ds-heading">Recent signal queue</CardTitle>
@@ -272,7 +272,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card variant="translucent" className="min-w-0 shadow-soft ds-card-inner-glow">
+          <Card variant="translucent" className="min-w-0 shadow-soft ring-1 ring-black/[0.03] dark:ring-white/[0.05] ds-card-inner-glow">
             <CardHeader className="flex flex-row items-start justify-between gap-3 sm:items-center">
               <div className="min-w-0">
                 <CardTitle className="ds-heading">Data quality focus</CardTitle>
@@ -294,6 +294,11 @@ export default function DashboardPage() {
                   icon={<Database className="h-6 w-6" />}
                   title="No at-risk accounts"
                   description="Your account data quality is in good shape for this workspace."
+                  action={
+                    <Button asChild variant="outline" size="sm">
+                      <Link href="/accounts">Browse accounts</Link>
+                    </Button>
+                  }
                 />
               ) : (
                 <MotionList className="space-y-3">

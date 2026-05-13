@@ -28,7 +28,10 @@ export function HelpNav({
       )}
     >
       {sections.map(({ href, label, eyebrow }) => {
-        const isActive = pathname === href;
+        const isActive =
+          href === "/help"
+            ? pathname === "/help"
+            : pathname === href || pathname.startsWith(`${href}/`);
         return (
           <Link
             key={href}

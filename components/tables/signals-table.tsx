@@ -295,7 +295,7 @@ export function SignalsTable({
         header: "Why now",
         cell: ({ row }) => (
           <span
-            className="line-clamp-2 max-w-[12rem] text-muted-foreground sm:max-w-[16rem]"
+            className="line-clamp-2 min-w-0 max-w-[12rem] text-muted-foreground sm:max-w-[16rem]"
             title={row.original.why_now ?? undefined}
           >
             {row.original.why_now ?? "-"}
@@ -540,7 +540,7 @@ export function SignalsTable({
       <Card className="min-w-0 overflow-hidden bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
         <div className="min-w-0 overflow-x-auto overscroll-x-contain touch-pan-x [-webkit-overflow-scrolling:touch]">
           <Table className="min-w-[820px]">
-            <TableHeader className="sticky top-0 z-10 border-b border-border/70 bg-background/[0.96] shadow-[0_6px_16px_-8px_rgb(0_0_0/0.28)] backdrop-blur-md">
+            <TableHeader className="sticky top-0 z-10 isolate border-b border-border/70 bg-background/[0.96] shadow-[0_6px_16px_-8px_rgb(0_0_0/0.28)] ring-1 ring-border/15 backdrop-blur-md">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
@@ -607,7 +607,7 @@ export function SignalsTable({
                         data-selected={row.getIsSelected()}
                       >
                         {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id} className={rowPadding}>
+                          <TableCell key={cell.id} className={cn(rowPadding, "align-middle")}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </TableCell>
                         ))}

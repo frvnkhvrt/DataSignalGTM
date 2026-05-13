@@ -10,7 +10,7 @@ export default function HelpLayout({
 }) {
   return (
     <div className="ds-page min-h-screen text-foreground">
-      <nav className="sticky top-0 z-40 border-b border-border/70 bg-background/88 backdrop-blur-xl ds-chrome-divider">
+      <nav className="sticky top-0 z-40 border-b border-border/70 bg-background/88 backdrop-blur-xl ds-chrome-divider ds-inset-top-soft">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:px-6">
           <Link
             href="/"

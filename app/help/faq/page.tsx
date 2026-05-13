@@ -37,7 +37,7 @@ const faqs = [
 
 export default function FAQPage() {
   return (
-    <article className="space-y-8">
+    <article className="min-w-0 space-y-8">
       <div>
         <h1 className="ds-heading text-3xl font-semibold text-foreground">
           Frequently Asked Questions
@@ -54,7 +54,7 @@ export default function FAQPage() {
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border/70 bg-background/25 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.03)]">
+      <div className="overflow-hidden rounded-xl border border-border/70 bg-background/25 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.03)] backdrop-blur-sm ds-card-inner-glow">
         <div className="divide-y divide-border/80">
           {faqs.map(({ q, a }) => (
             <div key={q} className="px-4 py-5 transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:px-5 hover:bg-surface-elevated/25">

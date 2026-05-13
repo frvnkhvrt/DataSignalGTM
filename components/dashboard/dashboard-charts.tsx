@@ -112,7 +112,7 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="min-w-0 border border-border/65 bg-card/70 shadow-soft backdrop-blur-md ds-card-inner-glow">
+    <Card className="min-w-0 border border-border/65 bg-card/70 shadow-soft ring-1 ring-border/25 backdrop-blur-md dark:ring-white/[0.06] ds-card-inner-glow">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -195,7 +195,7 @@ export function DashboardCharts({
   );
 
   return (
-    <section className="min-w-0 space-y-3">
+    <section className="min-w-0 space-y-3 pb-0.5">
       <div className="flex min-w-0 flex-col gap-2 min-[400px]:flex-row min-[400px]:items-end min-[400px]:justify-between min-[400px]:gap-3">
         <div className="min-w-0">
           <p className="ds-eyebrow">Data design</p>
