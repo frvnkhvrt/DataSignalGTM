@@ -217,7 +217,7 @@ export default function DesignSystemPage() {
             {[
               ["Signal review", "Card surfaces use one border tone, soft elevation, and semantic action color."],
               ["Data quality", "Status is encoded with success, warning, and danger tokens instead of raw palette classes."],
-              ["Motion", "Reveal and stagger patterns use a 420ms premium ease and respect reduced motion."],
+              ["Motion", "Reveal and stagger use `--ds-duration-reveal` / `--ds-duration-slow` with `--ease-premium` and respect reduced motion."],
             ].map(([title, copy]) => (
               <StaggerItem key={title}>
                 <Card className="h-full bg-card/80 transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:bg-surface-elevated/80">

@@ -263,7 +263,7 @@ export default function DashboardPage() {
                       <MotionListItem key={account.id}>
                         <Link
                           href="/accounts"
-                          className="ds-focus-ring flex items-center justify-between rounded-lg border border-border bg-background/35 px-3 py-2 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/80 hover:bg-surface-elevated"
+                          className="ds-focus-ring ds-inset-top-soft flex items-center justify-between rounded-lg border border-border bg-background/35 px-3 py-2 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/80 hover:bg-surface-elevated"
                         >
                           <span className="truncate text-sm font-medium text-foreground">
                             {account.name}

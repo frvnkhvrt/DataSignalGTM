@@ -381,11 +381,11 @@ export function AccountsTable({
               </Button>
             ))}
           </div>
-          <span className="rounded-full border border-border bg-background/40 px-2 py-1 text-xs text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)]">
+          <span className="rounded-full border border-border bg-background/40 px-2 py-1 text-xs text-muted-foreground ds-inset-top-mid">
             {selectedCount} selected
           </span>
           <details className="relative">
-            <summary className="ds-focus-ring cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] transition-[background-color,color,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:bg-surface-elevated hover:text-foreground">
+            <summary className="ds-focus-ring ds-inset-top-soft cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-[background-color,color,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:bg-surface-elevated hover:text-foreground">
               Columns<span className="sr-only"> visibility controls</span>
             </summary>
             <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-border bg-popover p-2 shadow-elevated">
@@ -514,7 +514,7 @@ export function AccountsTable({
       </Card>
 
       <div className="flex flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <span className="inline-flex items-center rounded-full border border-border bg-background/40 px-3 py-1 text-[11px] font-medium tabular-nums shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)]">
+        <span className="inline-flex items-center rounded-full border border-border bg-background/40 px-3 py-1 text-[11px] font-medium tabular-nums ds-inset-top-mid">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount() || 1}
         </span>

@@ -239,7 +239,7 @@ export function CommandPalette() {
             placeholder="Search accounts or run actions..."
             className="ds-focus-ring ds-input-well h-12 flex-1 bg-transparent text-sm text-foreground outline-none transition-[border-color,box-shadow,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] placeholder:text-muted-foreground focus-visible:border-ring/60"
           />
-          <kbd className="rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)]">
+          <kbd className="rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] text-muted-foreground ds-inset-top-mid">
             Esc
           </kbd>
           {/* Gradient-faded separator under the search bar */}
@@ -252,7 +252,7 @@ export function CommandPalette() {
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={transitionPaletteEmpty}
-              className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)]"
+              className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface ds-inset-top-mid"
             >
               <Search className="h-4 w-4" />
             </motion.div>

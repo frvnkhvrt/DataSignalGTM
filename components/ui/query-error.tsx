@@ -27,7 +27,7 @@ function QueryError({
       role="alert"
       className={cn(
         "flex flex-col items-center gap-4 rounded-xl border border-destructive/25 bg-destructive/5 px-6 py-10 text-center",
-        "shadow-[inset_0_1px_0_0_rgb(255_255_255_/_0.05),inset_0_0_0_1px_color-mix(in_oklch,var(--destructive)_8%,transparent)]",
+        "ds-query-error-surface",
         className
       )}
       initial={reduced ? {} : { opacity: 0, scale: 0.96, y: 8 }}

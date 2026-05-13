@@ -49,6 +49,8 @@ export const spring = {
   dialogPanel: { type: "spring" as const, stiffness: 420, damping: 32, mass: 0.85 },
   /** Sidebar `layoutId` active pill */
   sidebarPill: { type: "spring" as const, stiffness: 380, damping: 36, mass: 0.9 },
+  /** KPI / metric value pop when the number changes */
+  metricPop: { type: "spring" as const, stiffness: 480, damping: 32, mass: 0.75 },
 } as const;
 
 /** The standard tween used throughout the app, matching --ease-premium */

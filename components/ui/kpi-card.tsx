@@ -3,6 +3,7 @@
 import * as React from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Card } from "@/components/ui/card";
+import { spring } from "@/components/ui/motion";
 import { cn } from "@/lib/utils";
 
 type KpiTone = "default" | "success" | "warning" | "destructive" | "info";
@@ -103,7 +104,7 @@ export function KpiCard({
         transition={
           reduced
             ? { duration: 0 }
-            : { type: "spring", stiffness: 480, damping: 32, mass: 0.75 }
+            : spring.metricPop
         }
       >
         {value}

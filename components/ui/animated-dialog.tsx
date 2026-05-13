@@ -114,8 +114,7 @@ function AnimatedDialog({
             tabIndex={-1}
             className={cn(
               "w-full rounded-xl border border-border/80 bg-card text-card-foreground",
-              "shadow-elevated ring-1 ring-primary/[0.06]",
-              "shadow-[inset_0_1px_0_0_rgb(255_255_255_/_0.07),0_24px_70px_rgb(0_0_0_/_0.42)]",
+              "ring-1 ring-primary/[0.06] ds-dialog-panel-shadow",
               "[background-image:linear-gradient(to_bottom,color-mix(in_oklch,var(--card)_100%,transparent),var(--card))]",
               className
             )}

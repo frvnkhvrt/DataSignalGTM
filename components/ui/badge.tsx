@@ -8,14 +8,14 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-border bg-secondary/90 text-secondary-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.06)]",
-        muted: "border-border bg-muted/90 text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)]",
-        success: "border-success/40 bg-success/10 text-success shadow-[inset_0_1px_0_rgb(255_255_255_/_0.06)]",
-        warning: "border-warning/40 bg-warning/10 text-warning shadow-[inset_0_1px_0_rgb(255_255_255_/_0.06)]",
+        default: "border-border bg-secondary/90 text-secondary-foreground ds-card-inner-glow",
+        muted: "border-border bg-muted/90 text-muted-foreground ds-inset-top-soft",
+        success: "border-success/40 bg-success/10 text-success ds-card-inner-glow",
+        warning: "border-warning/40 bg-warning/10 text-warning ds-card-inner-glow",
         destructive:
-          "border-destructive/40 bg-destructive/10 text-destructive shadow-[inset_0_1px_0_rgb(255_255_255_/_0.06)]",
-        info: "border-info/40 bg-info/10 text-info shadow-[inset_0_1px_0_rgb(255_255_255_/_0.06)]",
-        brand: "border-primary/40 bg-primary/10 text-primary shadow-[inset_0_1px_0_rgb(255_255_255_/_0.06)]",
+          "border-destructive/40 bg-destructive/10 text-destructive ds-card-inner-glow",
+        info: "border-info/40 bg-info/10 text-info ds-card-inner-glow",
+        brand: "border-primary/40 bg-primary/10 text-primary ds-card-inner-glow",
       },
       shape: {
         pill: "rounded-full",

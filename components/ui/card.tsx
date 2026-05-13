@@ -7,7 +7,7 @@ const cardVariants = cva("rounded-xl border border-border text-card-foreground",
   variants: {
     variant: {
       /** Opaque card — default for most app surfaces. */
-      default: "bg-card shadow-[inset_0_1px_0_0_rgb(255_255_255_/_0.05),0_0_0_1px_rgb(255_255_255_/_0.02)_inset]",
+      default: "bg-card ds-card-surface-opaque",
       /** 80 % opacity — for stat tiles, panels, and data grids. */
       translucent: "bg-card/80 ds-card-inner-glow",
       /** Blurred glass — for marketing overlays and feature cards. */
