@@ -71,7 +71,7 @@ export default function DesignSystemPage() {
             <div className="max-w-3xl">
               <Link
                 href="/"
-                className="mb-6 inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
+                className="ds-focus-ring mb-6 inline-flex items-center gap-2 rounded-md px-1 py-0.5 text-xs text-muted-foreground transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-foreground"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Back to product

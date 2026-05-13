@@ -5,7 +5,7 @@ import { Eye, LogOut, RotateCcw, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuthContext } from "@/lib/auth-context";
@@ -18,6 +18,7 @@ export function DemoBanner() {
   const queryClient = useQueryClient();
   const [isExitPending, startExitTransition] = useTransition();
   const [isResetPending, startResetTransition] = useTransition();
+  const reducedMotion = useReducedMotion();
 
   if (!isDemo) return null;
 
@@ -54,10 +55,14 @@ export function DemoBanner() {
         key="demo-banner"
         role="region"
         aria-label="Demo mode notice"
-        initial={{ opacity: 0, y: -8 }}
+        initial={
+          reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -8 }
+        }
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -6 }}
-        transition={transitionDemoBanner}
+        exit={reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -6 }}
+        transition={
+          reducedMotion ? { duration: 0.01 } : transitionDemoBanner
+        }
         className="border-b border-amber-300/20 bg-gradient-to-r from-amber-300/10 via-background/80 to-cyan-300/10 px-4 py-3 text-foreground backdrop-blur-xl sm:px-6"
       >
         <div className="rounded-xl border border-amber-300/20 bg-background/45 px-4 py-3 shadow-soft ds-card-inner-glow">

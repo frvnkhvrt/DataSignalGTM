@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 function callbackUrl(next = "/") {
   return `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
@@ -63,7 +64,10 @@ export function LoginForm() {
   }
 
   return (
-    <Card elevated className="w-full max-w-md bg-card/88">
+    <Card
+      elevated
+      className="w-full max-w-md border-border/60 bg-card/88 shadow-elevated backdrop-blur-xl ds-card-inner-glow"
+    >
       {demoErrorMessage && (
         <div
           role="alert"
@@ -88,9 +92,9 @@ export function LoginForm() {
 
       <CardContent>
       <div className="space-y-3">
-        <label htmlFor="email" className="block text-xs font-medium text-muted-foreground">
+        <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">
           Email
-        </label>
+        </Label>
         <Input
           id="email"
           type="email"
@@ -111,11 +115,11 @@ export function LoginForm() {
       </div>
 
       <div className="my-5 flex items-center gap-3">
-        <div className="h-px flex-1 bg-border" />
-        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent opacity-80" />
+        <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground/90">
           or
         </span>
-        <div className="h-px flex-1 bg-border" />
+        <div className="h-px flex-1 bg-gradient-to-l from-transparent via-border to-transparent opacity-80" />
       </div>
 
       <Button

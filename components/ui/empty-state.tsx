@@ -29,7 +29,7 @@ function EmptyState({
   return (
     <Card
       className={cn(
-        "mx-auto flex max-w-lg flex-col items-center border-border/50 bg-card/50 px-6 py-10 text-center",
+        "mx-auto flex max-w-lg flex-col items-center border-border/55 bg-card/55 px-6 py-10 text-center shadow-soft backdrop-blur-md",
         "ds-inset-top-soft",
         "[background-image:radial-gradient(ellipse_60%_50%_at_50%_0%,color-mix(in_oklch,var(--primary)_5%,transparent),transparent)]",
         className

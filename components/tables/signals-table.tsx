@@ -25,6 +25,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import {
   approveSignal,
   generatePlaybookForSignal,
@@ -58,6 +59,13 @@ import {
 import { isRecentlyUpdated } from "@/lib/realtime-glow";
 import { SortButton, tableCheckboxClassName } from "@/components/tables/table-primitives";
 import { TableColumnsMenu } from "@/components/tables/table-columns-menu";
+import {
+  Table,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type BulkAction = "approve" | "reject";
 type Density = "comfortable" | "compact";
@@ -524,31 +532,34 @@ export function SignalsTable({
 
       <Card className="overflow-hidden bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] text-sm">
-            <thead className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm">
+          <Table className="min-w-[980px]">
+            <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm">
               {table.getHeaderGroups().map((headerGroup) => (
-                <tr
+                <TableRow
                   key={headerGroup.id}
-                  className="text-left text-[11px] uppercase tracking-wide text-muted-foreground ds-chrome-divider"
+                  className="border-0 text-left text-[11px] uppercase tracking-wide text-muted-foreground hover:bg-transparent data-[state=selected]:bg-transparent ds-chrome-divider"
                 >
                   {headerGroup.headers.map((header) => (
-                    <th key={header.id} className="px-3 py-3 font-medium">
+                    <TableHead key={header.id} className="px-3 py-3">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                    </th>
+                    </TableHead>
                   ))}
-                </tr>
+                </TableRow>
               ))}
-            </thead>
+            </TableHeader>
             <AnimatePresence mode="wait" initial={false}>
               {isLoading ? (
                 <motion.tbody
                   key="skeleton"
-                  className="divide-y divide-border"
+                  className={cn(
+                    "[&_tr:last-child]:border-0",
+                    "divide-y divide-border"
+                  )}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -559,7 +570,10 @@ export function SignalsTable({
               ) : table.getRowModel().rows.length > 0 ? (
                 <motion.tbody
                   key="content"
-                  className="divide-y divide-border"
+                  className={cn(
+                    "[&_tr:last-child]:border-0",
+                    "divide-y divide-border"
+                  )}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -579,9 +593,9 @@ export function SignalsTable({
                         data-selected={row.getIsSelected()}
                       >
                         {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id} className={`${rowPadding} align-middle`}>
+                          <TableCell key={cell.id} className={rowPadding}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
+                          </TableCell>
                         ))}
                       </MotionListItem>
                     ))}
@@ -590,13 +604,17 @@ export function SignalsTable({
               ) : (
                 <motion.tbody
                   key="empty"
+                  className="[&_tr:last-child]:border-0"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={transitionTableSkeletonFade}
                 >
-                  <tr>
-                    <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-10">
+                  <TableRow className="border-0 hover:bg-transparent">
+                    <TableCell
+                      colSpan={table.getVisibleLeafColumns().length}
+                      className="px-4 py-10"
+                    >
                       <EmptyState
                         icon={<Sparkles className="h-6 w-6" />}
                         title="No signals in this view"
@@ -615,12 +633,12 @@ export function SignalsTable({
                           </Button>
                         }
                       />
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 </motion.tbody>
               )}
             </AnimatePresence>
-          </table>
+          </Table>
         </div>
       </Card>
 

@@ -10,6 +10,7 @@ import {
 import { AnalyticsProvider } from "@/components/analytics-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motionDefaultsTransition } from "@/components/ui/motion";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 function MissingEnvBanner() {
   return (
@@ -64,7 +65,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       transition={motionDefaultsTransition}
     >
       <AnalyticsProvider>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider delayDuration={280}>{children}</TooltipProvider>
+        </QueryClientProvider>
       </AnalyticsProvider>
     </MotionConfig>
   );

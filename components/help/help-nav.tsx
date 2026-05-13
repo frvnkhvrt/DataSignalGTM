@@ -23,6 +23,7 @@ export function HelpNav() {
           <Link
             key={href}
             href={href}
+            aria-current={isActive ? "page" : undefined}
             className={cn(
               "ds-focus-ring group relative flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm ds-transition-muted",
               isActive

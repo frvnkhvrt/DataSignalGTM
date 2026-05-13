@@ -3,7 +3,7 @@
 import { Command, LogOut } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useAuthContext } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ export function TopBar() {
   const [isPending, startTransition] = useTransition();
   const { org, user } = useAuthContext();
   const shortcut = useShortcutLabel();
+  const reducedMotion = useReducedMotion();
 
   function signOut() {
     startTransition(async () => {
@@ -59,10 +60,16 @@ export function TopBar() {
         <motion.p
           key={subtitle}
           className="font-display text-sm font-medium tracking-[-0.02em] text-muted-foreground"
-          initial={{ opacity: 0, y: 3 }}
+          initial={
+            reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 3 }
+          }
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -3 }}
-          transition={transitionTopBarSubtitle}
+          exit={
+            reducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -3 }
+          }
+          transition={
+            reducedMotion ? { duration: 0.01 } : transitionTopBarSubtitle
+          }
         >
           {subtitle}
         </motion.p>
@@ -70,7 +77,7 @@ export function TopBar() {
       <div className="flex items-center gap-3">
         <div className="hidden items-center gap-1.5 rounded-md border border-border bg-background/40 px-2 py-1 text-[11px] text-muted-foreground ds-inset-top-mid lg:flex">
           <Command className="h-3 w-3" />
-          <kbd className="rounded bg-muted/80 px-1.5 py-0.5 font-mono leading-none shadow-[inset_0_-1px_0_rgb(0_0_0_/_0.1)]">{shortcut}</kbd>
+          <kbd className="rounded-md border border-border/70 bg-muted/55 px-1.5 py-0.5 font-mono text-[10px] leading-none text-muted-foreground/90 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)]">{shortcut}</kbd>
         </div>
         <div className="hidden rounded-md border border-border/50 bg-background/30 px-2.5 py-1.5 text-right ds-inset-top-soft sm:block">
           <div className="text-xs font-medium text-foreground">{org.name}</div>

@@ -268,7 +268,7 @@ export default function MarketingPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="ds-transition-muted hidden text-sm text-muted-foreground hover:text-foreground sm:block"
+              className="ds-focus-ring ds-transition-muted hidden rounded-md px-1 py-0.5 text-sm text-muted-foreground hover:text-foreground sm:block"
             >
               Sign in
             </Link>
@@ -600,19 +600,19 @@ export default function MarketingPage() {
           <div className="flex gap-6 text-xs text-muted-foreground">
             <Link
               href="/help"
-              className="ds-transition-muted hover:text-foreground"
+              className="ds-focus-ring ds-transition-muted rounded-md px-0.5 py-0.5 hover:text-foreground"
             >
               Docs
             </Link>
             <a
               href="mailto:hello@datasignalgtm.com"
-              className="ds-transition-muted hover:text-foreground"
+              className="ds-focus-ring ds-transition-muted rounded-md px-0.5 py-0.5 hover:text-foreground"
             >
               Contact
             </a>
             <Link
               href="/login"
-              className="ds-transition-muted hover:text-foreground"
+              className="ds-focus-ring ds-transition-muted rounded-md px-0.5 py-0.5 hover:text-foreground"
             >
               Sign in
             </Link>

@@ -115,6 +115,7 @@ export function CommandPalette() {
   const flags = useFlags();
   const qc = useQueryClient();
   const { isDemo, showDemoLimitation } = useDemoLimitation("command_palette");
+  const paletteReducedMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [recent, setRecent] = useState<string[]>(() => {
@@ -230,28 +231,36 @@ export function CommandPalette() {
         <h2 id="command-palette-title" className="sr-only">
           Command palette
         </h2>
-        <div className="relative flex items-center gap-2 px-4">
-          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-          <Command.Input
-            value={search}
-            onValueChange={setSearch}
-            aria-label="Search commands, accounts, and signal actions"
-            placeholder="Search accounts or run actions..."
-            className="ds-focus-ring ds-input-well h-12 flex-1 bg-transparent text-sm text-foreground outline-none transition-[border-color,box-shadow,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] placeholder:text-muted-foreground focus-visible:border-ring/60"
-          />
-          <kbd className="rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] text-muted-foreground ds-inset-top-mid">
-            Esc
-          </kbd>
+        <div className="relative px-4 pb-3 pt-2.5">
+          <div className="flex items-start gap-2.5">
+            <div className="relative flex min-h-10 min-w-0 flex-1 items-center gap-2.5 rounded-lg border border-border/55 bg-background/40 px-3 py-2 ds-input-well shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)] transition-[border-color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] focus-within:border-primary/35 focus-within:bg-background/55 focus-within:shadow-soft">
+              <Search className="h-4 w-4 shrink-0 text-muted-foreground opacity-90" strokeWidth={2} />
+              <Command.Input
+                value={search}
+                onValueChange={setSearch}
+                aria-label="Search commands, accounts, and signal actions"
+                placeholder="Search accounts or run actions..."
+                className="ds-focus-ring min-h-0 min-w-0 flex-1 bg-transparent py-0.5 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+              />
+            </div>
+            <kbd className="mt-0.5 shrink-0 rounded-md border border-border/70 bg-background/45 px-2 py-1 text-[10px] font-medium text-muted-foreground/90 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)]">
+              Esc
+            </kbd>
+          </div>
           {/* Gradient-faded separator under the search bar */}
-          <div className="ds-separator absolute inset-x-0 bottom-0" />
+          <div className="ds-separator pointer-events-none absolute inset-x-4 bottom-0" />
         </div>
         <Command.List className="max-h-[420px] overflow-y-auto p-2">
           <Command.Empty className="px-3 py-8 text-center text-sm text-muted-foreground">
             <motion.div
               aria-hidden="true"
-              initial={{ opacity: 0, scale: 0.92 }}
+              initial={
+                paletteReducedMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.92 }
+              }
               animate={{ opacity: 1, scale: 1 }}
-              transition={transitionPaletteEmpty}
+              transition={
+                paletteReducedMotion ? { duration: 0.01 } : transitionPaletteEmpty
+              }
               className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface ds-inset-top-mid"
             >
               <Search className="h-4 w-4" />

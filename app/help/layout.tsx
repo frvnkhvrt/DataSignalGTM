@@ -10,11 +10,11 @@ export default function HelpLayout({
 }) {
   return (
     <div className="ds-page min-h-screen text-foreground">
-      <nav className="sticky top-0 z-40 border-b border-border bg-background/82 backdrop-blur-xl ds-chrome-divider">
+      <nav className="sticky top-0 z-40 border-b border-border/70 bg-background/82 backdrop-blur-xl ds-chrome-divider">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:px-6">
           <Link
             href="/"
-            className="ds-transition-muted flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+            className="ds-focus-ring ds-transition-muted flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back
@@ -48,7 +48,7 @@ export default function HelpLayout({
           <div className="mb-6 grid gap-3 sm:grid-cols-2">
             <Link
               href="/help/signals"
-              className="ds-focus-ring ds-pressable rounded-xl border border-border bg-card/70 p-4 hover:bg-surface-elevated"
+              className="ds-focus-ring ds-pressable group rounded-xl border border-border/70 bg-card/70 p-4 shadow-soft backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] ds-card-inner-glow hover:border-primary/20 hover:bg-surface-elevated/80 hover:shadow-elevated"
             >
               <Radio className="h-4 w-4 text-primary" />
               <div className="mt-2 text-sm font-medium">
@@ -60,7 +60,7 @@ export default function HelpLayout({
             </Link>
             <Link
               href="/help/webhook"
-              className="ds-focus-ring ds-pressable rounded-xl border border-border bg-card/70 p-4 hover:bg-surface-elevated"
+              className="ds-focus-ring ds-pressable group rounded-xl border border-border/70 bg-card/70 p-4 shadow-soft backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] ds-card-inner-glow hover:border-primary/20 hover:bg-surface-elevated/80 hover:shadow-elevated"
             >
               <Webhook className="h-4 w-4 text-primary" />
               <div className="mt-2 text-sm font-medium">
@@ -71,7 +71,7 @@ export default function HelpLayout({
               </p>
             </Link>
           </div>
-          <div className="prose prose-invert prose-zinc max-w-none rounded-2xl border border-border bg-card/60 p-6 prose-headings:ds-heading prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-code:border prose-code:border-border prose-code:bg-background/60 prose-code:text-foreground">
+          <div className="prose prose-invert prose-zinc max-w-none rounded-2xl border border-border/70 bg-card/65 p-6 shadow-soft backdrop-blur-xl prose-headings:ds-heading prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-code:border prose-code:border-border prose-code:bg-background/60 prose-code:text-foreground">
             {children}
           </div>
         </main>

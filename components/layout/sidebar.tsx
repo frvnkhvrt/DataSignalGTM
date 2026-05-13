@@ -14,7 +14,7 @@ import {
   Radio,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { spring } from "@/components/ui/motion";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,7 @@ const PILL_LAYOUT_ID = "sidebar-active-pill";
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const reducedMotion = useReducedMotion();
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem("datasignalgtm.sidebar.collapsed") === "true";
@@ -50,7 +51,7 @@ export function Sidebar() {
   useEffect(() => {
     document.documentElement.style.setProperty(
       "--sidebar-width",
-      collapsed ? "5.25rem" : "15rem"
+      collapsed ? "5.5rem" : "15rem"
     );
     window.localStorage.setItem(
       "datasignalgtm.sidebar.collapsed",
@@ -59,22 +60,28 @@ export function Sidebar() {
   }, [collapsed]);
 
   return (
-    <aside className="fixed inset-x-0 bottom-0 z-20 flex h-16 border-t border-border bg-background/88 backdrop-blur-xl transition-[width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] sm:inset-x-auto sm:inset-y-0 sm:left-0 sm:h-auto sm:w-[var(--sidebar-width)] sm:flex-col sm:border-r-0 sm:border-t-0 sm:[box-shadow:1px_0_0_var(--color-border)]">
+    <aside
+      className={cn(
+        "fixed inset-x-0 bottom-0 z-20 flex h-16 border-t border-border bg-background/88 backdrop-blur-xl sm:inset-x-auto sm:inset-y-0 sm:left-0 sm:h-auto sm:w-[var(--sidebar-width)] sm:flex-col sm:border-r-0 sm:border-t-0 sm:[box-shadow:1px_0_0_var(--color-border)]",
+        "will-change-[width] transition-[width,background-color,box-shadow] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)]",
+        collapsed && "sm:bg-background/92 sm:[box-shadow:1px_0_0_var(--color-border),inset_0_1px_0_0_rgb(255_255_255/0.02)]"
+      )}
+    >
       <div
         className={cn(
           "hidden sm:flex ds-chrome-divider",
           collapsed
-            ? "flex-col items-center gap-2.5 px-2 pb-3 pt-3"
-            : "h-14 flex-row items-center gap-2 px-4"
+            ? "flex-col items-center gap-2 px-2.5 pb-2.5 pt-2.5"
+            : "h-14 flex-row items-center gap-3 px-4"
         )}
       >
         <div
           className={cn(
-            "flex shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 ds-shadow-brand-well",
-            collapsed ? "h-9 w-9" : "h-7 w-7 rounded-md"
+            "flex shrink-0 items-center justify-center border border-primary/22 bg-primary/10 ds-shadow-brand-well ds-inset-top-soft transition-[border-color,box-shadow,transform] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-primary/32 hover:bg-primary/11",
+            "size-8 rounded-lg"
           )}
         >
-          <Activity className={cn("text-primary", collapsed ? "h-[18px] w-[18px]" : "h-4 w-4")} />
+          <Activity className="size-4 text-primary" strokeWidth={2.25} />
         </div>
         <span
           className={cn(
@@ -89,17 +96,19 @@ export function Sidebar() {
           variant="ghost"
           size="icon"
           className={cn(
-            "hidden shrink-0 sm:inline-flex",
-            collapsed ? "h-8 w-8 rounded-lg text-muted-foreground hover:bg-surface-elevated hover:text-foreground" : "ml-auto h-8 w-8"
+            "hidden shrink-0 text-muted-foreground transition-[background-color,color,transform,box-shadow,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] sm:inline-flex",
+            "ds-focus-ring border border-transparent hover:border-border/55 hover:bg-surface-elevated hover:text-foreground hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] active:scale-[0.97] motion-reduce:active:scale-100",
+            collapsed ? "size-8 rounded-lg" : "ml-auto size-8 rounded-lg"
           )}
           onClick={() => setCollapsed((v) => !v)}
+          aria-expanded={!collapsed}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="size-4" strokeWidth={2.25} />
           ) : (
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="size-4" strokeWidth={2.25} />
           )}
         </Button>
       </div>
@@ -108,9 +117,10 @@ export function Sidebar() {
         {navGroups.map((group) => (
           <div key={group.label} className="contents sm:block">
             <div
-              className={`hidden px-2 pb-1.5 pt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/60 sm:block ${
-                collapsed ? "sr-only" : ""
-              }`}
+              className={cn(
+                "hidden px-2 pb-1.5 pt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/60 sm:block",
+                collapsed && "sr-only"
+              )}
             >
               {group.label}
             </div>
@@ -128,25 +138,34 @@ export function Sidebar() {
                     title={collapsed ? label : undefined}
                     onFocus={() => router.prefetch(href)}
                     onMouseEnter={() => router.prefetch(href)}
-                    className={`ds-focus-ring relative flex flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] sm:flex-row sm:gap-3 sm:border-l-2 sm:border-t-0 sm:text-sm ${
-                      collapsed ? "sm:justify-center sm:px-2" : "sm:justify-start sm:px-3"
-                    } ${
+                    className={cn(
+                      "ds-focus-ring relative flex flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] transition-[color,background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] sm:flex-row sm:border-l-2 sm:border-t-0 sm:text-sm",
+                      collapsed
+                        ? "sm:mx-auto sm:size-10 sm:max-w-10 sm:justify-center sm:gap-0 sm:rounded-lg sm:border-l-transparent sm:px-0 sm:py-0"
+                        : "sm:justify-start sm:gap-3 sm:px-3 sm:py-2",
                       active
                         ? "border-primary text-foreground sm:border-transparent"
-                        : "border-transparent text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
-                    }`}
+                        : "border-transparent text-muted-foreground hover:bg-surface-elevated hover:text-foreground sm:hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]"
+                    )}
                   >
                     {/* Desktop animated pill — slides between active items via layoutId */}
                     {active && (
                       <motion.span
                         layoutId={PILL_LAYOUT_ID}
                         aria-hidden="true"
-                        className="ds-nav-active-pill pointer-events-none absolute inset-0 hidden rounded-md border-l-2 border-primary bg-gradient-to-r from-primary/14 to-primary/6 sm:block"
-                        transition={spring.sidebarPill}
+                        className={cn(
+                          "ds-nav-active-pill pointer-events-none absolute hidden border-l-2 border-primary bg-gradient-to-r from-primary/14 to-primary/6 sm:block",
+                          collapsed
+                            ? "inset-1 rounded-md"
+                            : "inset-0 rounded-md"
+                        )}
+                        transition={
+                          reducedMotion ? { duration: 0.01 } : spring.sidebarPill
+                        }
                       />
                     )}
-                    <Icon className="relative z-10 h-4 w-4 shrink-0" />
-                    <span className={`relative z-10 ${collapsed ? "sm:sr-only" : ""}`}>
+                    <Icon className="relative z-10 size-4 shrink-0" strokeWidth={2} />
+                    <span className={cn("relative z-10", collapsed && "sm:sr-only")}>
                       {label}
                     </span>
                   </Link>
@@ -162,12 +181,15 @@ export function Sidebar() {
             title={collapsed ? "Help" : undefined}
             onFocus={() => router.prefetch("/help")}
             onMouseEnter={() => router.prefetch("/help")}
-            className={`ds-focus-ring relative flex items-center gap-3 overflow-hidden rounded-md border-l-2 border-transparent py-2 text-sm text-muted-foreground hover:bg-surface-elevated hover:text-foreground ${
-              collapsed ? "justify-center px-2" : "px-3"
-            }`}
+            className={cn(
+              "ds-focus-ring relative flex items-center gap-3 overflow-hidden rounded-md border-l-2 border-transparent py-2 text-sm text-muted-foreground transition-[color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:bg-surface-elevated hover:text-foreground sm:hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]",
+              collapsed
+                ? "justify-center px-2 sm:mx-auto sm:size-10 sm:max-w-10 sm:rounded-lg sm:px-0"
+                : "px-3"
+            )}
           >
-            <BookOpen className="relative z-10 h-4 w-4 shrink-0" />
-            <span className={`relative z-10 ${collapsed ? "sr-only" : ""}`}>
+            <BookOpen className="relative z-10 size-4 shrink-0" strokeWidth={2} />
+            <span className={cn("relative z-10", collapsed && "sm:sr-only")}>
               Help
             </span>
           </Link>
