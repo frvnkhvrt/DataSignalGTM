@@ -249,10 +249,23 @@ export async function getAuthContext(): Promise<AuthContext | null> {
   if (!user) return null;
 
   const isDemo = isDemoEmail(user.email) || hasDemoAppMetadata(user.app_metadata);
-  const org =
-    isDemo
-      ? await createDemoOrgMembership(user)
-      : ((await getCurrentOrg(user)) ?? (await createPersonalOrg(user)));
 
+  let org: CurrentOrg | null;
+  if (isDemo) {
+    // Happy path: demo org + membership already exist — no admin client needed.
+    org = await getCurrentOrg(user);
+    // Only try the admin upsert if the membership is somehow missing.
+    if (!org) {
+      try {
+        org = await createDemoOrgMembership(user);
+      } catch {
+        return null;
+      }
+    }
+  } else {
+    org = (await getCurrentOrg(user)) ?? (await createPersonalOrg(user));
+  }
+
+  if (!org) return null;
   return { user, org, isDemo };
 }
