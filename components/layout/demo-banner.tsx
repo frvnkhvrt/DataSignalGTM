@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { useAuthContext } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase/client";
+import { transitionDemoBanner } from "@/components/ui/motion";
 
 export function DemoBanner() {
   const { isDemo, org } = useAuthContext();
@@ -55,7 +56,7 @@ export function DemoBanner() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -6 }}
-        transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+        transition={transitionDemoBanner}
         className="border-b border-amber-300/20 bg-gradient-to-r from-amber-300/10 via-background/80 to-cyan-300/10 px-4 py-3 text-foreground backdrop-blur-xl sm:px-6"
       >
         <div className="rounded-xl border border-amber-300/20 bg-background/45 px-4 py-3 shadow-soft">

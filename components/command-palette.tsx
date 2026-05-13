@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -33,6 +33,11 @@ import type { SignalStatus } from "@/types/signal";
 import { AnimatedDialog } from "@/components/ui/animated-dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import {
+  cmdPaletteItemVariants,
+  staggerContainerFast,
+  transitionPaletteEmpty,
+} from "@/components/ui/motion";
 import { motion, useReducedMotion } from "motion/react";
 
 const RECENT_KEY = "datasignalgtm.commandPalette.recent";
@@ -63,21 +68,43 @@ function Highlight({ text, query }: { text: string; query: string }) {
   );
 }
 
+/** Palette row — tactile highlight ramp aligned with table rows */
+const paletteRowBase =
+  "outline-none transition-[background-color,box-shadow,color,transform] duration-[150ms] ease-[var(--ease-premium)]";
+
 function CmdItem({
   children,
   className,
   ...props
 }: React.ComponentProps<typeof Command.Item>) {
   const reduced = useReducedMotion();
-  return (
-    <motion.div
-      initial={reduced ? false : { opacity: 0, y: 3 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.14, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <Command.Item className={className} {...props}>
+  const merged = cn(
+    paletteRowBase,
+    !reduced && "data-[selected=true]:translate-x-px",
+    className
+  );
+  if (reduced) {
+    return (
+      <Command.Item className={merged} {...props}>
         {children}
       </Command.Item>
+    );
+  }
+  return (
+    <motion.div variants={cmdPaletteItemVariants} className="min-w-0">
+      <Command.Item className={merged} {...props}>
+        {children}
+      </Command.Item>
+    </motion.div>
+  );
+}
+
+function CommandGroupStagger({ children }: { children: React.ReactNode }) {
+  const reduced = useReducedMotion();
+  if (reduced) return <>{children}</>;
+  return (
+    <motion.div variants={staggerContainerFast} initial="hidden" animate="visible">
+      {children}
     </motion.div>
   );
 }
@@ -224,7 +251,7 @@ export function CommandPalette() {
               aria-hidden="true"
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              transition={transitionPaletteEmpty}
               className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)]"
             >
               <Search className="h-4 w-4" />
@@ -235,70 +262,75 @@ export function CommandPalette() {
 
           {recent.length > 0 && (
             <Command.Group heading="Recently used" className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70">
-              {recent.map((label) => (
-                <Command.Item
-                  key={label}
-                  value={`recent ${label}`}
-                  onSelect={() => {
-                    const nav = NAV_ITEMS.find((item) => item.label === label);
-                    if (nav) navigate(nav.label, nav.href);
-                    else if (label.startsWith("Generate ")) {
-                      if (isDemo) {
-                        showDemoLimitation("generate_playbook_recent");
-                        return;
+              <CommandGroupStagger>
+                {recent.map((label) => (
+                  <CmdItem
+                    key={label}
+                    value={`recent ${label}`}
+                    onSelect={() => {
+                      const nav = NAV_ITEMS.find((item) => item.label === label);
+                      if (nav) navigate(nav.label, nav.href);
+                      else if (label.startsWith("Generate ")) {
+                        if (isDemo) {
+                          showDemoLimitation("generate_playbook_recent");
+                          return;
+                        }
+                        const accountName = label.replace("Generate ", "");
+                        const signal = signalsByAccount.get(accountName);
+                        if (signal) generate.mutate(signal.id);
+                      } else if (label.startsWith("Approve ")) {
+                        if (isDemo) {
+                          showDemoLimitation("approve_signal_recent");
+                          return;
+                        }
+                        transition.mutate({
+                          action: "approve",
+                          accountName: label.replace("Approve ", ""),
+                        });
+                      } else if (label.startsWith("Reject ")) {
+                        if (isDemo) {
+                          showDemoLimitation("reject_signal_recent");
+                          return;
+                        }
+                        transition.mutate({
+                          action: "reject",
+                          accountName: label.replace("Reject ", ""),
+                        });
                       }
-                      const accountName = label.replace("Generate ", "");
-                      const signal = signalsByAccount.get(accountName);
-                      if (signal) generate.mutate(signal.id);
-                    } else if (label.startsWith("Approve ")) {
-                      if (isDemo) {
-                        showDemoLimitation("approve_signal_recent");
-                        return;
-                      }
-                      transition.mutate({
-                        action: "approve",
-                        accountName: label.replace("Approve ", ""),
-                      });
-                    } else if (label.startsWith("Reject ")) {
-                      if (isDemo) {
-                        showDemoLimitation("reject_signal_recent");
-                        return;
-                      }
-                      transition.mutate({
-                        action: "reject",
-                        accountName: label.replace("Reject ", ""),
-                      });
-                    }
-                  }}
-                  className={cn(
-                    "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground",
-                    "aria-selected:bg-gradient-to-r aria-selected:from-primary/12 aria-selected:to-primary/6 aria-selected:text-primary aria-selected:shadow-[inset_2px_0_0_var(--color-primary)]",
-                    isDemo && isMutableRecentLabel(label) && "cursor-not-allowed opacity-55"
-                  )}
-                >
-                  <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                  <Highlight text={label} query={search} />
-                </Command.Item>
-              ))}
+                    }}
+                    className={cn(
+                      "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground",
+                      "aria-selected:bg-gradient-to-r aria-selected:from-primary/12 aria-selected:to-primary/6 aria-selected:text-primary aria-selected:shadow-[inset_2px_0_0_var(--color-primary)]",
+                      isDemo && isMutableRecentLabel(label) && "cursor-not-allowed opacity-55"
+                    )}
+                  >
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Highlight text={label} query={search} />
+                  </CmdItem>
+                ))}
+              </CommandGroupStagger>
             </Command.Group>
           )}
 
           <Command.Group heading="Navigate" className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70">
-            {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
-              <CmdItem
-                key={href}
-                value={label}
-                onSelect={() => navigate(label, href)}
-                className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-gradient-to-r aria-selected:from-primary/12 aria-selected:to-primary/6 aria-selected:text-primary aria-selected:shadow-[inset_2px_0_0_var(--color-primary)]"
-              >
-                <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-                <Highlight text={label} query={search} />
-              </CmdItem>
-            ))}
+            <CommandGroupStagger>
+              {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
+                <CmdItem
+                  key={href}
+                  value={label}
+                  onSelect={() => navigate(label, href)}
+                  className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-gradient-to-r aria-selected:from-primary/12 aria-selected:to-primary/6 aria-selected:text-primary aria-selected:shadow-[inset_2px_0_0_var(--color-primary)]"
+                >
+                  <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Highlight text={label} query={search} />
+                </CmdItem>
+              ))}
+            </CommandGroupStagger>
           </Command.Group>
 
           <Command.Group heading="Accounts" className="mt-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70">
-            {accounts.map((account) => {
+            <CommandGroupStagger>
+              {accounts.map((account) => {
               const signal = signalsByAccount.get(account.name);
               const canGenerate =
                 signal &&
@@ -345,17 +377,19 @@ export function CommandPalette() {
                 </CmdItem>
               );
             })}
+            </CommandGroupStagger>
           </Command.Group>
 
           <Command.Group heading="Signals" className="mt-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70">
-            {signals.map((signal) => {
+            <CommandGroupStagger>
+              {signals.map((signal) => {
               const name = signal.account_name ?? "";
               const status = (signal.status ?? "pending") as SignalStatus;
               const canApprove = name && canTransition(status, "approved");
               const canReject = name && canTransition(status, "rejected");
 
               return (
-                <div key={signal.id}>
+                <Fragment key={signal.id}>
                   {canApprove && (
                     <CmdItem
                       value={`approve ${name}`}
@@ -404,9 +438,10 @@ export function CommandPalette() {
                       </span>
                     </CmdItem>
                   )}
-                </div>
+                </Fragment>
               );
             })}
+            </CommandGroupStagger>
           </Command.Group>
         </Command.List>
       </Command>

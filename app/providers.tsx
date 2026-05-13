@@ -9,6 +9,7 @@ import {
 } from "@/lib/supabase/client";
 import { AnalyticsProvider } from "@/components/analytics-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motionDefaultsTransition } from "@/components/ui/motion";
 
 function MissingEnvBanner() {
   return (
@@ -60,7 +61,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <MotionConfig
       reducedMotion="user"
-      transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+      transition={motionDefaultsTransition}
     >
       <AnalyticsProvider>
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

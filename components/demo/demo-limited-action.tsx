@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useAuthContext } from "@/lib/auth-context";
 import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
+import { spring } from "@/components/ui/motion";
 
 const DEMO_TOOLTIP = "Not available in demo mode";
 const DEMO_TOAST = "This action isn't available in the demo.";
@@ -60,6 +61,7 @@ export function DemoLimitedAction({
       className={cn("inline-flex", wrapperClassName)}
       title={DEMO_TOOLTIP}
       whileTap={reduced ? undefined : { scale: 0.97 }}
+      transition={reduced ? undefined : spring.snappy}
     >
       {cloneElement(children, {
         // disabled=false intentionally: keeps the element keyboard-reachable so

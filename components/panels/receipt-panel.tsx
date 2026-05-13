@@ -31,6 +31,11 @@ import {
 import { useCurrentOrg } from "@/lib/auth-context";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 import { Button } from "@/components/ui/button";
+import {
+  transitionReceiptContent,
+  transitionReceiptCrossfade,
+  transitionReceiptCrossfadeShort,
+} from "@/components/ui/motion";
 import type { SignalStatus } from "@/types/signal";
 import { isTerminal, canTransition } from "@/types/signal";
 import { motion, AnimatePresence } from "motion/react";
@@ -143,7 +148,7 @@ export function ReceiptPanel({
     <Sheet open={!!account} onOpenChange={(o) => !o && onClose()}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-lg bg-card border-l border-border text-card-foreground p-0 overflow-y-auto"
+        className="w-full sm:max-w-lg bg-card border-l border-border text-card-foreground p-0 overflow-y-auto ds-card-inner-glow"
       >
         <SheetHeader className="px-6 py-4 border-b border-border">
           <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
@@ -217,7 +222,7 @@ export function ReceiptPanel({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.18 }}
+              transition={transitionReceiptCrossfadeShort}
               className="flex items-center gap-2 text-sm text-muted-foreground"
             >
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -231,7 +236,7 @@ export function ReceiptPanel({
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              transition={transitionReceiptCrossfade}
               className="space-y-3"
             >
               <div className="rounded-md border border-border bg-background/60 px-3 py-3 text-xs text-muted-foreground">
@@ -268,7 +273,7 @@ export function ReceiptPanel({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              transition={transitionReceiptContent}
             >
               <div>
                 <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">

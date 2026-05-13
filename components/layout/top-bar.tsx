@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useAuthContext } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { transitionTopBarSubtitle } from "@/components/ui/motion";
 
 function subtitleForPath(pathname: string): string {
   if (pathname === "/dashboard") return "Executive overview";
@@ -61,7 +62,7 @@ export function TopBar() {
           initial={{ opacity: 0, y: 3 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -3 }}
-          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          transition={transitionTopBarSubtitle}
         >
           {subtitle}
         </motion.p>

@@ -16,6 +16,7 @@ import { useAuthContext } from "@/lib/auth-context";
 import { track } from "@/lib/analytics";
 import { AnimatedDialog } from "@/components/ui/animated-dialog";
 import { Button } from "@/components/ui/button";
+import { transitionOnboardingStep } from "@/components/ui/motion";
 
 interface Step {
   id: string;
@@ -146,7 +147,7 @@ export function OnboardingModal({
             initial={reducedMotion ? false : { opacity: 0, y: 10, filter: "blur(4px)" }}
             animate={reducedMotion ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={reducedMotion ? undefined : { opacity: 0, y: -8, filter: "blur(4px)" }}
-            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+            transition={transitionOnboardingStep}
             className="px-6 py-6"
           >
             <div className="ds-empty-orb mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-border">

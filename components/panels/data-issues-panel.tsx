@@ -291,7 +291,7 @@ export function DataIssuesPanel({
     <Sheet open={!!account} onOpenChange={(o) => !o && onClose()}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-md bg-card border-l border-border text-card-foreground p-0 flex flex-col"
+        className="w-full sm:max-w-md bg-card border-l border-border text-card-foreground p-0 flex flex-col ds-card-inner-glow"
       >
         {/* ── Fixed header ── */}
         <SheetHeader className="px-6 py-4 border-b border-border shrink-0">

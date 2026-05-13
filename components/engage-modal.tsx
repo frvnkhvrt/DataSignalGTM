@@ -68,7 +68,7 @@ function EngageModalContent({
 
   return (
     <>
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <div className="relative flex items-center justify-between px-5 py-4">
           <div>
             <div id="engage-title" className="text-sm font-semibold text-foreground">
               {account.name}
@@ -86,6 +86,7 @@ function EngageModalContent({
           >
             <X className="h-4 w-4" />
           </Button>
+          <div className="ds-separator pointer-events-none absolute inset-x-0 bottom-0" aria-hidden />
         </div>
         <div className="px-5 py-4">
           <label
@@ -98,10 +99,11 @@ function EngageModalContent({
             id="engage-draft"
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            className="ds-focus-ring h-56 w-full resize-y rounded-md border border-input bg-background/60 p-3 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground"
+            className="ds-focus-ring ds-input-well h-56 w-full resize-y rounded-md border border-input bg-background/60 p-3 text-sm leading-relaxed text-foreground transition-[border-color,box-shadow] duration-[160ms] ease-[var(--ease-premium)] placeholder:text-muted-foreground hover:border-border/90 focus-visible:border-ring/60"
           />
         </div>
-        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+        <div className="relative flex items-center justify-end gap-2 px-5 pb-3 pt-4">
+          <div className="ds-separator pointer-events-none absolute inset-x-0 top-0" aria-hidden />
           <Button
             type="button"
             onClick={onClose}

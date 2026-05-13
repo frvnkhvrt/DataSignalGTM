@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { spring } from "@/components/ui/motion";
 
 const navGroups = [
   {
@@ -127,12 +128,7 @@ export function Sidebar() {
                         style={{
                           boxShadow: "inset 2px 0 0 var(--color-primary), 0 0 18px color-mix(in oklch, var(--primary) 12%, transparent)",
                         }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 380,
-                          damping: 36,
-                          mass: 0.9,
-                        }}
+                        transition={spring.sidebarPill}
                       />
                     )}
                     <Icon className="relative z-10 h-4 w-4 shrink-0" />

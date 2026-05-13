@@ -19,7 +19,6 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
-  ChevronsUpDown,
   ShieldCheck,
   Wrench,
 } from "lucide-react";
@@ -32,9 +31,14 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TableSkeleton } from "@/components/ui/skeleton";
-import { AnimatePresence } from "motion/react";
-import { MotionListItem } from "@/components/ui/motion";
+import { AnimatePresence, motion } from "motion/react";
+import {
+  MotionListItem,
+  transitionTableContentFade,
+  transitionTableSkeletonFade,
+} from "@/components/ui/motion";
 import { isRecentlyUpdated } from "@/lib/realtime-glow";
+import { SortButton, tableCheckboxClassName } from "@/components/tables/table-primitives";
 import {
   dqStatusLabel,
   dqTone,
@@ -51,25 +55,6 @@ function accountBucket(account: AccountRow): AccountFilter {
   if (score >= 90) return "healthy";
   if (score >= 75) return "held";
   return "critical";
-}
-
-function SortButton({
-  children,
-  onClick,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="ds-focus-ring inline-flex items-center gap-1 rounded text-left font-medium text-muted-foreground transition-colors hover:text-foreground"
-    >
-      {children}
-      <ChevronsUpDown className="h-3 w-3" />
-    </button>
-  );
 }
 
 function StatusChip({ tone, label }: { tone: Tone; label: string }) {
@@ -143,7 +128,7 @@ export function AccountsTable({
             aria-label="Select all visible accounts"
             checked={table.getIsAllPageRowsSelected()}
             onChange={table.getToggleAllPageRowsSelectedHandler()}
-            className="h-4 w-4 rounded border-input bg-background"
+            className={tableCheckboxClassName}
           />
         ),
         cell: ({ row }) => (
@@ -153,7 +138,7 @@ export function AccountsTable({
             checked={row.getIsSelected()}
             onClick={(event) => event.stopPropagation()}
             onChange={row.getToggleSelectedHandler()}
-            className="h-4 w-4 rounded border-input bg-background"
+            className={tableCheckboxClassName}
           />
         ),
       },
@@ -177,7 +162,7 @@ export function AccountsTable({
             <button
               type="button"
               onClick={() => openAccount(row.original)}
-              className="text-left"
+              className="ds-focus-ring rounded-md text-left transition-[color] duration-[160ms] ease-[var(--ease-premium)]"
             >
               <div className="font-medium text-foreground hover:text-primary">
                 {row.original.name}
@@ -336,10 +321,10 @@ export function AccountsTable({
           ? "Refreshing accounts."
           : `${visibleRowCount} accounts shown. ${selectedCount} selected.`}
       </div>
-      <Card className="relative flex flex-col gap-3 overflow-hidden bg-card/80 p-3 md:flex-row md:items-center md:justify-between">
+      <Card className="relative flex flex-col gap-3 overflow-hidden bg-card/80 p-3 ds-card-inner-glow md:flex-row md:items-center md:justify-between">
         {isRefetching && (
-          <div className="absolute inset-x-0 top-0 h-px overflow-hidden bg-primary/10">
-            <div className="h-full w-1/3 animate-pulse rounded-full bg-primary shadow-glow" />
+          <div className="absolute inset-x-0 top-0 h-px overflow-hidden">
+            <div className="ds-refetch-stripe" />
           </div>
         )}
         <div className="flex flex-1 flex-col gap-2 sm:flex-row">
@@ -396,11 +381,11 @@ export function AccountsTable({
               </Button>
             ))}
           </div>
-          <span className="rounded-full border border-border bg-background/40 px-2 py-1 text-xs text-muted-foreground">
+          <span className="rounded-full border border-border bg-background/40 px-2 py-1 text-xs text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)]">
             {selectedCount} selected
           </span>
           <details className="relative">
-            <summary className="ds-focus-ring cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-surface-elevated hover:text-foreground">
+            <summary className="ds-focus-ring cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] transition-[background-color,color] duration-[160ms] ease-[var(--ease-premium)] hover:bg-surface-elevated hover:text-foreground">
               Columns<span className="sr-only"> visibility controls</span>
             </summary>
             <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-border bg-popover p-2 shadow-elevated">
@@ -410,10 +395,11 @@ export function AccountsTable({
                 .map((column) => (
                   <label
                     key={column.id}
-                    className="flex items-center gap-2 rounded px-2 py-1.5 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                   >
                     <input
                       type="checkbox"
+                      className={tableCheckboxClassName}
                       checked={column.getIsVisible()}
                       onChange={column.getToggleVisibilityHandler()}
                     />
@@ -425,14 +411,18 @@ export function AccountsTable({
         </div>
       </Card>
 
-      <Card className="overflow-hidden bg-card/80 p-0" aria-busy={isLoading || isRefetching}>
+      <Card className="overflow-hidden bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[880px] text-sm">
-            <thead className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-sm">
+            <thead className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
                   key={headerGroup.id}
                   className="text-left text-[11px] uppercase tracking-wide text-muted-foreground"
+                  style={{
+                    boxShadow:
+                      "inset 0 -1px 0 0 var(--color-border), inset 0 1px 0 rgb(255 255 255 / 0.03)",
+                  }}
                 >
                   {headerGroup.headers.map((header) => (
                     <th key={header.id} className="px-3 py-3 font-medium">
@@ -447,66 +437,92 @@ export function AccountsTable({
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-border">
+            <AnimatePresence mode="wait" initial={false}>
               {isLoading ? (
-                <TableSkeleton rows={7} columns={7} />
+                <motion.tbody
+                  key="skeleton"
+                  className="divide-y divide-border"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={transitionTableSkeletonFade}
+                >
+                  <TableSkeleton rows={7} columns={7} />
+                </motion.tbody>
               ) : table.getRowModel().rows.length > 0 ? (
-                <AnimatePresence initial={false}>
-                  {table.getRowModel().rows.map((row) => (
-                    <MotionListItem
-                      key={row.id}
-                      as="tr"
-                      className={[
-                        "ds-row transition-colors hover:bg-surface-elevated/70 data-[selected=true]:bg-primary/10 data-[selected=true]:shadow-[inset_3px_0_0_var(--color-primary)]",
-                        isRecentlyUpdated("accounts", row.original.id) ? "ds-row-updated" : "",
-                      ].join(" ")}
-                      data-selected={row.getIsSelected()}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id} className={`${rowPadding} align-middle`}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
-                    </MotionListItem>
-                  ))}
-                </AnimatePresence>
+                <motion.tbody
+                  key="content"
+                  className="divide-y divide-border"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={transitionTableContentFade}
+                >
+                  <AnimatePresence initial={false}>
+                    {table.getRowModel().rows.map((row) => (
+                      <MotionListItem
+                        key={row.id}
+                        as="tr"
+                        className={[
+                          "ds-row transition-colors hover:bg-surface-elevated/70",
+                          "data-[selected=true]:bg-gradient-to-r data-[selected=true]:from-primary/12 data-[selected=true]:to-primary/4",
+                          "data-[selected=true]:shadow-[inset_2px_0_0_var(--color-primary)]",
+                          isRecentlyUpdated("accounts", row.original.id) ? "ds-row-updated" : "",
+                        ].join(" ")}
+                        data-selected={row.getIsSelected()}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <td key={cell.id} className={`${rowPadding} align-middle`}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
+                      </MotionListItem>
+                    ))}
+                  </AnimatePresence>
+                </motion.tbody>
               ) : (
-                <tr>
-                  <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-10">
-                    <EmptyState
-                      icon={<Building2 className="h-6 w-6" />}
-                      title="No accounts in this view"
-                      description="Clear the current filters or review a broader health segment to find matching accounts."
-                      action={
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            table.getColumn("name")?.setFilterValue("");
-                            table
-                              .getColumn("data_quality_score")
-                              ?.setFilterValue("all");
-                          }}
-                        >
-                          Clear filters
-                        </Button>
-                      }
-                    />
-                  </td>
-                </tr>
+                <motion.tbody
+                  key="empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={transitionTableSkeletonFade}
+                >
+                  <tr>
+                    <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-10">
+                      <EmptyState
+                        icon={<Building2 className="h-6 w-6" />}
+                        title="No accounts in this view"
+                        description="Clear the current filters or review a broader health segment to find matching accounts."
+                        action={
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              table.getColumn("name")?.setFilterValue("");
+                              table.getColumn("data_quality_score")?.setFilterValue("all");
+                            }}
+                          >
+                            Clear filters
+                          </Button>
+                        }
+                      />
+                    </td>
+                  </tr>
+                </motion.tbody>
               )}
-            </tbody>
+            </AnimatePresence>
           </table>
         </div>
       </Card>
 
       <div className="flex flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <span className="inline-flex items-center rounded-full border border-border bg-background/40 px-3 py-1 text-[11px] font-medium tabular-nums shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)]">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount() || 1}
-        </div>
-        <div className="flex items-center gap-2">
+        </span>
+        <div className="flex items-center gap-1.5">
           <Button
             type="button"
             onClick={() => table.previousPage()}

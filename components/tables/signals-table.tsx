@@ -20,7 +20,6 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  ChevronsUpDown,
   Clock,
   Loader2,
   Sparkles,
@@ -51,33 +50,19 @@ import type { SignalStatus } from "@/types/signal";
 import { canTransition } from "@/types/signal";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 import { AnimatePresence, motion } from "motion/react";
-import { MotionListItem } from "@/components/ui/motion";
+import {
+  MotionListItem,
+  transitionTableContentFade,
+  transitionTableSkeletonFade,
+} from "@/components/ui/motion";
 import { isRecentlyUpdated } from "@/lib/realtime-glow";
+import { SortButton, tableCheckboxClassName } from "@/components/tables/table-primitives";
 
 type BulkAction = "approve" | "reject";
 type Density = "comfortable" | "compact";
 
 function signalStatus(value: string | null): SignalStatus {
   return (value ?? "pending") as SignalStatus;
-}
-
-function SortButton({
-  children,
-  onClick,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="ds-focus-ring inline-flex items-center gap-1 rounded text-left font-medium text-muted-foreground transition-colors hover:text-foreground"
-    >
-      {children}
-      <ChevronsUpDown className="h-3 w-3" />
-    </button>
-  );
 }
 
 function StatusBadge({ status }: { status: SignalStatus }) {
@@ -253,7 +238,7 @@ export function SignalsTable({
             aria-label="Select all visible signals"
             checked={table.getIsAllPageRowsSelected()}
             onChange={table.getToggleAllPageRowsSelectedHandler()}
-            className="h-4 w-4 rounded border-input bg-background"
+            className={tableCheckboxClassName}
           />
         ),
         cell: ({ row }) => (
@@ -263,7 +248,7 @@ export function SignalsTable({
             checked={row.getIsSelected()}
             onClick={(event) => event.stopPropagation()}
             onChange={row.getToggleSelectedHandler()}
-            className="h-4 w-4 rounded border-input bg-background"
+            className={tableCheckboxClassName}
           />
         ),
       },
@@ -281,7 +266,7 @@ export function SignalsTable({
               row.original.account_name &&
               setReceiptFor({ name: row.original.account_name })
             }
-            className="text-left font-medium text-foreground hover:text-primary"
+            className="ds-focus-ring rounded-md text-left font-medium text-foreground transition-[color] duration-[160ms] ease-[var(--ease-premium)] hover:text-primary"
           >
             {row.original.account_name ?? "-"}
           </button>
@@ -446,7 +431,7 @@ export function SignalsTable({
       <Card className="relative flex flex-col gap-3 overflow-hidden bg-card/80 p-3 ds-card-inner-glow md:flex-row md:items-center md:justify-between">
         {isRefetching && (
           <div className="absolute inset-x-0 top-0 h-px overflow-hidden">
-            <div className="h-full w-1/3 animate-pulse rounded-full bg-primary shadow-glow" />
+            <div className="ds-refetch-stripe" />
           </div>
         )}
         <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
@@ -528,7 +513,7 @@ export function SignalsTable({
             </>
           )}
           <details className="relative">
-            <summary className="ds-focus-ring cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-surface-elevated hover:text-foreground">
+            <summary className="ds-focus-ring cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] transition-[background-color,color] duration-[160ms] ease-[var(--ease-premium)] hover:bg-surface-elevated hover:text-foreground">
               Columns<span className="sr-only"> visibility controls</span>
             </summary>
             <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-border bg-popover p-2 shadow-elevated">
@@ -538,10 +523,11 @@ export function SignalsTable({
                 .map((column) => (
                   <label
                     key={column.id}
-                    className="flex items-center gap-2 rounded px-2 py-1.5 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                   >
                     <input
                       type="checkbox"
+                      className={tableCheckboxClassName}
                       checked={column.getIsVisible()}
                       onChange={column.getToggleVisibilityHandler()}
                     />
@@ -584,7 +570,7 @@ export function SignalsTable({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                  transition={transitionTableSkeletonFade}
                 >
                   <TableSkeleton rows={6} columns={8} />
                 </motion.tbody>
@@ -595,7 +581,7 @@ export function SignalsTable({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  transition={transitionTableContentFade}
                 >
                   <AnimatePresence initial={false}>
                     {table.getRowModel().rows.map((row) => (
@@ -625,7 +611,7 @@ export function SignalsTable({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                  transition={transitionTableSkeletonFade}
                 >
                   <tr>
                     <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-10">

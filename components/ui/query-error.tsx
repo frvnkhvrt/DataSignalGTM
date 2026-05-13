@@ -5,6 +5,7 @@ import { AlertTriangle, RefreshCw } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { transitionQueryErrorCopy } from "@/components/ui/motion";
 
 /**
  * Inline query-error state — distinct from EmptyState (no data) vs this (load failed).
@@ -54,11 +55,7 @@ function QueryError({
         className="space-y-1"
         initial={reduced ? {} : { opacity: 0, y: 5 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={
-          reduced
-            ? { duration: 0 }
-            : { duration: 0.24, ease: [0.16, 1, 0.3, 1], delay: 0.16 }
-        }
+        transition={reduced ? { duration: 0 } : transitionQueryErrorCopy}
       >
         <p className="text-sm font-medium text-foreground">Failed to load data</p>
         <p className="max-w-sm text-xs leading-5 text-muted-foreground">

@@ -5,6 +5,11 @@ import { motion, useReducedMotion } from "motion/react";
 
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+import {
+  spring,
+  transitionEmptyStateAction,
+  transitionEmptyStateText,
+} from "@/components/ui/motion";
 
 function EmptyState({
   icon,
@@ -35,11 +40,7 @@ function EmptyState({
         style={{ boxShadow: "inset 0 1px 0 rgb(255 255 255 / 0.1), 0 0 20px color-mix(in oklch, var(--primary) 14%, transparent), 0 4px 12px rgb(0 0 0 / 0.18)" }}
         initial={reduced ? {} : { scale: 0.55, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={
-          reduced
-            ? { duration: 0 }
-            : { type: "spring", stiffness: 420, damping: 26, mass: 0.8 }
-        }
+        transition={reduced ? { duration: 0 } : spring.bouncy}
       >
         {icon}
       </motion.div>
@@ -47,11 +48,7 @@ function EmptyState({
       <motion.div
         initial={reduced ? {} : { opacity: 0, y: 7 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={
-          reduced
-            ? { duration: 0 }
-            : { duration: 0.28, ease: [0.16, 1, 0.3, 1], delay: 0.1 }
-        }
+        transition={reduced ? { duration: 0 } : transitionEmptyStateText}
         className="space-y-2"
       >
         <h3 className="ds-heading text-lg font-semibold text-foreground">{title}</h3>
@@ -63,11 +60,7 @@ function EmptyState({
           className="mt-5"
           initial={reduced ? {} : { opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={
-            reduced
-              ? { duration: 0 }
-              : { duration: 0.22, ease: [0.16, 1, 0.3, 1], delay: 0.2 }
-          }
+          transition={reduced ? { duration: 0 } : transitionEmptyStateAction}
         >
           {action}
         </motion.div>

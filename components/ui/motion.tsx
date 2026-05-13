@@ -13,8 +13,16 @@ import {
 
 export const dur = {
   instant: 0.12,
+  /** Dense list rows — command palette, micro entrances */
+  micro: 0.14,
   fast: 0.18,
   base: 0.24,
+  /** Table tbody crossfades, panel swaps */
+  swap: 0.22,
+  /** Empty-state copy, receipt panels */
+  lifted: 0.28,
+  /** Demo banner and ambient layout beats */
+  banner: 0.32,
   smooth: 0.36,
   slow: 0.42,
   reveal: 0.52,
@@ -36,6 +44,10 @@ export const spring = {
   gentle: { type: "spring" as const, stiffness: 280, damping: 36, mass: 0.9 },
   /** Heavy objects: modals, drawer overlays — authoritative, stable */
   slow: { type: "spring" as const, stiffness: 140, damping: 30, mass: 1.2 },
+  /** AnimatedDialog / command-sheet panels — tuned blur settle (pairs with overlayPanelMotion) */
+  dialogPanel: { type: "spring" as const, stiffness: 420, damping: 32, mass: 0.85 },
+  /** Sidebar `layoutId` active pill */
+  sidebarPill: { type: "spring" as const, stiffness: 380, damping: 36, mass: 0.9 },
 } as const;
 
 /** The standard tween used throughout the app, matching --ease-premium */
@@ -43,6 +55,84 @@ export const premiumTween = {
   duration: dur.base,
   ease: ease.premium,
 } as const;
+
+/** Default transition on motion root (`MotionConfig` in providers). */
+export const motionDefaultsTransition = {
+  duration: dur.base,
+  ease: ease.premium,
+} as const;
+
+export function overlayBackdropMotion(reduced: boolean | null) {
+  return {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+    transition: { duration: reduced ? 0.01 : dur.fast, ease: ease.premium },
+  };
+}
+
+/**
+ * Shared modal / palette panel choreography for AnimatedDialog — keeps every overlay
+ * shell visually aligned (spring in, premium ease out).
+ */
+export function overlayPanelMotion(reduced: boolean | null, align: "center" | "top") {
+  if (reduced) {
+    return {
+      initial: { opacity: 0 },
+      animate: { opacity: 1 },
+      exit: { opacity: 0 },
+      transition: { duration: dur.instant, ease: ease.premium },
+    };
+  }
+  return {
+    initial: {
+      opacity: 0,
+      scale: 0.95,
+      y: align === "top" ? -10 : 12,
+      filter: "blur(6px)",
+    },
+    animate: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      filter: "blur(0px)",
+      transition: spring.dialogPanel,
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.97,
+      y: align === "top" ? -6 : 8,
+      filter: "blur(4px)",
+      transition: { duration: dur.fast, ease: ease.in },
+    },
+  };
+}
+
+export const transitionPaletteItem = { duration: dur.micro, ease: ease.premium };
+export const transitionPaletteEmpty = { duration: dur.swap, ease: ease.premium };
+export const transitionTopBarSubtitle = { duration: dur.fast, ease: ease.premium };
+export const transitionOnboardingStep = { duration: dur.base, ease: ease.premium };
+export const transitionTableSkeletonFade = { duration: dur.fast, ease: ease.premium };
+export const transitionTableContentFade = { duration: dur.swap, ease: ease.premium };
+export const transitionReceiptCrossfadeShort = { duration: dur.fast, ease: ease.premium };
+export const transitionReceiptCrossfade = { duration: dur.swap, ease: ease.premium };
+export const transitionReceiptContent = { duration: dur.lifted, ease: ease.premium };
+export const transitionEmptyStateText = {
+  duration: dur.lifted,
+  ease: ease.premium,
+  delay: 0.1,
+} as const;
+export const transitionEmptyStateAction = {
+  duration: dur.swap,
+  ease: ease.premium,
+  delay: 0.2,
+} as const;
+export const transitionQueryErrorCopy = {
+  duration: dur.base,
+  ease: ease.premium,
+  delay: 0.16,
+} as const;
+export const transitionDemoBanner = { duration: dur.banner, ease: ease.premium };
 
 // ── Variant presets ────────────────────────────────────────────────────────────
 
@@ -132,6 +222,16 @@ export const staggerContainerFast: Variants = {
   },
 };
 
+/** Single palette row — parent must use staggerContainerFast */
+export const cmdPaletteItemVariants: Variants = {
+  hidden: { opacity: 0, y: 3 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: transitionPaletteItem,
+  },
+};
+
 export const staggerItem: Variants = slideUp;
 
 export const listRowEnter: Variants = {
@@ -152,7 +252,7 @@ export const statusPulse: Variants = {
   idle: { scale: 1 },
   pulse: {
     scale: [1, 1.08, 1],
-    transition: { duration: 0.42, ease: ease.premium, repeat: 0 },
+    transition: { duration: dur.slow, ease: ease.premium, repeat: 0 },
   },
 };
 

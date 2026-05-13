@@ -27,6 +27,7 @@ import {
   MotionList,
   MotionListItem,
 } from "@/components/ui/motion";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { accountsByDqQuery, signalsRecentQuery } from "@/lib/gtm-queries";
@@ -110,19 +111,15 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Link
-                href="/signals"
-                className="ds-focus-ring ds-pressable inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-glow hover:bg-primary/90"
-              >
-                Review signals
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/help/signals"
-                className="ds-focus-ring ds-pressable inline-flex h-9 items-center gap-2 rounded-md border border-border bg-background/40 px-4 text-sm font-medium text-foreground hover:bg-surface-elevated"
-              >
-                Learn lifecycle
-              </Link>
+              <Button asChild variant="default" size="default">
+                <Link href="/signals">
+                  Review signals
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="default">
+                <Link href="/help/signals">Learn lifecycle</Link>
+              </Button>
             </div>
           </div>
         </section>
