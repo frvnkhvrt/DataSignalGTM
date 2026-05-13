@@ -30,6 +30,7 @@ import type { SignalStatus } from "@/types/signal";
 import { AnimatedDialog } from "@/components/ui/animated-dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
 
 const RECENT_KEY = "datasignalgtm.commandPalette.recent";
 const NAV_ITEMS = [
@@ -192,9 +193,14 @@ export function CommandPalette() {
         </div>
         <Command.List className="max-h-[420px] overflow-y-auto p-2">
           <Command.Empty className="px-3 py-8 text-center text-sm text-muted-foreground">
-            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface"
+            >
               <Search className="h-4 w-4" />
-            </div>
+            </motion.div>
             No results found. Try an account name, &quot;approve&quot;, or
             &quot;generate&quot;.
           </Command.Empty>

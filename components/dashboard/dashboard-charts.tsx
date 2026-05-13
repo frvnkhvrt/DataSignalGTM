@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { useReducedMotion } from "motion/react";
 import {
   Bar,
   BarChart,
@@ -19,6 +20,7 @@ import {
 import type { AccountRow, SignalRow } from "@/lib/gtm-queries";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Stagger, StaggerItem } from "@/components/ui/motion";
 
 function formatDate(value: string | null): string {
   if (!value) return "Unknown";
@@ -112,6 +114,10 @@ export function DashboardCharts({
   accounts: AccountRow[];
   signals: SignalRow[];
 }) {
+  const reduced = useReducedMotion();
+  // Recharts animationDuration respects reduced motion
+  const chartAnimDuration = reduced ? 0 : 800;
+
   const dqTrend = useMemo(() => {
     const sorted = [...accounts].sort((a, b) =>
       (a.created_at ?? "").localeCompare(b.created_at ?? "")
@@ -168,86 +174,101 @@ export function DashboardCharts({
         </div>
         <Badge variant="muted">Interactive hover insights</Badge>
       </div>
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-      <ChartCard
-        title="DQ Score Trend"
-        subtitle="Running average by account creation order"
-        href="/accounts"
-      >
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={dqTrend}>
-            <CartesianGrid stroke="var(--color-border)" strokeDasharray="4 4" />
-            <XAxis dataKey="label" stroke="var(--color-muted-foreground)" tick={{ fontSize: 11 }} />
-            <YAxis domain={[0, 100]} stroke="var(--color-muted-foreground)" tick={{ fontSize: 11 }} />
-            <Tooltip content={<ChartTooltip title="Data quality" />} />
-            <Line
-              type="monotone"
-              dataKey="dq"
-              name="DQ"
-              stroke="var(--color-success)"
-              strokeWidth={2}
-              dot={{ r: 2, fill: "var(--color-success)" }}
-              activeDot={{ r: 5, strokeWidth: 0, fill: "var(--color-success)" }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </ChartCard>
+      <Stagger className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <StaggerItem>
+          <ChartCard
+            title="DQ Score Trend"
+            subtitle="Running average by account creation order"
+            href="/accounts"
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={dqTrend}>
+                <CartesianGrid stroke="var(--color-border)" strokeDasharray="4 4" />
+                <XAxis dataKey="label" stroke="var(--color-muted-foreground)" tick={{ fontSize: 11 }} />
+                <YAxis domain={[0, 100]} stroke="var(--color-muted-foreground)" tick={{ fontSize: 11 }} />
+                <Tooltip content={<ChartTooltip title="Data quality" />} />
+                <Line
+                  type="monotone"
+                  dataKey="dq"
+                  name="DQ"
+                  stroke="var(--color-success)"
+                  strokeWidth={2}
+                  dot={{ r: 2, fill: "var(--color-success)" }}
+                  activeDot={{ r: 5, strokeWidth: 0, fill: "var(--color-success)" }}
+                  animationDuration={chartAnimDuration}
+                  animationEasing="ease-out"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </StaggerItem>
 
-      <ChartCard
-        title="Velocity Distribution"
-        subtitle="Signals grouped by velocity score"
-        href="/signals"
-      >
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={velocityDistribution}>
-            <CartesianGrid stroke="var(--color-border)" strokeDasharray="4 4" />
-            <XAxis dataKey="range" stroke="var(--color-muted-foreground)" tick={{ fontSize: 11 }} />
-            <YAxis allowDecimals={false} stroke="var(--color-muted-foreground)" tick={{ fontSize: 11 }} />
-            <Tooltip content={<ChartTooltip title="Velocity bucket" />} />
-            <Bar
-              dataKey="count"
-              name="Signals"
-              fill="var(--color-info)"
-              radius={[6, 6, 0, 0]}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </ChartCard>
+        <StaggerItem>
+          <ChartCard
+            title="Velocity Distribution"
+            subtitle="Signals grouped by velocity score"
+            href="/signals"
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={velocityDistribution}>
+                <CartesianGrid stroke="var(--color-border)" strokeDasharray="4 4" />
+                <XAxis dataKey="range" stroke="var(--color-muted-foreground)" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} stroke="var(--color-muted-foreground)" tick={{ fontSize: 11 }} />
+                <Tooltip content={<ChartTooltip title="Velocity bucket" />} />
+                <Bar
+                  dataKey="count"
+                  name="Signals"
+                  fill="var(--color-info)"
+                  radius={[6, 6, 0, 0]}
+                  animationDuration={chartAnimDuration}
+                  animationEasing="ease-out"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </StaggerItem>
 
-      <ChartCard
-        title="ICP Fit vs Data Quality"
-        subtitle="Prioritize high-fit accounts with clean data"
-        href="/accounts"
-      >
-        <ResponsiveContainer width="100%" height="100%">
-          <ScatterChart>
-            <CartesianGrid stroke="var(--color-border)" strokeDasharray="4 4" />
-            <XAxis
-              type="number"
-              dataKey="dq"
-              name="DQ"
-              domain={[0, 100]}
-              stroke="var(--color-muted-foreground)"
-              tick={{ fontSize: 11 }}
-            />
-            <YAxis
-              type="number"
-              dataKey="icp"
-              name="ICP"
-              domain={[0, 100]}
-              stroke="var(--color-muted-foreground)"
-              tick={{ fontSize: 11 }}
-            />
-            <ZAxis type="number" dataKey="employees" range={[40, 220]} />
-            <Tooltip
-              cursor={{ strokeDasharray: "4 4" }}
-              content={<ChartTooltip title="Account fit" />}
-            />
-            <Scatter data={icpVsDq} fill="var(--color-primary)" />
-          </ScatterChart>
-        </ResponsiveContainer>
-      </ChartCard>
-      </div>
+        <StaggerItem>
+          <ChartCard
+            title="ICP Fit vs Data Quality"
+            subtitle="Prioritize high-fit accounts with clean data"
+            href="/accounts"
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <ScatterChart>
+                <CartesianGrid stroke="var(--color-border)" strokeDasharray="4 4" />
+                <XAxis
+                  type="number"
+                  dataKey="dq"
+                  name="DQ"
+                  domain={[0, 100]}
+                  stroke="var(--color-muted-foreground)"
+                  tick={{ fontSize: 11 }}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="icp"
+                  name="ICP"
+                  domain={[0, 100]}
+                  stroke="var(--color-muted-foreground)"
+                  tick={{ fontSize: 11 }}
+                />
+                <ZAxis type="number" dataKey="employees" range={[40, 220]} />
+                <Tooltip
+                  cursor={{ strokeDasharray: "4 4" }}
+                  content={<ChartTooltip title="Account fit" />}
+                />
+                <Scatter
+                  data={icpVsDq}
+                  fill="var(--color-primary)"
+                  animationDuration={chartAnimDuration}
+                  animationEasing="ease-out"
+                />
+              </ScatterChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </StaggerItem>
+      </Stagger>
     </section>
   );
 }

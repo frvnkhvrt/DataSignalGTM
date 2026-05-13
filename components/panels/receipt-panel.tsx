@@ -32,6 +32,7 @@ import { useCurrentOrg } from "@/lib/auth-context";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 import type { SignalStatus } from "@/types/signal";
 import { isTerminal, canTransition } from "@/types/signal";
+import { motion, AnimatePresence } from "motion/react";
 
 type Account = {
   name: string;
@@ -205,15 +206,30 @@ export function ReceiptPanel({
         </div>
 
         <div className="px-6 py-5 space-y-4 border-b border-zinc-800">
+          <AnimatePresence mode="wait">
           {isLoading && (
-            <div className="flex items-center gap-2 text-sm text-zinc-400">
+            <motion.div
+              key="pb-loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              className="flex items-center gap-2 text-sm text-zinc-400"
+            >
               <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
               Loading playbook…
-            </div>
+            </motion.div>
           )}
 
           {!isLoading && !pb && (
-            <div className="space-y-3">
+            <motion.div
+              key="pb-empty"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-3"
+            >
               <div className="rounded-md border border-zinc-800 bg-zinc-900 px-3 py-3 text-xs text-zinc-400">
                 {isGenerating
                   ? "Generating playbook in the background..."
@@ -238,11 +254,17 @@ export function ReceiptPanel({
                   </button>
                 </DemoLimitedAction>
               )}
-            </div>
+            </motion.div>
           )}
 
           {pb && (
-            <>
+            <motion.div
+              key="pb-content"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            >
               <div>
                 <div className="text-[10px] uppercase tracking-wide text-zinc-500 mb-1">
                   Target role
@@ -312,8 +334,9 @@ export function ReceiptPanel({
                   ))}
                 </div>
               </div>
-            </>
+            </motion.div>
           )}
+          </AnimatePresence>
         </div>
 
         {!terminal && (

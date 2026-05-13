@@ -5,6 +5,7 @@ import { Eye, LogOut, RotateCcw, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { useAuthContext } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase/client";
@@ -46,60 +47,79 @@ export function DemoBanner() {
   }
 
   return (
-    <div className="border-b border-amber-300/20 bg-gradient-to-r from-amber-300/10 via-background/80 to-cyan-300/10 px-4 py-3 text-foreground backdrop-blur-xl sm:px-6">
-      <div className="rounded-xl border border-amber-300/20 bg-background/45 px-4 py-3 shadow-soft">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-300/30 bg-amber-300/15 text-amber-200">
-              <Eye className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="text-sm font-semibold">
-                  Estás viendo una versión de demostración
-                </p>
-                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-2 py-0.5 text-[11px] font-medium text-emerald-200">
-                  <ShieldCheck className="h-3 w-3" />
-                  Datos de ejemplo
-                </span>
+    <AnimatePresence>
+      <motion.div
+        key="demo-banner"
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+        className="border-b border-amber-300/20 bg-gradient-to-r from-amber-300/10 via-background/80 to-cyan-300/10 px-4 py-3 text-foreground backdrop-blur-xl sm:px-6"
+      >
+        <div className="rounded-xl border border-amber-300/20 bg-background/45 px-4 py-3 shadow-soft">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-300/30 bg-amber-300/15 text-amber-200">
+                <Eye className="h-5 w-5" />
               </div>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                Explora cuentas, señales, calidad de datos y playbooks sin tocar
-                un entorno real.
-              </p>
-              <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-amber-100/80">
-                <li>Solo lectura para aprobar o rechazar señales</li>
-                <li>Playbooks generativos bloqueados</li>
-                <li>Billing y automatizaciones desactivados</li>
-              </ul>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-semibold">
+                    Estás viendo una versión de demostración
+                  </p>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-2 py-0.5 text-[11px] font-medium text-emerald-200">
+                    <ShieldCheck className="h-3 w-3" />
+                    Datos de ejemplo
+                  </span>
+                </div>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  Explora cuentas, señales, calidad de datos y playbooks sin tocar
+                  un entorno real.
+                </p>
+                <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-amber-100/80">
+                  <li>Solo lectura para aprobar o rechazar señales</li>
+                  <li>Playbooks generativos bloqueados</li>
+                  <li>Billing y automatizaciones desactivados</li>
+                </ul>
+              </div>
             </div>
-          </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={resetDemoData}
-              disabled={isResetPending || isExitPending}
-              className="border-amber-300/30 bg-amber-300/10 text-amber-50 hover:bg-amber-300/20"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              {isResetPending ? "Reseteando..." : "Reset Demo Data"}
-            </Button>
-            <Button
-              type="button"
-              onClick={exitDemoMode}
-              disabled={isExitPending || isResetPending}
-              variant="warning"
-              size="sm"
-              className="border-amber-300/40 bg-amber-300/20 text-amber-50 hover:bg-amber-300/30"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Salir del modo demo
-            </Button>
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={resetDemoData}
+                disabled={isResetPending || isExitPending}
+                className="border-amber-300/30 bg-amber-300/10 text-amber-50 hover:bg-amber-300/20"
+              >
+                <motion.span
+                  animate={isResetPending ? { rotate: 360 } : { rotate: 0 }}
+                  transition={
+                    isResetPending
+                      ? { duration: 0.7, repeat: Infinity, ease: "linear" }
+                      : { duration: 0 }
+                  }
+                  style={{ display: "inline-flex" }}
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </motion.span>
+                {isResetPending ? "Reseteando..." : "Reset Demo Data"}
+              </Button>
+              <Button
+                type="button"
+                onClick={exitDemoMode}
+                disabled={isExitPending || isResetPending}
+                variant="warning"
+                size="sm"
+                className="border-amber-300/40 bg-amber-300/20 text-amber-50 hover:bg-amber-300/30"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Salir del modo demo
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 }

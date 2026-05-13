@@ -268,6 +268,41 @@
   .ds-success-pop {
     animation: ds-success-pop 520ms var(--ease-premium);
   }
+
+  /* Live-update indicator: brief glow on a row after realtime refresh */
+  .ds-row-updated {
+    animation: ds-row-updated 1400ms var(--ease-premium) forwards;
+  }
+
+  /* Blocked action shake for demo-limited elements */
+  .ds-shake {
+    animation: ds-shake 420ms var(--ease-premium);
+  }
+
+  /* Floating lift — can be applied to interactive cards */
+  .ds-lift {
+    transition:
+      transform 200ms var(--ease-premium),
+      box-shadow 200ms var(--ease-premium);
+  }
+
+  .ds-lift:hover {
+    transform: translateY(-2px) scale(1.012);
+    box-shadow:
+      0 8px 24px -4px color-mix(in oklch, var(--primary) 12%, transparent),
+      0 2px 8px -2px color-mix(in oklch, var(--primary) 8%, transparent);
+  }
+
+  /* Shimmer delay variants for staggered skeleton grids */
+  .ds-shimmer-delay-1::after {
+    animation-delay: 0.15s;
+  }
+  .ds-shimmer-delay-2::after {
+    animation-delay: 0.3s;
+  }
+  .ds-shimmer-delay-3::after {
+    animation-delay: 0.45s;
+  }
 }
 
 @keyframes ds-shimmer {
@@ -291,6 +326,28 @@
   }
 }
 
+@keyframes ds-row-updated {
+  0% {
+    background-color: color-mix(in oklch, var(--primary) 0%, transparent);
+  }
+  12% {
+    background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+    box-shadow: inset 3px 0 0 color-mix(in oklch, var(--primary) 55%, transparent);
+  }
+  100% {
+    background-color: color-mix(in oklch, var(--primary) 0%, transparent);
+    box-shadow: inset 3px 0 0 color-mix(in oklch, var(--primary) 0%, transparent);
+  }
+}
+
+@keyframes ds-shake {
+  0%, 100% { transform: translateX(0); }
+  18%       { transform: translateX(-3px); }
+  36%       { transform: translateX(3px); }
+  54%       { transform: translateX(-2px); }
+  72%       { transform: translateX(2px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -303,8 +360,16 @@
 
   .ds-pressable:hover,
   .ds-pressable:active,
-  .ds-row:hover {
+  .ds-row:hover,
+  .ds-lift:hover {
     transform: none;
+    box-shadow: none;
+  }
+
+  .ds-row-updated {
+    animation: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
   }
 }
 

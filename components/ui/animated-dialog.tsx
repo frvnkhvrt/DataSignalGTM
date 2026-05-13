@@ -1,16 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
-const premiumTransition = {
-  duration: 0.24,
-  ease: [0.16, 1, 0.3, 1] as const,
-};
 
 function AnimatedDialog({
   open,
@@ -85,23 +81,48 @@ function AnimatedDialog({
     }
   }
 
+  // Panel: scale + y + blur spring entrance
   const panelMotion = reducedMotion
-    ? {}
-    : {
-        initial: { opacity: 0, scale: 0.96, y: align === "top" ? -8 : 10 },
-        animate: { opacity: 1, scale: 1, y: 0 },
-        exit: { opacity: 0, scale: 0.98, y: align === "top" ? -6 : 8 },
-        transition: premiumTransition,
-      };
-
-  const overlayMotion = reducedMotion
-    ? {}
-    : {
+    ? {
         initial: { opacity: 0 },
         animate: { opacity: 1 },
         exit: { opacity: 0 },
-        transition: { duration: 0.18 },
+        transition: { duration: 0.15 },
+      }
+    : {
+        initial: {
+          opacity: 0,
+          scale: 0.95,
+          y: align === "top" ? -10 : 12,
+          filter: "blur(6px)",
+        },
+        animate: {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          filter: "blur(0px)",
+          transition: {
+            type: "spring" as const,
+            stiffness: 420,
+            damping: 32,
+            mass: 0.85,
+          },
+        },
+        exit: {
+          opacity: 0,
+          scale: 0.97,
+          y: align === "top" ? -6 : 8,
+          filter: "blur(4px)",
+          transition: { duration: 0.18, ease: [0.4, 0, 1, 1] as const },
+        },
       };
+
+  const overlayMotion = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+    transition: { duration: reducedMotion ? 0.01 : 0.2 },
+  };
 
   return (
     <AnimatePresence>

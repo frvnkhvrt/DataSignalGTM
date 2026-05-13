@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import { MotionConfig } from "motion/react";
 import {
   supabaseConfigured,
   supabaseMissingVars,
@@ -57,8 +58,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AnalyticsProvider>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </AnalyticsProvider>
+    <MotionConfig
+      reducedMotion="user"
+      transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <AnalyticsProvider>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      </AnalyticsProvider>
+    </MotionConfig>
   );
 }

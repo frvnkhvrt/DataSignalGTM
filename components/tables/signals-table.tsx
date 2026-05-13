@@ -50,6 +50,9 @@ import { AnimatedDialog } from "@/components/ui/animated-dialog";
 import type { SignalStatus } from "@/types/signal";
 import { canTransition } from "@/types/signal";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
+import { AnimatePresence } from "motion/react";
+import { MotionListItem } from "@/components/ui/motion";
+import { isRecentlyUpdated } from "@/lib/realtime-glow";
 
 type BulkAction = "approve" | "reject";
 type Density = "comfortable" | "compact";
@@ -576,19 +579,25 @@ export function SignalsTable({
               {isLoading ? (
                 <TableSkeleton rows={6} columns={8} />
               ) : table.getRowModel().rows.length > 0 ? (
-                table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="ds-row transition-colors hover:bg-surface-elevated/70 data-[selected=true]:bg-primary/10 data-[selected=true]:shadow-[inset_3px_0_0_var(--color-primary)]"
-                    data-selected={row.getIsSelected()}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className={`${rowPadding} align-middle`}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))
+                <AnimatePresence initial={false}>
+                  {table.getRowModel().rows.map((row) => (
+                    <MotionListItem
+                      key={row.id}
+                      as="tr"
+                      className={[
+                        "ds-row transition-colors hover:bg-surface-elevated/70 data-[selected=true]:bg-primary/10 data-[selected=true]:shadow-[inset_3px_0_0_var(--color-primary)]",
+                        isRecentlyUpdated("signals", row.original.id) ? "ds-row-updated" : "",
+                      ].join(" ")}
+                      data-selected={row.getIsSelected()}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id} className={`${rowPadding} align-middle`}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      ))}
+                    </MotionListItem>
+                  ))}
+                </AnimatePresence>
               ) : (
                 <tr>
                   <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-10">

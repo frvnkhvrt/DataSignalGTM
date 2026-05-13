@@ -22,6 +22,8 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { useCurrentOrg } from "@/lib/auth-context";
+import { AnimatePresence } from "motion/react";
+import { MotionListItem } from "@/components/ui/motion";
 import type {
   AccountRow,
   DataIssueCount,
@@ -447,29 +449,32 @@ export function DataIssuesPanel({
             </div>
           )}
 
-          {sorted.map((issue) => (
-            <IssueCard
-              key={issue.id}
-              issue={issue}
-              onResolve={() =>
-                resolveMut.mutate({
-                  issue,
-                })
-              }
-              onDismiss={() =>
-                dismissMut.mutate({
-                  issue,
-                })
-              }
-              busy={
-                resolveAllMut.isPending ||
-                (resolveMut.isPending &&
-                  resolveMut.variables?.issue.id === issue.id) ||
-                (dismissMut.isPending &&
-                  dismissMut.variables?.issue.id === issue.id)
-              }
-            />
-          ))}
+          <AnimatePresence initial={false}>
+            {sorted.map((issue) => (
+              <MotionListItem key={issue.id}>
+                <IssueCard
+                  issue={issue}
+                  onResolve={() =>
+                    resolveMut.mutate({
+                      issue,
+                    })
+                  }
+                  onDismiss={() =>
+                    dismissMut.mutate({
+                      issue,
+                    })
+                  }
+                  busy={
+                    resolveAllMut.isPending ||
+                    (resolveMut.isPending &&
+                      resolveMut.variables?.issue.id === issue.id) ||
+                    (dismissMut.isPending &&
+                      dismissMut.variables?.issue.id === issue.id)
+                  }
+                />
+              </MotionListItem>
+            ))}
+          </AnimatePresence>
         </div>
       </SheetContent>
     </Sheet>
