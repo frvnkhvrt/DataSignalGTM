@@ -33,6 +33,13 @@ import { useCurrentOrg } from "@/lib/auth-context";
 import { accountsByDqQuery, signalsRecentQuery } from "@/lib/gtm-queries";
 import type { SignalStatus } from "@/types/signal";
 
+const kpiSkeletonDelays = [
+  "ds-shimmer-delay-0",
+  "ds-shimmer-delay-1",
+  "ds-shimmer-delay-2",
+  "ds-shimmer-delay-3",
+] as const;
+
 const DashboardCharts = dynamic(
   () =>
     import("@/components/dashboard/dashboard-charts").then(
@@ -134,7 +141,7 @@ export default function DashboardPage() {
             {Array.from({ length: 4 }).map((_, index) => (
               <Skeleton
                 key={index}
-                className={`h-36 rounded-xl ds-shimmer-delay-${index % 4}`}
+                className={`h-36 rounded-xl border border-border/45 bg-card/35 ds-card-inner-glow ${kpiSkeletonDelays[index % 4]}`}
               />
             ))}
           </div>
@@ -200,7 +207,7 @@ export default function DashboardPage() {
       {/* Bottom panels — last to arrive */}
       <PageReveal order={3}>
         <section className="grid min-w-0 gap-4 lg:gap-5 xl:grid-cols-[1.22fr_0.78fr]">
-          <Card variant="translucent" className="min-w-0 shadow-soft">
+          <Card variant="translucent" className="min-w-0 shadow-soft ds-card-inner-glow">
             <CardHeader className="flex flex-row items-start justify-between gap-3 sm:items-center">
               <div className="min-w-0">
                 <CardTitle className="ds-heading">Recent signal queue</CardTitle>
@@ -259,12 +266,20 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card variant="translucent" className="min-w-0 shadow-soft">
-            <CardHeader>
-              <CardTitle className="ds-heading">Data quality focus</CardTitle>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Accounts below 75 DQ are most likely to block signal conversion.
-              </p>
+          <Card variant="translucent" className="min-w-0 shadow-soft ds-card-inner-glow">
+            <CardHeader className="flex flex-row items-start justify-between gap-3 sm:items-center">
+              <div className="min-w-0">
+                <CardTitle className="ds-heading">Data quality focus</CardTitle>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Accounts below 75 DQ are most likely to block signal conversion.
+                </p>
+              </div>
+              <Link
+                href="/accounts"
+                className="ds-focus-ring shrink-0 rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
+              >
+                View accounts
+              </Link>
             </CardHeader>
             <CardContent>
               {atRiskAccounts.length === 0 ? (

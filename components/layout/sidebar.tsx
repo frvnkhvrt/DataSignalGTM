@@ -43,6 +43,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const reducedMotion = useReducedMotion();
+  const helpActive = pathname.startsWith("/help");
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem("datasignalgtm.sidebar.collapsed") === "true";
@@ -63,7 +64,7 @@ export function Sidebar() {
     <aside
       className={cn(
         "fixed inset-x-0 bottom-0 z-20 flex h-16 border-t border-border bg-background/88 backdrop-blur-xl sm:inset-x-auto sm:inset-y-0 sm:left-0 sm:h-auto sm:w-[var(--sidebar-width)] sm:flex-col sm:border-r-0 sm:border-t-0 sm:[box-shadow:1px_0_0_var(--color-border)]",
-        "will-change-[width] transition-[width,background-color,box-shadow] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)]",
+        "transition-[width,background-color,box-shadow] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)]",
         collapsed && "sm:bg-background/92 sm:[box-shadow:1px_0_0_var(--color-border),inset_0_1px_0_0_rgb(255_255_255/0.02)]"
       )}
     >
@@ -96,7 +97,7 @@ export function Sidebar() {
           variant="ghost"
           size="icon"
           className={cn(
-            "hidden shrink-0 text-muted-foreground transition-[background-color,color,transform,box-shadow,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] sm:inline-flex",
+            "hidden shrink-0 text-muted-foreground transition-[background-color,color,transform,box-shadow,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:inline-flex",
             "ds-focus-ring border border-transparent hover:border-border/55 hover:bg-surface-elevated hover:text-foreground hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] active:scale-[0.97] motion-reduce:active:scale-100",
             collapsed ? "size-8 rounded-lg" : "ml-auto size-8 rounded-lg"
           )}
@@ -113,7 +114,12 @@ export function Sidebar() {
         </Button>
       </div>
 
-      <nav className="grid flex-1 grid-cols-3 gap-1 px-2 py-2 sm:block sm:space-y-5 sm:px-3 sm:py-4">
+      <nav
+        className={cn(
+          "grid flex-1 grid-cols-3 gap-1 px-2 py-2 sm:block sm:px-3 sm:py-4",
+          collapsed ? "sm:space-y-4" : "sm:space-y-5"
+        )}
+      >
         {navGroups.map((group) => (
           <div key={group.label} className="contents sm:block">
             <div
@@ -139,12 +145,12 @@ export function Sidebar() {
                     onFocus={() => router.prefetch(href)}
                     onMouseEnter={() => router.prefetch(href)}
                     className={cn(
-                      "ds-focus-ring relative flex flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] transition-[color,background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] sm:flex-row sm:border-l-2 sm:border-t-0 sm:text-sm",
+                      "ds-focus-ring relative flex flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] transition-[color,background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:flex-row sm:border-l-2 sm:border-t-0 sm:text-sm",
                       collapsed
                         ? "sm:mx-auto sm:size-10 sm:max-w-10 sm:justify-center sm:gap-0 sm:rounded-lg sm:border-l-transparent sm:px-0 sm:py-0"
                         : "sm:justify-start sm:gap-3 sm:px-3 sm:py-2",
                       active
-                        ? "border-primary text-foreground sm:border-transparent"
+                        ? "border-primary text-foreground sm:border-transparent sm:font-medium"
                         : "border-transparent text-muted-foreground hover:bg-surface-elevated hover:text-foreground sm:hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]"
                     )}
                   >
@@ -178,11 +184,13 @@ export function Sidebar() {
         <div className="hidden sm:mt-auto sm:block sm:pt-4 ds-chrome-edge-top">
           <Link
             href="/help"
+            aria-current={helpActive ? "page" : undefined}
             title={collapsed ? "Help" : undefined}
             onFocus={() => router.prefetch("/help")}
             onMouseEnter={() => router.prefetch("/help")}
             className={cn(
-              "ds-focus-ring relative flex items-center gap-3 overflow-hidden rounded-md border-l-2 border-transparent py-2 text-sm text-muted-foreground transition-[color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:bg-surface-elevated hover:text-foreground sm:hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]",
+              "ds-focus-ring relative flex items-center gap-3 overflow-hidden rounded-md border-l-2 border-transparent py-2 text-sm text-muted-foreground transition-[color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated hover:text-foreground sm:hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]",
+              helpActive && "text-foreground sm:font-medium",
               collapsed
                 ? "justify-center px-2 sm:mx-auto sm:size-10 sm:max-w-10 sm:rounded-lg sm:px-0"
                 : "px-3"

@@ -70,7 +70,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
 
 /** Palette row — tactile highlight ramp aligned with table rows */
 const paletteRowBase =
-  "outline-none transition-[background-color,box-shadow,color,transform] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)]";
+  "outline-none transition-[background-color,box-shadow,color,transform] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none motion-reduce:data-[selected=true]:translate-x-0";
 
 function CmdItem({
   children,
@@ -233,7 +233,7 @@ export function CommandPalette() {
         </h2>
         <div className="relative px-4 pb-3 pt-2.5">
           <div className="flex items-start gap-2.5">
-            <div className="relative flex min-h-10 min-w-0 flex-1 items-center gap-2.5 rounded-lg border border-border/55 bg-background/40 px-3 py-2 ds-input-well shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)] transition-[border-color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] focus-within:border-primary/35 focus-within:bg-background/55 focus-within:shadow-soft">
+            <div className="relative flex min-h-10 min-w-0 flex-1 items-center gap-2.5 rounded-lg border border-border/55 bg-background/40 px-3 py-2 ds-input-well shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)] transition-[border-color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none focus-within:border-primary/35 focus-within:bg-background/55 focus-within:shadow-soft">
               <Search className="h-4 w-4 shrink-0 text-muted-foreground opacity-90" strokeWidth={2} />
               <Command.Input
                 value={search}
@@ -250,7 +250,7 @@ export function CommandPalette() {
           {/* Gradient-faded separator under the search bar */}
           <div className="ds-separator pointer-events-none absolute inset-x-4 bottom-0" />
         </div>
-        <Command.List className="max-h-[420px] overflow-y-auto p-2">
+        <Command.List className="max-h-[420px] scroll-py-1.5 overflow-y-auto p-2">
           <Command.Empty className="px-3 py-8 text-center text-sm text-muted-foreground">
             <motion.div
               aria-hidden="true"

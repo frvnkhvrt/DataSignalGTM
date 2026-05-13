@@ -75,11 +75,11 @@ export function TopBar() {
         </motion.p>
       </AnimatePresence>
       <div className="flex items-center gap-3">
-        <div className="hidden items-center gap-1.5 rounded-md border border-border bg-background/40 px-2 py-1 text-[11px] text-muted-foreground ds-inset-top-mid lg:flex">
+        <div className="hidden items-center gap-1.5 rounded-md border border-border bg-background/40 px-2 py-1 text-[11px] text-muted-foreground transition-[border-color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none ds-inset-top-mid hover:border-primary/12 lg:flex">
           <Command className="h-3 w-3" />
           <kbd className="rounded-md border border-border/70 bg-muted/55 px-1.5 py-0.5 font-mono text-[10px] leading-none text-muted-foreground/90 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)]">{shortcut}</kbd>
         </div>
-        <div className="hidden rounded-md border border-border/50 bg-background/30 px-2.5 py-1.5 text-right ds-inset-top-soft sm:block">
+        <div className="hidden rounded-md border border-border/50 bg-background/30 px-2.5 py-1.5 text-right transition-[border-color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none ds-inset-top-soft hover:border-border/65 hover:bg-background/40 sm:block">
           <div className="text-xs font-medium text-foreground">{org.name}</div>
           <div className="text-[11px] text-muted-foreground">
             {user.email ?? "Authenticated user"} · {org.role}

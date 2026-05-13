@@ -10,7 +10,7 @@ export default function GettingStartedPage() {
       <HelpQuickLinks />
 
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Getting Started</h1>
+        <h1 className="ds-heading text-3xl font-semibold text-foreground">Getting Started</h1>
         <p className="mt-3 text-muted-foreground">
           DataSignalGTM is a GTM signal layer that ingests intent data, scores
           accounts against your ICP, and generates AI playbooks for your

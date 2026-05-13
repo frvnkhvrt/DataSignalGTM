@@ -421,7 +421,14 @@ export function AccountsTable({
                   className="border-0 text-left text-[11px] uppercase tracking-wide text-muted-foreground hover:bg-transparent data-[state=selected]:bg-transparent ds-chrome-divider"
                 >
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className={cn("px-3 py-3", header.column.id === "select" && "w-12")}>
+                    <TableHead
+                      key={header.id}
+                      className={cn(
+                        "px-3 py-3",
+                        header.column.id === "select" && "w-12",
+                        header.column.id === "actions" && "w-[1%] whitespace-nowrap text-right"
+                      )}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -523,12 +530,12 @@ export function AccountsTable({
         </div>
       </Card>
 
-      <div className="flex flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <span className="inline-flex items-center rounded-full border border-border bg-background/40 px-3 py-1 text-[11px] font-medium tabular-nums ds-inset-top-mid">
+      <div className="flex min-w-0 flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2">
+        <span className="inline-flex min-w-0 items-center rounded-full border border-border bg-background/40 px-3 py-1 text-[11px] font-medium tabular-nums ds-inset-top-mid">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount() || 1}
         </span>
-        <div className="flex items-center gap-1.5">
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
           <Button
             type="button"
             onClick={() => table.previousPage()}

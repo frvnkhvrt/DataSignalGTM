@@ -1,18 +1,17 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useReducedMotion } from "motion/react";
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
   Scatter,
   ScatterChart,
-  Tooltip,
   XAxis,
   YAxis,
   ZAxis,
@@ -20,7 +19,14 @@ import {
 import type { AccountRow, SignalRow } from "@/lib/gtm-queries";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
+import { cn } from "@/lib/utils";
 
 function formatDate(value: string | null): string {
   if (!value) return "Unknown";
@@ -28,6 +34,70 @@ function formatDate(value: string | null): string {
     month: "short",
     day: "numeric",
   }).format(new Date(value));
+}
+
+const dqTrendChartConfig = {
+  dq: {
+    label: "Running average DQ",
+    color: "var(--color-chart-1)",
+  },
+} satisfies ChartConfig;
+
+const velocityChartConfig = {
+  count: {
+    label: "Signals in bucket",
+    color: "var(--color-chart-2)",
+  },
+} satisfies ChartConfig;
+
+const scatterChartConfig = {
+  fit: {
+    label: "Account (ICP × DQ)",
+    color: "var(--color-chart-1)",
+  },
+} satisfies ChartConfig;
+
+type ScatterPoint = {
+  name: string;
+  dq: number;
+  icp: number;
+  employees: number;
+};
+
+function ScatterAccountTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: ReadonlyArray<{ payload?: unknown }>;
+}) {
+  if (!active || !payload?.length) return null;
+  const raw = payload[0]?.payload;
+  if (!raw || typeof raw !== "object") return null;
+  const data = raw as ScatterPoint;
+  return (
+    <div
+      className={cn(
+        "grid min-w-[12rem] max-w-[min(100vw-2rem,16rem)] gap-1.5 rounded-lg border border-border/50 bg-background/95 px-2.5 py-1.5 text-xs shadow-xl ring-1 ring-border/40 backdrop-blur-xl"
+      )}
+    >
+      <div className="truncate font-medium text-foreground" title={data.name}>
+        {data.name}
+      </div>
+      <div className="flex items-center justify-between gap-4 text-muted-foreground">
+        <span>DQ</span>
+        <span className="font-mono font-medium text-foreground tabular-nums">{data.dq}</span>
+      </div>
+      <div className="flex items-center justify-between gap-4 text-muted-foreground">
+        <span>ICP fit</span>
+        <span className="font-mono font-medium text-foreground tabular-nums">{data.icp}</span>
+      </div>
+      <div className="flex items-center justify-between gap-4 border-t border-border/40 pt-1.5 text-[11px] text-muted-foreground">
+        <span>Headcount (bubble size)</span>
+        <span className="font-mono text-foreground tabular-nums">{data.employees}</span>
+      </div>
+    </div>
+  );
 }
 
 function ChartCard({
@@ -57,53 +127,10 @@ function ChartCard({
           </Link>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="h-64">{children}</div>
+      <CardContent className="min-w-0">
+        <div className="h-64 min-h-0 w-full">{children}</div>
       </CardContent>
     </Card>
-  );
-}
-
-function ChartTooltip({
-  active,
-  payload,
-  label,
-  title,
-}: {
-  active?: boolean;
-  payload?: Array<{
-    name?: string | number;
-    value?: string | number;
-    color?: string;
-    payload?: Record<string, unknown>;
-  }>;
-  label?: string | number;
-  title?: string;
-}) {
-  if (!active || !payload?.length) return null;
-
-  const accountName = payload[0]?.payload?.name;
-
-  return (
-    <div className="rounded-lg border border-border bg-card/95 p-3 text-xs shadow-elevated backdrop-blur-xl">
-      <div className="mb-2 font-medium text-foreground">
-        {typeof accountName === "string" ? accountName : title ?? label}
-      </div>
-      <div className="space-y-1">
-        {payload.map((item) => (
-          <div key={`${item.name}-${item.value}`} className="flex items-center justify-between gap-6">
-            <span className="flex items-center gap-1.5 text-muted-foreground">
-              <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ backgroundColor: item.color ?? "var(--color-primary)" }}
-              />
-              {String(item.name ?? "Value").toUpperCase()}
-            </span>
-            <span className="font-mono text-foreground">{item.value}</span>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -115,13 +142,12 @@ export function DashboardCharts({
   signals: SignalRow[];
 }) {
   const reduced = useReducedMotion();
-  // Timing constants for Recharts animations.
-  // animationBegin delays the chart data draw until after the card's own fade-in
-  // has had a chance to establish itself, creating a layered entrance.
   const chartBegin = reduced ? 0 : 200;
-  const lineDuration = reduced ? 0 : 800;  // line draw feels better slower
-  const barDuration = reduced ? 0 : 650;   // bars feel snappier
+  const lineDuration = reduced ? 0 : 800;
+  const barDuration = reduced ? 0 : 650;
   const scatterDuration = reduced ? 0 : 700;
+
+  const dqFillGradientId = React.useId().replace(/:/g, "");
 
   const dqTrend = useMemo(() => {
     const sorted = [...accounts].sort((a, b) =>
@@ -170,14 +196,14 @@ export function DashboardCharts({
 
   return (
     <section className="min-w-0 space-y-3">
-      <div className="flex flex-col gap-2 min-[400px]:flex-row min-[400px]:items-end min-[400px]:justify-between">
+      <div className="flex min-w-0 flex-col gap-2 min-[400px]:flex-row min-[400px]:items-end min-[400px]:justify-between min-[400px]:gap-3">
         <div className="min-w-0">
           <p className="ds-eyebrow">Data design</p>
           <h2 className="ds-heading mt-1 text-2xl font-semibold text-foreground">
             Health, velocity, and fit
           </h2>
         </div>
-        <Badge variant="muted" className="w-fit shrink-0">
+        <Badge variant="muted" className="min-w-0 max-w-full shrink truncate min-[400px]:max-w-[min(100%,18rem)]">
           Interactive hover insights
         </Badge>
       </div>
@@ -188,26 +214,66 @@ export function DashboardCharts({
             subtitle="Running average by account creation order"
             href="/accounts"
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={dqTrend}>
-                <CartesianGrid stroke="var(--color-border)" strokeDasharray="4 4" />
-                <XAxis dataKey="label" stroke="var(--color-muted-foreground)" tick={{ fontSize: 11 }} />
-                <YAxis domain={[0, 100]} stroke="var(--color-muted-foreground)" tick={{ fontSize: 11 }} />
-                <Tooltip content={<ChartTooltip title="Data quality" />} />
-                <Line
+            <ChartContainer
+              config={dqTrendChartConfig}
+              className="aspect-auto h-full min-h-0 w-full [&_.recharts-area-area]:transition-[opacity] [&_.recharts-area-area]:duration-[var(--ds-duration-tactile)] [&_.recharts-area-area]:ease-[var(--ease-premium)]"
+            >
+              <AreaChart accessibilityLayer data={dqTrend} margin={{ left: 4, right: 8, top: 8, bottom: 4 }}>
+                <defs>
+                  <linearGradient id={dqFillGradientId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--color-dq)" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="var(--color-dq)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="4 4" className="stroke-border/50" vertical={false} />
+                <XAxis
+                  dataKey="label"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={10}
+                  minTickGap={28}
+                  tick={{ fontSize: 11 }}
+                />
+                <YAxis
+                  domain={[0, 100]}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  width={36}
+                  tick={{ fontSize: 11 }}
+                />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      className="min-w-36 border-border/50 bg-background/95 shadow-elevated ring-1 ring-border/35 backdrop-blur-xl"
+                      labelFormatter={(value) =>
+                        typeof value === "string" ? value : "Trend point"
+                      }
+                      indicator="line"
+                    />
+                  }
+                />
+                <Area
                   type="monotone"
                   dataKey="dq"
-                  name="DQ"
-                  stroke="var(--color-success)"
-                  strokeWidth={2}
-                  dot={{ r: 2, fill: "var(--color-success)" }}
-                  activeDot={{ r: 5, strokeWidth: 0, fill: "var(--color-success)" }}
+                  name="dq"
+                  stroke="var(--color-dq)"
+                  strokeWidth={2.25}
+                  fill={`url(#${dqFillGradientId})`}
+                  dot={{ r: 2.5, fill: "var(--color-dq)", strokeWidth: 0 }}
+                  activeDot={{
+                    r: 5,
+                    strokeWidth: 0,
+                    fill: "var(--color-dq)",
+                    className: "drop-shadow-[0_0_10px_color-mix(in_oklch,var(--color-dq)_55%,transparent)]",
+                  }}
+                  isAnimationActive={!reduced}
                   animationBegin={chartBegin}
                   animationDuration={lineDuration}
                   animationEasing="ease-out"
                 />
-              </LineChart>
-            </ResponsiveContainer>
+              </AreaChart>
+            </ChartContainer>
           </ChartCard>
         </StaggerItem>
 
@@ -217,23 +283,54 @@ export function DashboardCharts({
             subtitle="Signals grouped by velocity score"
             href="/signals"
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={velocityDistribution}>
-                <CartesianGrid stroke="var(--color-border)" strokeDasharray="4 4" />
-                <XAxis dataKey="range" stroke="var(--color-muted-foreground)" tick={{ fontSize: 11 }} />
-                <YAxis allowDecimals={false} stroke="var(--color-muted-foreground)" tick={{ fontSize: 11 }} />
-                <Tooltip content={<ChartTooltip title="Velocity bucket" />} />
+            <ChartContainer
+              config={velocityChartConfig}
+              className="aspect-auto h-full min-h-0 w-full"
+            >
+              <BarChart
+                accessibilityLayer
+                data={velocityDistribution}
+                margin={{ left: 4, right: 8, top: 8, bottom: 4 }}
+              >
+                <CartesianGrid strokeDasharray="4 4" className="stroke-border/50" vertical={false} />
+                <XAxis
+                  dataKey="range"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={10}
+                  tick={{ fontSize: 11 }}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  width={36}
+                  tick={{ fontSize: 11 }}
+                />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      className="min-w-32 border-border/50 bg-background/95 shadow-elevated ring-1 ring-border/35 backdrop-blur-xl"
+                      labelFormatter={(value) => `Velocity ${value}`}
+                      indicator="dot"
+                    />
+                  }
+                />
                 <Bar
                   dataKey="count"
-                  name="Signals"
-                  fill="var(--color-info)"
-                  radius={[6, 6, 0, 0]}
+                  name="count"
+                  fill="var(--color-count)"
+                  radius={[7, 7, 3, 3]}
+                  maxBarSize={48}
+                  isAnimationActive={!reduced}
                   animationBegin={chartBegin}
                   animationDuration={barDuration}
                   animationEasing="ease-out"
+                  className="motion-reduce:transition-none [&_rect]:transition-[filter] [&_rect]:duration-[var(--ds-duration-tactile)] [&_rect]:ease-[var(--ease-premium)] [&_rect]:hover:brightness-110"
                 />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </ChartCard>
         </StaggerItem>
 
@@ -243,15 +340,17 @@ export function DashboardCharts({
             subtitle="Prioritize high-fit accounts with clean data"
             href="/accounts"
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart>
-                <CartesianGrid stroke="var(--color-border)" strokeDasharray="4 4" />
+            <ChartContainer config={scatterChartConfig} className="aspect-auto h-full min-h-0 w-full">
+              <ScatterChart margin={{ left: 4, right: 8, top: 8, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="4 4" className="stroke-border/50" />
                 <XAxis
                   type="number"
                   dataKey="dq"
                   name="DQ"
                   domain={[0, 100]}
-                  stroke="var(--color-muted-foreground)"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
                   tick={{ fontSize: 11 }}
                 />
                 <YAxis
@@ -259,23 +358,33 @@ export function DashboardCharts({
                   dataKey="icp"
                   name="ICP"
                   domain={[0, 100]}
-                  stroke="var(--color-muted-foreground)"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  width={36}
                   tick={{ fontSize: 11 }}
                 />
-                <ZAxis type="number" dataKey="employees" range={[40, 220]} />
-                <Tooltip
-                  cursor={{ strokeDasharray: "4 4" }}
-                  content={<ChartTooltip title="Account fit" />}
+                <ZAxis type="number" dataKey="employees" range={[44, 220]} />
+                <ChartTooltip
+                  cursor={{
+                    strokeDasharray: "4 4",
+                    className: "stroke-border",
+                  }}
+                  content={<ScatterAccountTooltip />}
                 />
                 <Scatter
+                  name="fit"
                   data={icpVsDq}
-                  fill="var(--color-primary)"
+                  fill="var(--color-fit)"
+                  fillOpacity={0.92}
+                  isAnimationActive={!reduced}
                   animationBegin={chartBegin}
                   animationDuration={scatterDuration}
                   animationEasing="ease-out"
+                  className="motion-reduce:transition-none [&_circle]:transition-[opacity,filter] [&_circle]:duration-[var(--ds-duration-tactile)] [&_circle]:ease-[var(--ease-premium)] [&_circle]:hover:opacity-100 [&_circle]:hover:drop-shadow-[0_0_12px_color-mix(in_oklch,var(--color-fit)_40%,transparent)]"
                 />
               </ScatterChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </ChartCard>
         </StaggerItem>
       </Stagger>
