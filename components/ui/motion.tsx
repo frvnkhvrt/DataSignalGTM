@@ -137,9 +137,9 @@ export const listRowEnter: Variants = {
     y: 0,
     transition: { duration: dur.smooth, ease: ease.premium },
   },
+  // Pure fade exit — avoids upward flick in table rows and dense lists
   exit: {
     opacity: 0,
-    y: -4,
     transition: { duration: dur.fast, ease: ease.in },
   },
 };
@@ -188,9 +188,27 @@ function Reveal({ delay = 0, children, ...props }: RevealProps) {
 
 // ── Stagger / StaggerItem ──────────────────────────────────────────────────────
 
-/** Container that staggers its children on scroll-into-view. */
-function Stagger({ children, ...props }: MotionDivProps) {
+/**
+ * Container that staggers its children on scroll-into-view.
+ *
+ * The stagger step is calculated automatically from the child count so that
+ * the total stagger window never exceeds ~400ms regardless of list length:
+ *   staggerStep = Math.min(0.08, 400ms / childCount)
+ *
+ * Override with an explicit `count` prop when the child count is dynamic
+ * (e.g. filtered lists) or when React.Children.count would be unreliable.
+ */
+function Stagger({
+  children,
+  count: countProp,
+  ...props
+}: MotionDivProps & { count?: number }) {
   const reduced = useReducedMotion();
+  const autoCount = React.Children.count(children);
+  const count = Math.max(1, countProp ?? autoCount);
+  // Cap total stagger at 400ms: if 10 items @ 0.08s = 800ms → too long.
+  // Formula keeps individual step ≤ 80ms and total ≤ 400ms.
+  const staggerStep = Math.min(0.08, 0.4 / count);
 
   if (reduced) {
     return <div {...(props as React.HTMLAttributes<HTMLDivElement>)}>{children}</div>;
@@ -201,7 +219,15 @@ function Stagger({ children, ...props }: MotionDivProps) {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.18 }}
-      variants={staggerContainer}
+      variants={{
+        hidden: {},
+        visible: {
+          transition: {
+            staggerChildren: staggerStep,
+            delayChildren: 0.06,
+          },
+        },
+      }}
       {...props}
     >
       {children}

@@ -276,7 +276,7 @@
 
   /* Blocked action shake for demo-limited elements */
   .ds-shake {
-    animation: ds-shake 420ms var(--ease-premium);
+    animation: ds-shake 360ms var(--ease-premium);
   }
 
   /* Floating lift — can be applied to interactive cards */
@@ -342,10 +342,10 @@
 
 @keyframes ds-shake {
   0%, 100% { transform: translateX(0); }
-  18%       { transform: translateX(-3px); }
-  36%       { transform: translateX(3px); }
-  54%       { transform: translateX(-2px); }
-  72%       { transform: translateX(2px); }
+  20%       { transform: translateX(-4px); }
+  40%       { transform: translateX(4px); }
+  60%       { transform: translateX(-2px); }
+  80%       { transform: translateX(2px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

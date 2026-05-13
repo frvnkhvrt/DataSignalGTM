@@ -115,8 +115,13 @@ export function DashboardCharts({
   signals: SignalRow[];
 }) {
   const reduced = useReducedMotion();
-  // Recharts animationDuration respects reduced motion
-  const chartAnimDuration = reduced ? 0 : 800;
+  // Timing constants for Recharts animations.
+  // animationBegin delays the chart data draw until after the card's own fade-in
+  // has had a chance to establish itself, creating a layered entrance.
+  const chartBegin = reduced ? 0 : 200;
+  const lineDuration = reduced ? 0 : 800;  // line draw feels better slower
+  const barDuration = reduced ? 0 : 650;   // bars feel snappier
+  const scatterDuration = reduced ? 0 : 700;
 
   const dqTrend = useMemo(() => {
     const sorted = [...accounts].sort((a, b) =>
@@ -195,7 +200,8 @@ export function DashboardCharts({
                   strokeWidth={2}
                   dot={{ r: 2, fill: "var(--color-success)" }}
                   activeDot={{ r: 5, strokeWidth: 0, fill: "var(--color-success)" }}
-                  animationDuration={chartAnimDuration}
+                  animationBegin={chartBegin}
+                  animationDuration={lineDuration}
                   animationEasing="ease-out"
                 />
               </LineChart>
@@ -220,7 +226,8 @@ export function DashboardCharts({
                   name="Signals"
                   fill="var(--color-info)"
                   radius={[6, 6, 0, 0]}
-                  animationDuration={chartAnimDuration}
+                  animationBegin={chartBegin}
+                  animationDuration={barDuration}
                   animationEasing="ease-out"
                 />
               </BarChart>
@@ -261,7 +268,8 @@ export function DashboardCharts({
                 <Scatter
                   data={icpVsDq}
                   fill="var(--color-primary)"
-                  animationDuration={chartAnimDuration}
+                  animationBegin={chartBegin}
+                  animationDuration={scatterDuration}
                   animationEasing="ease-out"
                 />
               </ScatterChart>
