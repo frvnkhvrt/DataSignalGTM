@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, ExternalLink, Loader2, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { CheckCircle2, ExternalLink, Loader2, Sparkles, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase/client";
 import { useCurrentOrg } from "@/lib/auth-context";
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
 import { QueryError } from "@/components/ui/query-error";
 
@@ -211,19 +212,11 @@ export default function BillingPage() {
 
   return (
     <div className="space-y-8 p-4 sm:p-6 lg:p-8">
-      <div className="rounded-2xl border border-border bg-card/70 p-5 shadow-soft">
-        <Badge variant="brand" className="mb-3">
-          <ShieldCheck className="h-3 w-3" />
-          Billing
-        </Badge>
-        <h1 className="ds-heading text-3xl font-semibold text-foreground">
-          Plan, limits, and billing
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-          Choose the capacity that matches your GTM motion. Free is for setup,
-          Pro removes operational limits, and Enterprise adds governance.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Billing"
+        title="Plan, limits &amp; billing"
+        description="Choose the capacity that matches your GTM motion. Free is for setup, Pro removes operational limits, and Enterprise adds governance."
+      />
 
       {subscription && (
         <Card className="bg-card/80 px-4 py-3 text-sm text-muted-foreground">

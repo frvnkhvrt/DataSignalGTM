@@ -30,9 +30,13 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
     };
   }, [user.id]);
 
+  // Hold the app render until the profile check completes to prevent
+  // a flash of app content before the onboarding modal overlays it.
+  if (!checked) return null;
+
   return (
     <>
-      {checked && showOnboarding && (
+      {showOnboarding && (
         <OnboardingModal onComplete={() => setShowOnboarding(false)} />
       )}
       {children}

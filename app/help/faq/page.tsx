@@ -31,22 +31,22 @@ const faqs = [
   },
   {
     q: "What are feature flags and how do I use them?",
-    a: "Feature flags let you toggle individual features (rules engine, advanced charts, bulk actions, command palette) without a code deploy. Set FEATURE_FLAGS='{'enable_rules_engine':false}' in your environment, or use individual overrides like FEATURE_ENABLE_RULES_ENGINE=false. Changes take effect on the next page load.",
+    a: "Feature flags let you toggle individual features (rules engine, advanced charts, bulk actions, command palette) without a code deploy. Set FEATURE_FLAGS='{\"enable_rules_engine\":false}' in your environment, or use individual overrides like FEATURE_ENABLE_RULES_ENGINE=false. Changes take effect on the next page load.",
   },
 ];
 
 export default function FAQPage() {
   return (
-    <article className="space-y-8 text-zinc-300">
+    <article className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-zinc-100">
+        <h1 className="ds-heading text-3xl font-semibold text-foreground">
           Frequently Asked Questions
         </h1>
-        <p className="mt-3 text-zinc-400">
+        <p className="mt-3 text-muted-foreground">
           Common questions about DataSignalGTM. Can&apos;t find your answer?{" "}
           <a
             href="mailto:hello@datasignalgtm.com"
-            className="text-emerald-400 hover:underline"
+            className="text-primary hover:underline"
           >
             Email us
           </a>
@@ -54,11 +54,13 @@ export default function FAQPage() {
         </p>
       </div>
 
-      <div className="divide-y divide-zinc-800">
+      <div className="divide-y divide-border">
         {faqs.map(({ q, a }) => (
           <div key={q} className="py-5">
-            <p className="font-semibold text-zinc-100">{q}</p>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-400">{a}</p>
+            <p className="font-semibold text-foreground">{q}</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              {a}
+            </p>
           </div>
         ))}
       </div>

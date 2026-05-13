@@ -49,12 +49,10 @@ export function TopBar() {
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-border bg-background/82 px-4 backdrop-blur-xl sm:px-6">
-      {/* Contextual breadcrumb — intentionally NOT an h1; each page owns its heading. */}
-      <div aria-hidden="true">
-        <p className="font-display text-sm font-medium tracking-[-0.02em] text-muted-foreground">
-          {subtitle}
-        </p>
-      </div>
+      {/* Contextual breadcrumb — supplements the page h1 with a short orientation label. */}
+      <p className="font-display text-sm font-medium tracking-[-0.02em] text-muted-foreground">
+        {subtitle}
+      </p>
       <div className="flex items-center gap-3">
         <div className="hidden items-center gap-1 rounded-md border border-border bg-background/40 px-2 py-1 text-[11px] text-muted-foreground lg:flex">
           <Command className="h-3 w-3" />

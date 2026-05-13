@@ -49,7 +49,10 @@
 
   --shadow-soft: 0 1px 1px rgb(0 0 0 / 0.08), 0 12px 40px rgb(0 0 0 / 0.22);
   --shadow-elevated: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 24px 70px rgb(0 0 0 / 0.42);
-  --shadow-glow: 0 0 0 1px rgb(16 185 129 / 0.16), 0 0 50px rgb(16 185 129 / 0.1);
+  --shadow-glow: 0 0 0 1px color-mix(in oklch, var(--primary) 20%, transparent),
+    0 0 50px color-mix(in oklch, var(--primary) 13%, transparent);
+  --shadow-glow-strong: 0 0 0 1px color-mix(in oklch, var(--primary) 32%, transparent),
+    0 20px 80px color-mix(in oklch, var(--primary) 28%, transparent);
   --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
 }
 

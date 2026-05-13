@@ -17,6 +17,7 @@ import { StatusPill } from "@/components/status-pill";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { KpiCard } from "@/components/ui/kpi-card";
 import { QueryError } from "@/components/ui/query-error";
 import {
   PageReveal,
@@ -41,46 +42,6 @@ const DashboardCharts = dynamic(
     loading: () => <Skeleton className="h-[22rem] rounded-xl" />,
   }
 );
-
-function MetricCard({
-  label,
-  value,
-  description,
-  icon,
-  tone = "default",
-}: {
-  label: string;
-  value: string | number;
-  description: string;
-  icon: React.ReactNode;
-  tone?: "default" | "success" | "warning" | "info";
-}) {
-  const toneClass =
-    tone === "success"
-      ? "text-success"
-      : tone === "warning"
-        ? "text-warning"
-        : tone === "info"
-          ? "text-info"
-          : "text-foreground";
-
-  return (
-    <Card className="bg-card/80 p-4 transition-colors hover:bg-surface-elevated/80">
-      <div className="flex items-center justify-between gap-3">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          {label}
-        </div>
-        <div className={`rounded-lg border border-border bg-background/40 p-1.5 ${toneClass}`}>
-          {icon}
-        </div>
-      </div>
-      <div className={`mt-3 font-mono text-3xl font-semibold tabular-nums ${toneClass}`}>
-        {value}
-      </div>
-      <p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p>
-    </Card>
-  );
-}
 
 export default function DashboardPage() {
   const org = useCurrentOrg();
@@ -182,10 +143,11 @@ export default function DashboardPage() {
           <Stagger className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <StaggerItem>
               <MotionCard>
-                <MetricCard
+                <KpiCard
                   label="Pending signals"
                   value={pending}
                   tone="warning"
+                  size="default"
                   description="Need review before reps act."
                   icon={<Radio className="h-4 w-4" />}
                 />
@@ -193,10 +155,11 @@ export default function DashboardPage() {
             </StaggerItem>
             <StaggerItem>
               <MotionCard>
-                <MetricCard
+                <KpiCard
                   label="Average DQ"
                   value={avgDq}
                   tone={avgDq >= 85 ? "success" : "warning"}
+                  size="default"
                   description="Account data health across workspace."
                   icon={<ShieldCheck className="h-4 w-4" />}
                 />
@@ -204,10 +167,11 @@ export default function DashboardPage() {
             </StaggerItem>
             <StaggerItem>
               <MotionCard>
-                <MetricCard
+                <KpiCard
                   label="Approved"
                   value={approved}
                   tone="success"
+                  size="default"
                   description="Ready for follow-up motion."
                   icon={<CheckCircle2 className="h-4 w-4" />}
                 />
@@ -215,10 +179,11 @@ export default function DashboardPage() {
             </StaggerItem>
             <StaggerItem>
               <MotionCard>
-                <MetricCard
+                <KpiCard
                   label="Playbooks"
                   value={playbookReady}
                   tone="info"
+                  size="default"
                   description="Generated strategies attached to signals."
                   icon={<Sparkles className="h-4 w-4" />}
                 />

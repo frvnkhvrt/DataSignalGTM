@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AlertTriangle, Loader2, RotateCcw, ShieldAlert } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default function AdminPage() {
   const [resetKey, setResetKey] = useState("");
@@ -37,20 +37,18 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-      <div>
-        <Badge variant="warning" className="mb-3">
-          <ShieldAlert className="h-3 w-3" />
-          Internal
-        </Badge>
-        <h1 className="ds-heading text-2xl font-semibold text-foreground sm:text-3xl">
-          Admin
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Internal tools for demo management. These actions are irreversible.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Internal"
+        title={
+          <span className="flex items-center gap-2">
+            <ShieldAlert className="inline h-6 w-6 text-warning" />
+            Admin
+          </span>
+        }
+        description="Internal tools for demo management. These actions are irreversible."
+      />
 
-      <Card className="max-w-lg">
+      <Card variant="translucent" className="max-w-lg">
         <CardHeader>
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-warning" />

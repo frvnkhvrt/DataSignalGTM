@@ -9,7 +9,8 @@ import {
   type AccountRow,
 } from "@/lib/gtm-queries";
 import { AccountsTable } from "@/components/tables/accounts-table";
-import { Card } from "@/components/ui/card";
+import { KpiCard } from "@/components/ui/kpi-card";
+import { PageHeader } from "@/components/ui/page-header";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
 import { QueryError } from "@/components/ui/query-error";
 
@@ -25,39 +26,6 @@ function bucketCounts(accounts: AccountRow[]) {
     critical: accounts.filter((account) => (account.data_quality_score ?? 0) < 75)
       .length,
   };
-}
-
-function StatCard({
-  label,
-  value,
-  icon,
-  accent = "zinc",
-}: {
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  accent?: "zinc" | "emerald" | "amber" | "red";
-}) {
-  const valueColor =
-    accent === "emerald"
-      ? "text-success"
-      : accent === "amber"
-        ? "text-warning"
-        : accent === "red"
-          ? "text-destructive"
-          : "text-foreground";
-
-  return (
-    <Card className="bg-card/80 p-4 transition-colors hover:bg-surface-elevated/80">
-      <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-        {icon}
-        {label}
-      </div>
-      <div className={`mt-2 font-mono text-xl font-semibold ${valueColor}`}>
-        {value}
-      </div>
-    </Card>
-  );
 }
 
 export default function AccountsPage() {
@@ -87,53 +55,50 @@ export default function AccountsPage() {
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-      <div>
-        <h1 className="ds-heading text-2xl font-semibold text-foreground sm:text-3xl">
-          Accounts
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Audit account data quality, ICP fit, and data gaps by workspace.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Accounts"
+        title="Data quality &amp; ICP fit"
+        description="Audit account data quality, ICP fit, and data gaps by workspace."
+      />
 
       <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <StaggerItem>
-          <StatCard
+          <KpiCard
             label="Total"
             value={counts.total}
-            icon={<ShieldCheck className="h-3.5 w-3.5 text-muted-foreground" />}
+            icon={<ShieldCheck className="h-4 w-4" />}
           />
         </StaggerItem>
         <StaggerItem>
-          <StatCard
+          <KpiCard
             label="Healthy"
             value={counts.healthy}
-            accent="emerald"
-            icon={<ShieldCheck className="h-3.5 w-3.5 text-success" />}
+            tone="success"
+            icon={<ShieldCheck className="h-4 w-4" />}
           />
         </StaggerItem>
         <StaggerItem>
-          <StatCard
+          <KpiCard
             label="Held"
             value={counts.held}
-            accent="amber"
-            icon={<AlertTriangle className="h-3.5 w-3.5 text-warning" />}
+            tone="warning"
+            icon={<AlertTriangle className="h-4 w-4" />}
           />
         </StaggerItem>
         <StaggerItem>
-          <StatCard
+          <KpiCard
             label="Critical"
             value={counts.critical}
-            accent="red"
-            icon={<CircleAlert className="h-3.5 w-3.5 text-destructive" />}
+            tone="destructive"
+            icon={<CircleAlert className="h-4 w-4" />}
           />
         </StaggerItem>
         <StaggerItem>
-          <StatCard
+          <KpiCard
             label="Open gaps"
             value={totalGaps}
-            accent={totalGaps > 0 ? "amber" : "zinc"}
-            icon={<Wrench className="h-3.5 w-3.5 text-muted-foreground" />}
+            tone={totalGaps > 0 ? "warning" : "default"}
+            icon={<Wrench className="h-4 w-4" />}
           />
         </StaggerItem>
       </Stagger>

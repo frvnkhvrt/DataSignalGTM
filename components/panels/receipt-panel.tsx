@@ -30,6 +30,7 @@ import {
 } from "@/lib/gtm-queries";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
+import { Button } from "@/components/ui/button";
 import type { SignalStatus } from "@/types/signal";
 import { isTerminal, canTransition } from "@/types/signal";
 import { motion, AnimatePresence } from "motion/react";
@@ -242,11 +243,12 @@ export function ReceiptPanel({
               </div>
               {data?.id && (
                 <DemoLimitedAction action="generate_playbook" surface="receipt_panel">
-                  <button
+                  <Button
                     type="button"
+                    variant="success"
                     disabled={generateMut.isPending || isGenerating}
                     onClick={() => generateMut.mutate(data.id)}
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-emerald-500/40 text-emerald-300 font-medium py-2.5 text-sm hover:bg-emerald-500/10 disabled:opacity-50"
+                    className="w-full"
                   >
                     {generateMut.isPending || isGenerating ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -254,7 +256,7 @@ export function ReceiptPanel({
                       <Sparkles className="h-4 w-4" />
                     )}
                     {isGenerating ? "Generating..." : "Generate playbook"}
-                  </button>
+                  </Button>
                 </DemoLimitedAction>
               )}
             </motion.div>
@@ -344,18 +346,19 @@ export function ReceiptPanel({
         </div>
 
         {!terminal && (
-          <div className="px-6 py-4 flex gap-2">
+          <div className="flex gap-2 px-6 py-4">
             {canApprove && (
               <DemoLimitedAction
                 action="approve_signal"
                 surface="receipt_panel"
                 wrapperClassName="flex-1"
               >
-                <button
+                <Button
                   type="button"
+                  variant="default"
                   disabled={approve.isPending}
                   onClick={() => tryApprove()}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-md bg-emerald-400 text-zinc-950 font-medium py-2.5 text-sm hover:bg-emerald-300 disabled:opacity-50"
+                  className="w-full"
                 >
                   {approve.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -363,7 +366,7 @@ export function ReceiptPanel({
                     <CheckCircle2 className="h-4 w-4" />
                   )}
                   Approve
-                </button>
+                </Button>
               </DemoLimitedAction>
             )}
             {canReject && (
@@ -372,11 +375,12 @@ export function ReceiptPanel({
                 surface="receipt_panel"
                 wrapperClassName="flex-1"
               >
-                <button
+                <Button
                   type="button"
+                  variant="destructive"
                   disabled={reject.isPending}
                   onClick={() => tryReject()}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-md border border-red-500/40 text-red-300 font-medium py-2.5 text-sm hover:bg-red-500/10 disabled:opacity-50"
+                  className="w-full"
                 >
                   {reject.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -384,17 +388,17 @@ export function ReceiptPanel({
                     <XCircle className="h-4 w-4" />
                   )}
                   Reject
-                </button>
+                </Button>
               </DemoLimitedAction>
             )}
           </div>
         )}
 
         {terminal && (
-          <div className="px-6 py-4">
-            <div className="text-xs text-muted-foreground text-center capitalize">
+          <div className="px-6 py-4 text-center">
+            <span className="ds-eyebrow capitalize text-muted-foreground">
               {status}
-            </div>
+            </span>
           </div>
         )}
       </SheetContent>

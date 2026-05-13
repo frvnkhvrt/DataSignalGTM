@@ -8,6 +8,7 @@ import { signalsRecentQuery } from "@/lib/gtm-queries";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 import { SignalsTable } from "@/components/tables/signals-table";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import { QueryError } from "@/components/ui/query-error";
 
 export default function SignalsPage() {
@@ -65,34 +66,31 @@ export default function SignalsPage() {
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="ds-heading text-2xl font-semibold text-foreground sm:text-3xl">
-            Signals
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Prioritize, generate playbooks, and approve revenue signals.
-          </p>
-        </div>
-        {missingPlaybooks > 0 && (
-          <DemoLimitedAction action="backfill_playbooks" surface="signals_page">
-            <Button
-              type="button"
-              onClick={() => backfill.mutate()}
-              disabled={backfill.isPending}
-              variant="success"
-              size="sm"
-            >
-              {backfill.isPending ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Sparkles className="h-3.5 w-3.5" />
-              )}
-              Queue missing playbooks ({missingPlaybooks})
-            </Button>
-          </DemoLimitedAction>
-        )}
-      </div>
+      <PageHeader
+        eyebrow="Signals"
+        title="Review queue"
+        description="Prioritize, generate playbooks, and approve revenue signals."
+        actions={
+          missingPlaybooks > 0 ? (
+            <DemoLimitedAction action="backfill_playbooks" surface="signals_page">
+              <Button
+                type="button"
+                onClick={() => backfill.mutate()}
+                disabled={backfill.isPending}
+                variant="success"
+                size="sm"
+              >
+                {backfill.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5" />
+                )}
+                Queue missing playbooks ({missingPlaybooks})
+              </Button>
+            </DemoLimitedAction>
+          ) : undefined
+        }
+      />
 
       <SignalsTable
         signals={signals}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, TriangleAlert } from "lucide-react";
+import Link from "next/link";
+import { Loader2, Sparkles, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
@@ -126,13 +127,18 @@ export function LoginForm() {
         Continue with Google
       </Button>
 
-      <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
-        Local demo: sign in as{" "}
-        <span className="font-mono text-foreground">
-          demo@datasignalgtm.local
-        </span>{" "}
-        after running the Phase 1 migration.
-      </p>
+      <div className="mt-5 space-y-3">
+        <Link
+          href="/demo"
+          className="ds-focus-ring ds-pressable flex items-center justify-center gap-2 rounded-lg border border-primary/25 bg-primary/8 px-3 py-2.5 text-sm font-medium text-primary hover:border-primary/40 hover:bg-primary/12 transition-colors"
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          Explore the live demo — no sign-up needed
+        </Link>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          New users get a private workspace automatically on first sign-in.
+        </p>
+      </div>
       </CardContent>
     </Card>
   );

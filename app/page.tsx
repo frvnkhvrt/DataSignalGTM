@@ -39,8 +39,7 @@ const sectionLabelClass = "ds-eyebrow mb-4";
 const sectionContainerClass = "mx-auto max-w-6xl px-4 sm:px-6";
 const sectionDividerClass =
   "pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent";
-const premiumButtonClass =
-  "shadow-glow hover:shadow-[0_0_0_1px_rgb(16_185_129_/_0.26),0_20px_80px_rgb(16_185_129_/_0.24)]";
+const premiumButtonClass = "shadow-glow hover:shadow-glow-strong";
 
 const problemItems = [
   {
@@ -99,35 +98,35 @@ const solutionItems = [
 const featureItems = [
   {
     icon: Brain,
-    iconClass: "text-emerald-400",
+    iconClass: "text-primary",
     title: "AI Playbook Generator",
     description:
       "Gemini-powered outreach playbooks tailored to each account's signals, industry, and ICP fit score. Generated in seconds.",
   },
   {
     icon: Target,
-    iconClass: "text-violet-400",
+    iconClass: "text-info",
     title: "ICP Scoring Engine",
     description:
       "Composite scores combining velocity, intent, timing, and fit signals into a single prioritisation rank for every account.",
   },
   {
     icon: BarChart3,
-    iconClass: "text-cyan-400",
+    iconClass: "text-info",
     title: "Data Quality Dashboard",
     description:
       "Track DQ scores across your entire account base. Auto-flag missing fields, stale data, and coverage gaps before they hurt conversions.",
   },
   {
     icon: Zap,
-    iconClass: "text-amber-400",
+    iconClass: "text-warning",
     title: "Background Job Processing",
     description:
       "Playbook generation runs in the background via Inngest. Never block your team — get notified when jobs complete.",
   },
   {
     icon: Shield,
-    iconClass: "text-emerald-400",
+    iconClass: "text-primary",
     title: "Rules Engine",
     description:
       "Define auto-hold thresholds: accounts below your DQ floor are automatically quarantined until data improves.",

@@ -1,21 +1,49 @@
 import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { elevated?: boolean }
->(({ className, elevated, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-xl border border-border bg-card text-card-foreground",
-      elevated && "shadow-elevated",
-      className
-    )}
-    {...props}
-  />
-));
+const cardVariants = cva("rounded-xl border border-border text-card-foreground", {
+  variants: {
+    variant: {
+      /** Opaque card — default for most app surfaces. */
+      default: "bg-card",
+      /** 80 % opacity — for stat tiles, panels, and data grids. */
+      translucent: "bg-card/80",
+      /** Blurred glass — for marketing overlays and feature cards. */
+      glass: "bg-card/65 backdrop-blur-xl shadow-soft",
+      /** Translucent + hover transition — for clickable card links. */
+      interactive:
+        "bg-card/80 transition-colors hover:bg-surface-elevated/80 cursor-pointer",
+      /** No fill — for nested areas that should inherit the parent surface. */
+      ghost: "border-transparent bg-transparent",
+    },
+  },
+  defaultVariants: {
+    variant: "default",
+  },
+});
+
+export interface CardProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof cardVariants> {
+  /** Adds the elevated drop-shadow. Works on any variant. */
+  elevated?: boolean;
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, variant, elevated, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        cardVariants({ variant }),
+        elevated && "shadow-elevated",
+        className
+      )}
+      {...props}
+    />
+  )
+);
 Card.displayName = "Card";
 
 const CardHeader = React.forwardRef<
@@ -77,4 +105,5 @@ export {
   CardDescription,
   CardContent,
   CardFooter,
+  cardVariants,
 };

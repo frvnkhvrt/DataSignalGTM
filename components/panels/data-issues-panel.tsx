@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { AnimatePresence } from "motion/react";
+import { Button } from "@/components/ui/button";
 import { MotionListItem } from "@/components/ui/motion";
 import type {
   AccountRow,
@@ -44,14 +45,14 @@ import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 const SEVERITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
 const SEVERITY_BORDER: Record<string, string> = {
-  high: "border-l-red-500",
-  medium: "border-l-amber-500",
-  low: "border-l-zinc-600",
+  high: "border-l-destructive",
+  medium: "border-l-warning",
+  low: "border-l-border",
 };
 
-  const SEVERITY_BADGE: Record<string, string> = {
-  high: "border-red-500/40 text-red-300 bg-red-500/10",
-  medium: "border-amber-500/40 text-amber-200 bg-amber-500/10",
+const SEVERITY_BADGE: Record<string, string> = {
+  high: "border-destructive/40 text-destructive bg-destructive/10",
+  medium: "border-warning/40 text-warning bg-warning/10",
   low: "border-border text-muted-foreground bg-muted/50",
 };
 
@@ -96,16 +97,16 @@ export function DataIssuesPanel({
 
   const ringColor =
     tone === "good"
-      ? "stroke-emerald-500"
+      ? "stroke-success"
       : tone === "warn"
-        ? "stroke-amber-500"
-        : "stroke-red-500";
+        ? "stroke-warning"
+        : "stroke-destructive";
   const scoreColor =
     tone === "good"
-      ? "text-emerald-400"
+      ? "text-success"
       : tone === "warn"
-        ? "text-amber-400"
-        : "text-red-400";
+        ? "text-warning"
+        : "text-destructive";
 
   const { data: issues, isLoading } = useQuery({
     ...dataIssuesForAccountQuery(org.id, account?.id ?? ""),
@@ -353,14 +354,14 @@ export function DataIssuesPanel({
               {sorted.length > 0 && (
                 <div className="flex items-center gap-3 text-[11px]">
                   {highCount > 0 && (
-                    <span className="flex items-center gap-1 text-red-300">
-                      <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                    <span className="flex items-center gap-1 text-destructive">
+                      <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
                       {highCount} high
                     </span>
                   )}
                   {medCount > 0 && (
-                    <span className="flex items-center gap-1 text-amber-300">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                    <span className="flex items-center gap-1 text-warning">
+                      <span className="h-1.5 w-1.5 rounded-full bg-warning" />
                       {medCount} med
                     </span>
                   )}
@@ -373,10 +374,10 @@ export function DataIssuesPanel({
                 </div>
               )}
               {sorted.length > 0 && (
-                <div className="flex h-1.5 w-full rounded-full overflow-hidden bg-muted">
+                <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted">
                   {highCount > 0 && (
                     <div
-                      className="h-full bg-red-500"
+                      className="h-full bg-destructive"
                       style={{
                         width: `${(highCount / sorted.length) * 100}%`,
                       }}
@@ -384,7 +385,7 @@ export function DataIssuesPanel({
                   )}
                   {medCount > 0 && (
                     <div
-                      className="h-full bg-amber-500"
+                      className="h-full bg-warning"
                       style={{
                         width: `${(medCount / sorted.length) * 100}%`,
                       }}
@@ -406,23 +407,25 @@ export function DataIssuesPanel({
 
         {/* ── Resolve all bar ── */}
         {sorted.length >= 2 && (
-          <div className="px-6 py-3 border-b border-border shrink-0">
+          <div className="shrink-0 border-b border-border px-6 py-3">
             <DemoLimitedAction
               action="resolve_all_data_issues"
               surface="data_issues_panel"
               wrapperClassName="w-full"
             >
-              <button
+              <Button
                 type="button"
+                variant="success"
+                size="sm"
                 onClick={() => resolveAllMut.mutate()}
                 disabled={resolveAllMut.isPending}
-                className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50 transition-colors w-full justify-center"
+                className="w-full"
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 {resolveAllMut.isPending
                   ? "Resolving..."
                   : `Resolve all (${sorted.length})`}
-              </button>
+              </Button>
             </DemoLimitedAction>
           </div>
         )}
@@ -527,28 +530,30 @@ function IssueCard({
         </p>
       )}
 
-      <div className="flex items-center gap-2 pt-1 pl-6">
+      <div className="flex items-center gap-2 pl-6 pt-1">
         <DemoLimitedAction action="resolve_data_issue" surface="data_issues_panel">
-          <button
+          <Button
             type="button"
+            variant="success"
+            size="xs"
             onClick={onResolve}
             disabled={busy}
-            className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50 transition-colors"
           >
             <CheckCircle2 className="h-3 w-3" />
             Resolve
-          </button>
+          </Button>
         </DemoLimitedAction>
         <DemoLimitedAction action="dismiss_data_issue" surface="data_issues_panel">
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="xs"
             onClick={onDismiss}
             disabled={busy}
-            className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded border border-border text-muted-foreground hover:bg-muted disabled:opacity-50 transition-colors"
           >
             <XCircle className="h-3 w-3" />
             Dismiss
-          </button>
+          </Button>
         </DemoLimitedAction>
         {busy && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
       </div>
