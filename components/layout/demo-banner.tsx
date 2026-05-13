@@ -7,6 +7,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { useAuthContext } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase/client";
 import { transitionDemoBanner } from "@/components/ui/motion";
@@ -59,8 +60,8 @@ export function DemoBanner() {
         transition={transitionDemoBanner}
         className="border-b border-amber-300/20 bg-gradient-to-r from-amber-300/10 via-background/80 to-cyan-300/10 px-4 py-3 text-foreground backdrop-blur-xl sm:px-6"
       >
-        <div className="rounded-xl border border-amber-300/20 bg-background/45 px-4 py-3 shadow-soft">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="rounded-xl border border-amber-300/20 bg-background/45 px-4 py-3 shadow-soft ds-card-inner-glow">
+          <motion.div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-300/30 bg-amber-300/15 text-amber-200">
                 <Eye className="h-5 w-5" />
@@ -95,17 +96,11 @@ export function DemoBanner() {
                 disabled={isResetPending || isExitPending}
                 className="border-amber-300/30 bg-amber-300/10 text-amber-50 hover:bg-amber-300/20"
               >
-                <motion.span
-                  animate={isResetPending ? { rotate: 360 } : { rotate: 0 }}
-                  transition={
-                    isResetPending
-                      ? { duration: 0.7, repeat: Infinity, ease: "linear" }
-                      : { duration: 0 }
-                  }
-                  style={{ display: "inline-flex" }}
-                >
+                {isResetPending ? (
+                  <Spinner size="md" />
+                ) : (
                   <RotateCcw className="h-3.5 w-3.5" />
-                </motion.span>
+                )}
                 {isResetPending ? "Resetting…" : "Reset Demo Data"}
               </Button>
               <Button
@@ -116,11 +111,15 @@ export function DemoBanner() {
                 size="sm"
                 className="border-amber-300/40 bg-amber-300/20 text-amber-50 hover:bg-amber-300/30"
               >
-                <LogOut className="h-3.5 w-3.5" />
+                {isExitPending ? (
+                  <Spinner size="md" />
+                ) : (
+                  <LogOut className="h-3.5 w-3.5" />
+                )}
                 Exit demo
               </Button>
             </div>
-          </div>
+          </motion.div>
         </div>
       </motion.div>
     </AnimatePresence>

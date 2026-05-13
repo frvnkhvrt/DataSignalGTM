@@ -523,7 +523,7 @@ export function SignalsTable({
                 .map((column) => (
                   <label
                     key={column.id}
-                    className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-xs text-muted-foreground ds-transition-muted hover:bg-secondary hover:text-foreground"
                   >
                     <input
                       type="checkbox"
@@ -546,8 +546,7 @@ export function SignalsTable({
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
                   key={headerGroup.id}
-                  className="text-left text-[11px] uppercase tracking-wide text-muted-foreground"
-                  style={{ boxShadow: "inset 0 -1px 0 0 var(--color-border), inset 0 1px 0 rgb(255 255 255 / 0.03)" }}
+                  className="text-left text-[11px] uppercase tracking-wide text-muted-foreground ds-chrome-divider"
                 >
                   {headerGroup.headers.map((header) => (
                     <th key={header.id} className="px-3 py-3 font-medium">
@@ -589,7 +588,7 @@ export function SignalsTable({
                         key={row.id}
                         as="tr"
                         className={[
-                          "ds-row transition-colors hover:bg-surface-elevated/70",
+                          "ds-row hover:bg-surface-elevated/70",
                           "data-[selected=true]:bg-gradient-to-r data-[selected=true]:from-primary/12 data-[selected=true]:to-primary/4",
                           "data-[selected=true]:shadow-[inset_2px_0_0_var(--color-primary)]",
                           isRecentlyUpdated("signals", row.original.id) ? "ds-row-updated" : "",

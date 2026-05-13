@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useAuthContext } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { transitionTopBarSubtitle } from "@/components/ui/motion";
 
 function subtitleForPath(pathname: string): string {
@@ -51,8 +52,7 @@ export function TopBar() {
 
   return (
     <header
-      className="sticky top-0 z-10 flex h-14 items-center justify-between bg-background/82 px-4 backdrop-blur-xl sm:px-6"
-      style={{ boxShadow: "inset 0 -1px 0 var(--color-border), inset 0 1px 0 rgb(255 255 255 / 0.03)" }}
+      className="sticky top-0 z-10 flex h-14 items-center justify-between bg-background/82 px-4 backdrop-blur-xl sm:px-6 ds-chrome-divider"
     >
       {/* Contextual breadcrumb — cross-fades on route change for a premium feel */}
       <AnimatePresence mode="wait" initial={false}>
@@ -86,7 +86,7 @@ export function TopBar() {
           size="sm"
           aria-label="Sign out of DataSignalGTM"
         >
-          <LogOut className="h-3.5 w-3.5" />
+          {isPending ? <Spinner size="md" /> : <LogOut className="h-3.5 w-3.5" />}
           Sign out
         </Button>
       </div>

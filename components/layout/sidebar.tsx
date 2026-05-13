@@ -59,7 +59,7 @@ export function Sidebar() {
 
   return (
     <aside className="fixed inset-x-0 bottom-0 z-20 flex h-16 border-t border-border bg-background/88 backdrop-blur-xl transition-[width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] sm:inset-x-auto sm:inset-y-0 sm:left-0 sm:h-auto sm:w-[var(--sidebar-width)] sm:flex-col sm:border-r-0 sm:border-t-0 sm:[box-shadow:1px_0_0_var(--color-border)]">
-      <div className="hidden h-14 items-center gap-2 px-4 sm:flex" style={{ boxShadow: "inset 0 -1px 0 var(--color-border), inset 0 1px 0 rgb(255 255 255 / 0.03)" }}>
+      <div className="hidden h-14 items-center gap-2 px-4 sm:flex ds-chrome-divider">
         <div className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/20 bg-primary/10 shadow-glow shadow-[inset_0_1px_0_rgb(255_255_255_/_0.12)]">
           <Activity className="h-4 w-4 text-primary" />
         </div>
@@ -124,10 +124,7 @@ export function Sidebar() {
                       <motion.span
                         layoutId={PILL_LAYOUT_ID}
                         aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 hidden rounded-md border-l-2 border-primary bg-gradient-to-r from-primary/14 to-primary/6 sm:block"
-                        style={{
-                          boxShadow: "inset 2px 0 0 var(--color-primary), 0 0 18px color-mix(in oklch, var(--primary) 12%, transparent)",
-                        }}
+                        className="ds-nav-active-pill pointer-events-none absolute inset-0 hidden rounded-md border-l-2 border-primary bg-gradient-to-r from-primary/14 to-primary/6 sm:block"
                         transition={spring.sidebarPill}
                       />
                     )}
@@ -142,7 +139,7 @@ export function Sidebar() {
           </div>
         ))}
 
-        <div className="hidden sm:mt-auto sm:block sm:pt-4" style={{ boxShadow: "inset 0 1px 0 var(--color-border)" }}>
+        <div className="hidden sm:mt-auto sm:block sm:pt-4 ds-chrome-edge-top">
           <Link
             href="/help"
             title={collapsed ? "Help" : undefined}

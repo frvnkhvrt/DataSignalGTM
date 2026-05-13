@@ -131,7 +131,7 @@ export function LoginForm() {
       <div className="mt-5 space-y-3">
         <Link
           href="/demo"
-          className="ds-focus-ring ds-pressable flex items-center justify-center gap-2 rounded-lg border border-primary/25 bg-primary/8 px-3 py-2.5 text-sm font-medium text-primary hover:border-primary/40 hover:bg-primary/12 transition-colors"
+          className="ds-focus-ring ds-pressable ds-transition-muted flex items-center justify-center gap-2 rounded-lg border border-primary/25 bg-primary/8 px-3 py-2.5 text-sm font-medium text-primary hover:border-primary/40 hover:bg-primary/12"
         >
           <Sparkles className="h-3.5 w-3.5" />
           Explore the live demo — no sign-up needed

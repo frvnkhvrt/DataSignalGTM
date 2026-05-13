@@ -21,6 +21,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { useCurrentOrg } from "@/lib/auth-context";
+import { cn } from "@/lib/utils";
 import { AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -325,11 +326,10 @@ export function DataIssuesPanel({
                   fill="none"
                   strokeWidth="6"
                   strokeLinecap="round"
-                  className={ringColor}
+                  className={cn(ringColor, "ds-ring-dash")}
                   strokeDasharray={circumference}
                   strokeDashoffset={offset}
                   transform="rotate(-90 44 44)"
-                  style={{ transition: "stroke-dashoffset 0.5s ease" }}
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">

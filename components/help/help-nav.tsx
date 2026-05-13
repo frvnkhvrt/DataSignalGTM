@@ -24,15 +24,15 @@ export function HelpNav() {
             key={href}
             href={href}
             className={cn(
-              "ds-focus-ring group flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm transition-colors",
+              "ds-focus-ring group relative flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm ds-transition-muted",
               isActive
-                ? "border-primary/30 bg-primary/10 text-primary"
+                ? "border-primary/30 bg-primary/10 text-primary shadow-[inset_2px_0_0_var(--color-primary)] ds-card-inner-glow"
                 : "border-transparent text-muted-foreground hover:border-border hover:bg-surface-elevated hover:text-foreground"
             )}
           >
             <span
               className={cn(
-                "ds-eyebrow w-[4rem] shrink-0 transition-colors",
+                "ds-eyebrow w-[4rem] shrink-0 ds-transition-muted",
                 isActive ? "text-primary/70" : "text-muted-foreground/60 group-hover:text-muted-foreground"
               )}
             >

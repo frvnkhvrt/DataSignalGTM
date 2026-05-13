@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { StatusPill } from "@/components/status-pill";
+import { Spinner } from "@/components/ui/spinner";
 
 export const metadata = {
   title: "Design System - DataSignalGTM",
@@ -182,6 +183,33 @@ export default function DesignSystemPage() {
 
         <section className="space-y-4">
           <div>
+            <p className="ds-eyebrow">Motion tokens</p>
+            <h2 className="ds-heading mt-2 text-2xl font-semibold">Timing & loaders</h2>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+              CSS durations mirror <code className="text-foreground">dur</code> in motion.tsx.
+              Loaders use the shared Spinner with reduced-motion-safe breathing.
+            </p>
+          </div>
+          <Card variant="translucent" className="shadow-soft">
+            <CardContent className="flex flex-wrap items-center gap-6 p-5">
+              <div className="flex items-center gap-3">
+                <Spinner size="sm" />
+                <Spinner size="md" />
+                <Spinner />
+                <Spinner size="lg" />
+              </div>
+              <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                <span>--ds-duration-tactile</span>
+                <span>--ds-duration-fast</span>
+                <span>--ds-duration-smooth</span>
+                <span>--ds-duration-reveal</span>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="space-y-4">
+          <div>
             <p className="ds-eyebrow">Surfaces & Motion</p>
             <h2 className="ds-heading mt-2 text-2xl font-semibold">Product Composition</h2>
           </div>
@@ -192,7 +220,7 @@ export default function DesignSystemPage() {
               ["Motion", "Reveal and stagger patterns use a 420ms premium ease and respect reduced motion."],
             ].map(([title, copy]) => (
               <StaggerItem key={title}>
-                <Card className="h-full bg-card/80 transition-colors hover:bg-surface-elevated/80">
+                <Card className="h-full bg-card/80 transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:bg-surface-elevated/80">
                   <CardHeader>
                     <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
                       <Layers3 className="h-4 w-4" />

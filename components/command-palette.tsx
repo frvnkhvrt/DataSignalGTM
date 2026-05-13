@@ -60,7 +60,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
   return (
     <>
       {text.slice(0, index)}
-      <mark className="rounded bg-primary/20 px-0.5 text-primary">
+      <mark className="rounded bg-primary/20 px-0.5 text-primary transition-[background-color,color] duration-[var(--ds-duration-micro)] ease-[var(--ease-premium)]">
         {text.slice(index, index + q.length)}
       </mark>
       {text.slice(index + q.length)}
@@ -237,7 +237,7 @@ export function CommandPalette() {
             onValueChange={setSearch}
             aria-label="Search commands, accounts, and signal actions"
             placeholder="Search accounts or run actions..."
-            className="h-12 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+            className="ds-focus-ring ds-input-well h-12 flex-1 bg-transparent text-sm text-foreground outline-none transition-[border-color,box-shadow,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] placeholder:text-muted-foreground focus-visible:border-ring/60"
           />
           <kbd className="rounded border border-border bg-background/40 px-1.5 py-0.5 text-[10px] text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.05)]">
             Esc

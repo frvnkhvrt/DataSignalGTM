@@ -36,8 +36,7 @@ function EmptyState({
       )}
     >
       <motion.div
-        className="ds-empty-orb mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 text-primary"
-        style={{ boxShadow: "inset 0 1px 0 rgb(255 255 255 / 0.1), 0 0 20px color-mix(in oklch, var(--primary) 14%, transparent), 0 4px 12px rgb(0 0 0 / 0.18)" }}
+        className="ds-empty-orb ds-empty-orb-glow mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 text-primary"
         initial={reduced ? {} : { scale: 0.55, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={reduced ? { duration: 0 } : spring.bouncy}
