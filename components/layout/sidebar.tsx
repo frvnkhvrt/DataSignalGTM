@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { spring } from "@/components/ui/motion";
+import { cn } from "@/lib/utils";
 
 const navGroups = [
   {
@@ -49,7 +50,7 @@ export function Sidebar() {
   useEffect(() => {
     document.documentElement.style.setProperty(
       "--sidebar-width",
-      collapsed ? "4.5rem" : "15rem"
+      collapsed ? "5.25rem" : "15rem"
     );
     window.localStorage.setItem(
       "datasignalgtm.sidebar.collapsed",
@@ -59,14 +60,27 @@ export function Sidebar() {
 
   return (
     <aside className="fixed inset-x-0 bottom-0 z-20 flex h-16 border-t border-border bg-background/88 backdrop-blur-xl transition-[width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] sm:inset-x-auto sm:inset-y-0 sm:left-0 sm:h-auto sm:w-[var(--sidebar-width)] sm:flex-col sm:border-r-0 sm:border-t-0 sm:[box-shadow:1px_0_0_var(--color-border)]">
-      <div className="hidden h-14 items-center gap-2 px-4 sm:flex ds-chrome-divider">
-        <div className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/20 bg-primary/10 ds-shadow-brand-well">
-          <Activity className="h-4 w-4 text-primary" />
+      <div
+        className={cn(
+          "hidden sm:flex ds-chrome-divider",
+          collapsed
+            ? "flex-col items-center gap-2.5 px-2 pb-3 pt-3"
+            : "h-14 flex-row items-center gap-2 px-4"
+        )}
+      >
+        <div
+          className={cn(
+            "flex shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 ds-shadow-brand-well",
+            collapsed ? "h-9 w-9" : "h-7 w-7 rounded-md"
+          )}
+        >
+          <Activity className={cn("text-primary", collapsed ? "h-[18px] w-[18px]" : "h-4 w-4")} />
         </div>
         <span
-            className={`font-display text-sm font-semibold tracking-[-0.02em] text-foreground transition-opacity duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] ${
-            collapsed ? "sr-only opacity-0" : "opacity-100"
-          }`}
+          className={cn(
+            "font-display text-sm font-semibold tracking-[-0.02em] text-foreground transition-opacity duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)]",
+            collapsed ? "sr-only" : "min-w-0 flex-1 truncate opacity-100"
+          )}
         >
           DataSignalGTM
         </span>
@@ -74,7 +88,10 @@ export function Sidebar() {
           type="button"
           variant="ghost"
           size="icon"
-          className="ml-auto hidden sm:inline-flex"
+          className={cn(
+            "hidden shrink-0 sm:inline-flex",
+            collapsed ? "h-8 w-8 rounded-lg text-muted-foreground hover:bg-surface-elevated hover:text-foreground" : "ml-auto h-8 w-8"
+          )}
           onClick={() => setCollapsed((v) => !v)}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -111,8 +128,8 @@ export function Sidebar() {
                     title={collapsed ? label : undefined}
                     onFocus={() => router.prefetch(href)}
                     onMouseEnter={() => router.prefetch(href)}
-                    className={`ds-focus-ring relative flex flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] sm:flex-row sm:gap-3 sm:border-l-2 sm:border-t-0 sm:px-3 sm:text-sm ${
-                      collapsed ? "sm:justify-center" : "sm:justify-start"
+                    className={`ds-focus-ring relative flex flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] sm:flex-row sm:gap-3 sm:border-l-2 sm:border-t-0 sm:text-sm ${
+                      collapsed ? "sm:justify-center sm:px-2" : "sm:justify-start sm:px-3"
                     } ${
                       active
                         ? "border-primary text-foreground sm:border-transparent"
@@ -145,8 +162,8 @@ export function Sidebar() {
             title={collapsed ? "Help" : undefined}
             onFocus={() => router.prefetch("/help")}
             onMouseEnter={() => router.prefetch("/help")}
-            className={`ds-focus-ring relative flex items-center gap-3 overflow-hidden rounded-md border-l-2 border-transparent px-3 py-2 text-sm text-muted-foreground hover:bg-surface-elevated hover:text-foreground ${
-              collapsed ? "justify-center" : ""
+            className={`ds-focus-ring relative flex items-center gap-3 overflow-hidden rounded-md border-l-2 border-transparent py-2 text-sm text-muted-foreground hover:bg-surface-elevated hover:text-foreground ${
+              collapsed ? "justify-center px-2" : "px-3"
             }`}
           >
             <BookOpen className="relative z-10 h-4 w-4 shrink-0" />

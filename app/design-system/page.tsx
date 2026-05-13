@@ -18,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/motion";
 import { StatusPill } from "@/components/status-pill";
 import { Spinner } from "@/components/ui/spinner";
@@ -166,9 +166,14 @@ export default function DesignSystemPage() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <Input placeholder="Search accounts..." />
                 <Select defaultValue="approved">
-                  <option value="approved">Approved</option>
-                  <option value="held">Held</option>
-                  <option value="pending">Pending</option>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent position="popper" sideOffset={6}>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="held">Held</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="flex flex-wrap gap-2">

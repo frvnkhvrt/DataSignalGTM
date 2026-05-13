@@ -28,7 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TableSkeleton } from "@/components/ui/skeleton";
 import { AnimatePresence, motion } from "motion/react";
@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/motion";
 import { isRecentlyUpdated } from "@/lib/realtime-glow";
 import { SortButton, tableCheckboxClassName } from "@/components/tables/table-primitives";
+import { TableColumnsMenu } from "@/components/tables/table-columns-menu";
 import {
   dqStatusLabel,
   dqTone,
@@ -341,21 +342,25 @@ export function AccountsTable({
             className="sm:max-w-xs"
           />
           <Select
-            aria-label="Filter account health"
             value={
-              (table.getColumn("data_quality_score")?.getFilterValue() as string) ??
-              "all"
+              (table.getColumn("data_quality_score")?.getFilterValue() as string) ?? "all"
             }
-            onChange={(event) =>
-              table
-                .getColumn("data_quality_score")
-                ?.setFilterValue(event.target.value)
+            onValueChange={(value) =>
+              table.getColumn("data_quality_score")?.setFilterValue(value)
             }
           >
-            <option value="all">All accounts</option>
-            <option value="healthy">Healthy</option>
-            <option value="held">Held</option>
-            <option value="critical">Critical</option>
+            <SelectTrigger
+              aria-label="Filter account health"
+              className="w-full min-w-0 sm:max-w-[200px] sm:min-w-[200px]"
+            >
+              <SelectValue placeholder="Health" />
+            </SelectTrigger>
+            <SelectContent position="popper" sideOffset={6}>
+              <SelectItem value="all">All accounts</SelectItem>
+              <SelectItem value="healthy">Healthy</SelectItem>
+              <SelectItem value="held">Held</SelectItem>
+              <SelectItem value="critical">Critical</SelectItem>
+            </SelectContent>
           </Select>
         </div>
         <div className="flex items-center gap-2">
@@ -384,30 +389,7 @@ export function AccountsTable({
           <span className="rounded-full border border-border bg-background/40 px-2 py-1 text-xs text-muted-foreground ds-inset-top-mid">
             {selectedCount} selected
           </span>
-          <details className="relative">
-            <summary className="ds-focus-ring ds-inset-top-soft cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-[background-color,color,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:bg-surface-elevated hover:text-foreground">
-              Columns<span className="sr-only"> visibility controls</span>
-            </summary>
-            <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-border bg-popover p-2 shadow-elevated">
-              {table
-                .getAllLeafColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => (
-                  <label
-                    key={column.id}
-                    className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-xs text-muted-foreground ds-transition-muted hover:bg-secondary hover:text-foreground"
-                  >
-                    <input
-                      type="checkbox"
-                      className={tableCheckboxClassName}
-                      checked={column.getIsVisible()}
-                      onChange={column.getToggleVisibilityHandler()}
-                    />
-                    {column.id.replace(/_/g, " ")}
-                  </label>
-                ))}
-            </div>
-          </details>
+          <TableColumnsMenu table={table} />
         </div>
       </Card>
 
