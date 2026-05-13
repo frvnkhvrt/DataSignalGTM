@@ -21,7 +21,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  Loader2,
   Sparkles,
   XCircle,
 } from "lucide-react";
@@ -45,6 +44,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TableSkeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { AnimatedDialog } from "@/components/ui/animated-dialog";
 import type { SignalStatus } from "@/types/signal";
 import { canTransition } from "@/types/signal";
@@ -104,7 +104,7 @@ function PlaybookState({ signal }: { signal: SignalRow }) {
   ) {
     return (
       <span className="inline-flex items-center gap-1 text-[11px] text-primary">
-        <Loader2 className="h-3 w-3 animate-spin" />
+        <Spinner size="sm" />
         Generating
       </span>
     );
@@ -266,7 +266,7 @@ export function SignalsTable({
               row.original.account_name &&
               setReceiptFor({ name: row.original.account_name })
             }
-            className="ds-focus-ring rounded-md text-left font-medium text-foreground transition-[color] duration-[160ms] ease-[var(--ease-premium)] hover:text-primary"
+            className="ds-focus-ring rounded-md text-left font-medium text-foreground transition-[color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary"
           >
             {row.original.account_name ?? "-"}
           </button>
@@ -343,7 +343,7 @@ export function SignalsTable({
                   >
                     {busyPlaybook ||
                     (generate.isPending && generate.variables === signal.id) ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <Spinner size="md" />
                     ) : (
                       <Sparkles className="h-3.5 w-3.5" />
                     )}
@@ -513,7 +513,7 @@ export function SignalsTable({
             </>
           )}
           <details className="relative">
-            <summary className="ds-focus-ring cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] transition-[background-color,color] duration-[160ms] ease-[var(--ease-premium)] hover:bg-surface-elevated hover:text-foreground">
+            <summary className="ds-focus-ring cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] transition-[background-color,color,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:bg-surface-elevated hover:text-foreground">
               Columns<span className="sr-only"> visibility controls</span>
             </summary>
             <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-border bg-popover p-2 shadow-elevated">

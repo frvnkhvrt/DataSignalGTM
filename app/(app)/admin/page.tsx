@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { AlertTriangle, Loader2, RotateCcw, ShieldAlert } from "lucide-react";
+import { AlertTriangle, RotateCcw, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
@@ -104,7 +105,7 @@ export default function AdminPage() {
                   disabled={reset.isPending}
                 >
                   {reset.isPending ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <Spinner size="md" />
                   ) : (
                     <AlertTriangle className="h-3.5 w-3.5" />
                   )}

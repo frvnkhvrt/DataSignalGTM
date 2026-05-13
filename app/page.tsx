@@ -41,6 +41,10 @@ const sectionDividerClass =
   "pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent";
 const premiumButtonClass = "shadow-glow hover:shadow-glow-strong";
 
+/** Marketing / glass cards — explicit props, no `transition-all` */
+const marketingSurfaceHover =
+  "transition-[transform,box-shadow,border-color,background-color] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)]";
+
 const problemItems = [
   {
     icon: DatabaseZap,
@@ -190,10 +194,16 @@ function FeatureCard({
   const Icon = icon;
 
   return (
-    <Card className="group relative h-full overflow-hidden border-border/70 bg-card/65 shadow-soft backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/35 hover:bg-surface-elevated/75 hover:shadow-elevated">
-      <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+    <Card
+      className={cn(
+        "group relative h-full overflow-hidden border-border/70 bg-card/65 shadow-soft backdrop-blur-xl ds-card-inner-glow",
+        marketingSurfaceHover,
+        "hover:-translate-y-1 hover:border-primary/35 hover:bg-surface-elevated/75 hover:shadow-elevated"
+      )}
+    >
+      <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent opacity-0 transition-opacity duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] group-hover:opacity-100" />
       <CardContent className="p-5 sm:p-6">
-        <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10 shadow-glow transition-transform duration-300 group-hover:scale-105">
+        <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10 shadow-glow transition-transform duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] group-hover:scale-105">
           <Icon className={cn("h-5 w-5", iconClass)} />
         </div>
         <h3 className="mb-2 text-base font-semibold tracking-[-0.02em] text-foreground">
@@ -215,7 +225,13 @@ function StepCard({
   description: string;
 }) {
   return (
-    <Card className="group relative overflow-hidden border-border/70 bg-card/60 shadow-soft backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-surface-elevated/70">
+    <Card
+      className={cn(
+        "group relative overflow-hidden border-border/70 bg-card/60 shadow-soft backdrop-blur-xl ds-card-inner-glow",
+        marketingSurfaceHover,
+        "hover:-translate-y-0.5 hover:border-primary/30 hover:bg-surface-elevated/70"
+      )}
+    >
       <CardContent className="flex gap-5 p-5 sm:p-6">
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-primary/35 bg-primary/10 text-sm font-semibold text-primary shadow-glow">
           {step}
@@ -425,7 +441,7 @@ export default function MarketingPage() {
               <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                 {socialProofNames.map((name) => (
                   <StaggerItem key={name}>
-                    <div className="rounded-2xl border border-border/60 bg-card/45 px-4 py-3 shadow-soft backdrop-blur transition-colors duration-300 hover:border-primary/20 hover:bg-surface-elevated/60">
+                    <div className="rounded-2xl border border-border/60 bg-card/45 px-4 py-3 shadow-soft backdrop-blur transition-[border-color,background-color] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] hover:border-primary/20 hover:bg-surface-elevated/60">
                       <span className="ds-heading text-sm font-semibold tracking-[-0.03em] text-muted-foreground">
                         {name}
                       </span>
@@ -460,12 +476,14 @@ export default function MarketingPage() {
                   <Card
                     elevated={plan.highlighted}
                     className={cn(
-                      "group relative flex h-full flex-col border-border/70 bg-card/65 p-6 shadow-soft backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:bg-surface-elevated/75 hover:shadow-elevated",
+                      "group relative flex h-full flex-col border-border/70 bg-card/65 p-6 shadow-soft backdrop-blur-xl ds-card-inner-glow",
+                      marketingSurfaceHover,
+                      "hover:-translate-y-1 hover:border-primary/30 hover:bg-surface-elevated/75 hover:shadow-elevated",
                       plan.highlighted &&
                         "border-primary/60 bg-primary/10 pt-9 shadow-[0_1px_0_rgb(255_255_255_/_0.05)_inset,0_30px_90px_rgb(0_0_0_/_0.45),0_0_80px_rgb(16_185_129_/_0.18)]"
                     )}
                   >
-                    <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-primary/55 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-primary/55 to-transparent opacity-0 transition-opacity duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] group-hover:opacity-100" />
                     {plan.highlighted && (
                       <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
                     )}
@@ -541,7 +559,7 @@ export default function MarketingPage() {
           <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto h-72 max-w-3xl rounded-full bg-primary/10 blur-3xl" />
           <Reveal>
             <div className="mx-auto max-w-4xl px-4 sm:px-6">
-              <div className="relative overflow-hidden rounded-[2rem] border border-primary/20 bg-card/65 px-6 py-12 text-center shadow-elevated backdrop-blur-xl sm:px-12 sm:py-16">
+              <div className="relative overflow-hidden rounded-[2rem] border border-primary/20 bg-card/65 px-6 py-12 text-center shadow-elevated backdrop-blur-xl ds-card-inner-glow sm:px-12 sm:py-16">
                 <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
                 <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
                 <div className="relative">
@@ -627,7 +645,7 @@ function ComparisonColumn({
     <Card
       elevated
       className={cn(
-        "relative overflow-hidden rounded-[1.75rem] bg-card/65 p-4 shadow-elevated backdrop-blur-xl sm:p-5",
+        "relative overflow-hidden rounded-[1.75rem] bg-card/65 p-4 shadow-elevated backdrop-blur-xl ds-card-inner-glow sm:p-5",
         isProblem
           ? "border-destructive/25"
           : "border-success/35 shadow-[0_1px_0_rgb(255_255_255_/_0.04)_inset,0_24px_80px_rgb(0_0_0_/_0.38),0_0_70px_rgb(16_185_129_/_0.12)]"
@@ -667,7 +685,9 @@ function ComparisonColumn({
             <StaggerItem key={item.title}>
               <div
                 className={cn(
-                  "group relative overflow-hidden rounded-2xl border bg-background/35 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:bg-surface-elevated/75 hover:shadow-soft",
+                  "group relative overflow-hidden rounded-2xl border bg-background/35 p-4 ds-card-inner-glow",
+                  marketingSurfaceHover,
+                  "hover:-translate-y-0.5 hover:bg-surface-elevated/75 hover:shadow-soft",
                   isProblem
                     ? "border-destructive/20 hover:border-destructive/40"
                     : "border-success/20 hover:border-success/40"
@@ -682,7 +702,7 @@ function ComparisonColumn({
                 <div className="flex gap-4 pl-1">
                   <div
                     className={cn(
-                      "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border shadow-soft transition-transform duration-300 group-hover:scale-105",
+                      "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border shadow-soft transition-transform duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] group-hover:scale-105",
                       isProblem
                         ? "border-destructive/25 bg-destructive/10 text-destructive"
                         : "border-success/25 bg-success/10 text-success"

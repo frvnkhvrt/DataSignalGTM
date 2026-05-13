@@ -70,7 +70,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
 
 /** Palette row — tactile highlight ramp aligned with table rows */
 const paletteRowBase =
-  "outline-none transition-[background-color,box-shadow,color,transform] duration-[150ms] ease-[var(--ease-premium)]";
+  "outline-none transition-[background-color,box-shadow,color,transform] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)]";
 
 function CmdItem({
   children,

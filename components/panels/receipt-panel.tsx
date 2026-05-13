@@ -14,7 +14,6 @@ import {
   Linkedin,
   Phone,
   MessageSquare,
-  Loader2,
   CheckCircle2,
   XCircle,
   Sparkles,
@@ -31,6 +30,7 @@ import {
 import { useCurrentOrg } from "@/lib/auth-context";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   transitionReceiptContent,
   transitionReceiptCrossfade,
@@ -225,7 +225,7 @@ export function ReceiptPanel({
               transition={transitionReceiptCrossfadeShort}
               className="flex items-center gap-2 text-sm text-muted-foreground"
             >
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              <Spinner muted />
               Loading playbook…
             </motion.div>
           )}
@@ -256,7 +256,7 @@ export function ReceiptPanel({
                     className="w-full"
                   >
                     {generateMut.isPending || isGenerating ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Spinner />
                     ) : (
                       <Sparkles className="h-4 w-4" />
                     )}
@@ -366,7 +366,7 @@ export function ReceiptPanel({
                   className="w-full"
                 >
                   {approve.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Spinner />
                   ) : (
                     <CheckCircle2 className="h-4 w-4" />
                   )}
@@ -388,7 +388,7 @@ export function ReceiptPanel({
                   className="w-full"
                 >
                   {reject.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Spinner />
                   ) : (
                     <XCircle className="h-4 w-4" />
                   )}

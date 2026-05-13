@@ -125,7 +125,7 @@ export function OnboardingModal({
               key={s.id}
               type="button"
               onClick={() => setStep(i)}
-              className={`h-1.5 rounded-full transition-all ${
+              className={`h-1.5 rounded-full transition-[width,background-color,box-shadow] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] ${
                 i === step
                   ? "w-6 bg-primary shadow-glow"
                   : i < step

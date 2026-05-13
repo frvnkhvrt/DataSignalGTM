@@ -37,7 +37,7 @@ export default async function AppLayout({
       <OnboardingGuard>
         <div className="ds-page text-foreground">
           <Sidebar />
-          <div className="pb-16 transition-[padding] duration-300 ease-[var(--ease-premium)] sm:pb-0 sm:pl-[var(--sidebar-width)]">
+          <div className="pb-16 transition-[padding] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] sm:pb-0 sm:pl-[var(--sidebar-width)]">
             <TopBar />
             <DemoBanner />
             <main id="main-content" tabIndex={-1}>

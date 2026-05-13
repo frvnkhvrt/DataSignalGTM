@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, ExternalLink, Loader2, Sparkles, Zap } from "lucide-react";
+import { CheckCircle2, ExternalLink, Sparkles, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase/client";
 import { useCurrentOrg } from "@/lib/auth-context";
@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
 import { QueryError } from "@/components/ui/query-error";
+import { Spinner } from "@/components/ui/spinner";
 
 function useCurrentSubscription(orgId: string) {
   return useQuery({
@@ -64,15 +65,16 @@ function PlanCard({
 
   return (
     <Card
+      variant="translucent"
       elevated={plan.highlighted}
       className={cn(
-        "group relative flex flex-col bg-card/80 transition-all duration-300 hover:shadow-elevated",
+        "group relative flex flex-col transition-[transform,box-shadow,border-color,background-color] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] hover:shadow-elevated",
         plan.highlighted
           ? "border-primary/50 pt-9 shadow-glow hover:border-primary/70"
           : "hover:border-border/80"
       )}
     >
-      <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 transition-opacity duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] group-hover:opacity-100" />
       {plan.highlighted && (
         <div className="absolute -top-px left-1/2 -translate-x-1/2 -translate-y-1/2">
           <Badge className="bg-primary px-3 py-1 text-[11px] font-semibold text-primary-foreground shadow-glow" shape="pill">
@@ -120,7 +122,7 @@ function PlanCard({
               size="sm"
             >
               {isManaging ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <Spinner size="md" />
               ) : (
                 <ExternalLink className="h-3.5 w-3.5" />
               )}
@@ -143,7 +145,7 @@ function PlanCard({
           variant="outline"
           size="sm"
         >
-          {isManaging && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+          {isManaging && <Spinner size="md" />}
           Manage in portal
         </Button>
       ) : (
@@ -154,7 +156,7 @@ function PlanCard({
           variant={plan.highlighted ? "default" : "outline"}
           size="sm"
         >
-          {isUpgrading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+          {isUpgrading && <Spinner size="md" />}
           {plan.cta}
         </Button>
       )}
@@ -219,7 +221,7 @@ export default function BillingPage() {
       />
 
       {subscription && (
-        <Card className="bg-card/80 px-4 py-3 text-sm text-muted-foreground">
+        <Card variant="translucent" className="px-4 py-3 text-sm text-muted-foreground shadow-soft">
           <span className="font-medium text-foreground">Current period ends:</span>{" "}
           {subscription.current_period_end
             ? new Date(subscription.current_period_end).toLocaleDateString()

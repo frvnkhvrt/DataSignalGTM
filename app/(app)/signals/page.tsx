@@ -1,13 +1,14 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { signalsRecentQuery } from "@/lib/gtm-queries";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 import { SignalsTable } from "@/components/tables/signals-table";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/ui/page-header";
 import { QueryError } from "@/components/ui/query-error";
 
@@ -81,7 +82,7 @@ export default function SignalsPage() {
                 size="sm"
               >
                 {backfill.isPending ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <Spinner size="md" />
                 ) : (
                   <Sparkles className="h-3.5 w-3.5" />
                 )}

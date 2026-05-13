@@ -11,7 +11,6 @@ import type { QueryKey } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Database,
-  Loader2,
   CheckCircle2,
   XCircle,
   Phone,
@@ -24,6 +23,7 @@ import {
 import { useCurrentOrg } from "@/lib/auth-context";
 import { AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { MotionListItem } from "@/components/ui/motion";
 import type {
   AccountRow,
@@ -438,7 +438,7 @@ export function DataIssuesPanel({
 
           {isLoading && (
             <div className="flex items-center gap-2 py-4 text-xs text-muted-foreground">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <Spinner size="md" />
               Loading issues…
             </div>
           )}
@@ -555,7 +555,7 @@ function IssueCard({
             Dismiss
           </Button>
         </DemoLimitedAction>
-        {busy && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+        {busy && <Spinner size="sm" muted />}
       </div>
     </div>
   );

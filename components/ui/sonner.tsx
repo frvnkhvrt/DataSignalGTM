@@ -1,7 +1,9 @@
 "use client";
 
 import { Toaster as Sonner } from "sonner";
-import { AlertCircle, CheckCircle2, Info, Loader2, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Info, XCircle } from "lucide-react";
+
+import { Spinner } from "@/components/ui/spinner";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
@@ -14,7 +16,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         error: <XCircle className="h-4 w-4 text-destructive" />,
         info: <Info className="h-4 w-4 text-info" />,
         warning: <AlertCircle className="h-4 w-4 text-warning" />,
-        loading: <Loader2 className="h-4 w-4 animate-spin text-primary" />,
+        loading: <Spinner />,
       }}
       toastOptions={{
         classNames: {

@@ -99,7 +99,7 @@ function EngageModalContent({
             id="engage-draft"
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            className="ds-focus-ring ds-input-well h-56 w-full resize-y rounded-md border border-input bg-background/60 p-3 text-sm leading-relaxed text-foreground transition-[border-color,box-shadow] duration-[160ms] ease-[var(--ease-premium)] placeholder:text-muted-foreground hover:border-border/90 focus-visible:border-ring/60"
+            className="ds-focus-ring ds-input-well h-56 w-full resize-y rounded-md border border-input bg-background/60 p-3 text-sm leading-relaxed text-foreground transition-[border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] placeholder:text-muted-foreground hover:border-border/90 focus-visible:border-ring/60"
           />
         </div>
         <div className="relative flex items-center justify-end gap-2 px-5 pb-3 pt-4">

@@ -95,7 +95,7 @@ export default function DashboardPage() {
     <div className="space-y-8 p-4 sm:p-6 lg:p-8">
       {/* Hero — immediate entrance */}
       <PageReveal order={0}>
-        <section className="overflow-hidden rounded-2xl border border-border bg-card/60 p-5 shadow-soft">
+        <section className="ds-card-inner-glow overflow-hidden rounded-2xl border border-border bg-card/60 p-5 shadow-soft">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <Badge variant="brand" className="mb-3">
@@ -198,7 +198,7 @@ export default function DashboardPage() {
       {/* Bottom panels — last to arrive */}
       <PageReveal order={3}>
         <section className="grid gap-4 xl:grid-cols-[1.3fr_0.7fr]">
-          <Card className="bg-card/80">
+          <Card variant="translucent" className="shadow-soft">
             <CardHeader className="flex flex-row items-center justify-between gap-3">
               <div>
                 <CardTitle className="ds-heading">Recent signal queue</CardTitle>
@@ -242,7 +242,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card/80">
+          <Card variant="translucent" className="shadow-soft">
             <CardHeader>
               <CardTitle className="ds-heading">Data quality focus</CardTitle>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -263,7 +263,7 @@ export default function DashboardPage() {
                       <MotionListItem key={account.id}>
                         <Link
                           href="/accounts"
-                          className="ds-focus-ring flex items-center justify-between rounded-lg border border-border bg-background/35 px-3 py-2 hover:bg-surface-elevated"
+                          className="ds-focus-ring flex items-center justify-between rounded-lg border border-border bg-background/35 px-3 py-2 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/80 hover:bg-surface-elevated"
                         >
                           <span className="truncate text-sm font-medium text-foreground">
                             {account.name}

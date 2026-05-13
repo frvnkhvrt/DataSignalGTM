@@ -14,7 +14,7 @@ const cardVariants = cva("rounded-xl border border-border text-card-foreground",
       glass: "bg-card/65 backdrop-blur-xl shadow-soft ds-card-inner-glow",
       /** Translucent + hover transition — for clickable card links. */
       interactive:
-        "bg-card/80 ds-card-inner-glow transition-[background-color,box-shadow] hover:bg-surface-elevated/80 hover:shadow-soft hover:ds-card-inner-glow cursor-pointer",
+        "bg-card/80 ds-card-inner-glow transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:bg-surface-elevated/80 hover:shadow-soft hover:ds-card-inner-glow cursor-pointer",
       /** No fill — for nested areas that should inherit the parent surface. */
       ghost: "border-transparent bg-transparent",
     },

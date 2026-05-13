@@ -61,6 +61,22 @@
 :root {
   --radius: 0.75rem;
   --sidebar-width: 15rem;
+  /*
+   * Motion timing — keep in sync with `dur` in components/ui/motion.tsx
+   * (use in Tailwind: duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)])
+   */
+  --ds-duration-instant: 120ms;
+  --ds-duration-micro: 140ms;
+  --ds-duration-tactile: 160ms;
+  --ds-duration-swap: 220ms;
+  --ds-duration-fast: 180ms;
+  --ds-duration-base: 240ms;
+  --ds-duration-lift: 200ms;
+  --ds-duration-lifted: 280ms;
+  --ds-duration-banner: 320ms;
+  --ds-duration-smooth: 360ms;
+  --ds-duration-slow: 420ms;
+  --ds-duration-reveal: 520ms;
   --background: oklch(0.985 0.004 247.9);
   --foreground: oklch(0.16 0.035 261.7);
   --card: oklch(1 0 0);
@@ -201,10 +217,10 @@
 
   .ds-focus-ring {
     transition:
-      border-color 160ms var(--ease-premium),
-      box-shadow 160ms var(--ease-premium),
-      background-color 160ms var(--ease-premium),
-      color 160ms var(--ease-premium);
+      border-color var(--ds-duration-tactile) var(--ease-premium),
+      box-shadow var(--ds-duration-tactile) var(--ease-premium),
+      background-color var(--ds-duration-tactile) var(--ease-premium),
+      color var(--ds-duration-tactile) var(--ease-premium);
   }
 
   .ds-focus-ring:focus-visible {
@@ -218,11 +234,11 @@
   .ds-pressable {
     transform: translateZ(0);
     transition:
-      transform 160ms var(--ease-premium),
-      border-color 160ms var(--ease-premium),
-      background-color 160ms var(--ease-premium),
-      color 160ms var(--ease-premium),
-      box-shadow 160ms var(--ease-premium);
+      transform var(--ds-duration-tactile) var(--ease-premium),
+      border-color var(--ds-duration-tactile) var(--ease-premium),
+      background-color var(--ds-duration-tactile) var(--ease-premium),
+      color var(--ds-duration-tactile) var(--ease-premium),
+      box-shadow var(--ds-duration-tactile) var(--ease-premium);
   }
 
   .ds-pressable:hover {
@@ -260,9 +276,9 @@
   .ds-row {
     transform: translateZ(0);
     transition:
-      background-color 160ms var(--ease-premium),
-      box-shadow 160ms var(--ease-premium),
-      transform 160ms var(--ease-premium);
+      background-color var(--ds-duration-tactile) var(--ease-premium),
+      box-shadow var(--ds-duration-tactile) var(--ease-premium),
+      transform var(--ds-duration-tactile) var(--ease-premium);
   }
 
   .ds-row:hover {
@@ -317,8 +333,8 @@
   /* Floating lift — can be applied to interactive cards */
   .ds-lift {
     transition:
-      transform 200ms var(--ease-premium),
-      box-shadow 200ms var(--ease-premium);
+      transform var(--ds-duration-lift) var(--ease-premium),
+      box-shadow var(--ds-duration-lift) var(--ease-premium);
   }
 
   .ds-lift:hover {
@@ -330,7 +346,7 @@
 
   /* Icon micro-animation — subtle rotation + scale on hover */
   .ds-icon-hover {
-    transition: transform 160ms var(--ease-premium);
+    transition: transform var(--ds-duration-tactile) var(--ease-premium);
     display: inline-flex;
   }
 

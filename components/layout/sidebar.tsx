@@ -58,7 +58,7 @@ export function Sidebar() {
   }, [collapsed]);
 
   return (
-    <aside className="fixed inset-x-0 bottom-0 z-20 flex h-16 border-t border-border bg-background/88 backdrop-blur-xl transition-[width] duration-300 ease-[var(--ease-premium)] sm:inset-x-auto sm:inset-y-0 sm:left-0 sm:h-auto sm:w-[var(--sidebar-width)] sm:flex-col sm:border-r-0 sm:border-t-0 sm:[box-shadow:1px_0_0_var(--color-border)]">
+    <aside className="fixed inset-x-0 bottom-0 z-20 flex h-16 border-t border-border bg-background/88 backdrop-blur-xl transition-[width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] sm:inset-x-auto sm:inset-y-0 sm:left-0 sm:h-auto sm:w-[var(--sidebar-width)] sm:flex-col sm:border-r-0 sm:border-t-0 sm:[box-shadow:1px_0_0_var(--color-border)]">
       <div className="hidden h-14 items-center gap-2 px-4 sm:flex" style={{ boxShadow: "inset 0 -1px 0 var(--color-border), inset 0 1px 0 rgb(255 255 255 / 0.03)" }}>
         <div className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/20 bg-primary/10 shadow-glow shadow-[inset_0_1px_0_rgb(255_255_255_/_0.12)]">
           <Activity className="h-4 w-4 text-primary" />

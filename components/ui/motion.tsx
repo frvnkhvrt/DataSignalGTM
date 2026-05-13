@@ -12,6 +12,7 @@ import {
 // ── Token layer ────────────────────────────────────────────────────────────────
 
 export const dur = {
+  /** Values mirrored in `app/globals.css` :root `--ds-duration-*` — keep in sync. */
   instant: 0.12,
   /** Dense list rows — command palette, micro entrances */
   micro: 0.14,

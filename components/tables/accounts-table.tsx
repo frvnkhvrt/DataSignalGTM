@@ -162,7 +162,7 @@ export function AccountsTable({
             <button
               type="button"
               onClick={() => openAccount(row.original)}
-              className="ds-focus-ring rounded-md text-left transition-[color] duration-[160ms] ease-[var(--ease-premium)]"
+              className="ds-focus-ring rounded-md text-left transition-[color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)]"
             >
               <div className="font-medium text-foreground hover:text-primary">
                 {row.original.name}
@@ -385,7 +385,7 @@ export function AccountsTable({
             {selectedCount} selected
           </span>
           <details className="relative">
-            <summary className="ds-focus-ring cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] transition-[background-color,color] duration-[160ms] ease-[var(--ease-premium)] hover:bg-surface-elevated hover:text-foreground">
+            <summary className="ds-focus-ring cursor-pointer rounded-md border border-border px-3 py-2 text-xs font-medium text-muted-foreground shadow-[inset_0_1px_0_rgb(255_255_255_/_0.04)] transition-[background-color,color,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:bg-surface-elevated hover:text-foreground">
               Columns<span className="sr-only"> visibility controls</span>
             </summary>
             <div className="absolute right-0 z-20 mt-2 w-48 rounded-md border border-border bg-popover p-2 shadow-elevated">
