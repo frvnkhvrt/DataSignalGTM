@@ -33,7 +33,7 @@ import type { SignalStatus } from "@/types/signal";
 import { AnimatedDialog } from "@/components/ui/animated-dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 
 const RECENT_KEY = "datasignalgtm.commandPalette.recent";
 const NAV_ITEMS = [
@@ -60,6 +60,25 @@ function Highlight({ text, query }: { text: string; query: string }) {
       </mark>
       {text.slice(index + q.length)}
     </>
+  );
+}
+
+function CmdItem({
+  children,
+  className,
+  ...props
+}: React.ComponentProps<typeof Command.Item>) {
+  const reduced = useReducedMotion();
+  return (
+    <motion.div
+      initial={reduced ? false : { opacity: 0, y: 3 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.14, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <Command.Item className={className} {...props}>
+        {children}
+      </Command.Item>
+    </motion.div>
   );
 }
 
@@ -263,7 +282,7 @@ export function CommandPalette() {
 
           <Command.Group heading="Navigate" className="text-xs text-muted-foreground">
             {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
-              <Command.Item
+              <CmdItem
                 key={href}
                 value={label}
                 onSelect={() => navigate(label, href)}
@@ -271,7 +290,7 @@ export function CommandPalette() {
               >
                 <Icon className="h-3.5 w-3.5 text-muted-foreground" />
                 <Highlight text={label} query={search} />
-              </Command.Item>
+              </CmdItem>
             ))}
           </Command.Group>
 
@@ -286,7 +305,7 @@ export function CommandPalette() {
                 signal.playbook_status !== "generating";
 
               return (
-                <Command.Item
+                <CmdItem
                   key={account.id}
                   value={`${account.name} ${account.domain ?? ""} generate playbook`}
                   onSelect={() => {
@@ -320,7 +339,7 @@ export function CommandPalette() {
                       {isDemo ? "Locked" : "Generate"}
                     </Badge>
                   )}
-                </Command.Item>
+                </CmdItem>
               );
             })}
           </Command.Group>
@@ -335,7 +354,7 @@ export function CommandPalette() {
               return (
                 <div key={signal.id}>
                   {canApprove && (
-                    <Command.Item
+                    <CmdItem
                       value={`approve ${name}`}
                       onSelect={() => {
                         if (isDemo) {
@@ -356,10 +375,10 @@ export function CommandPalette() {
                       <span>
                         Approve <Highlight text={name} query={search} />
                       </span>
-                    </Command.Item>
+                    </CmdItem>
                   )}
                   {canReject && (
-                    <Command.Item
+                    <CmdItem
                       value={`reject ${name}`}
                       onSelect={() => {
                         if (isDemo) {
@@ -380,7 +399,7 @@ export function CommandPalette() {
                       <span>
                         Reject <Highlight text={name} query={search} />
                       </span>
-                    </Command.Item>
+                    </CmdItem>
                   )}
                 </div>
               );

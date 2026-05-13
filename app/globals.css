@@ -255,15 +255,17 @@
   }
 
   .ds-row {
+    transform: translateZ(0);
     transition:
-      background-color 180ms var(--ease-premium),
-      box-shadow 180ms var(--ease-premium),
-      transform 180ms var(--ease-premium);
+      background-color 160ms var(--ease-premium),
+      box-shadow 160ms var(--ease-premium),
+      transform 160ms var(--ease-premium);
   }
 
   .ds-row:hover {
-    box-shadow: inset 3px 0 0 color-mix(in oklch, var(--primary) 64%, transparent);
-    transform: translateX(1px);
+    background-color: color-mix(in oklch, var(--surface-elevated) 55%, transparent);
+    box-shadow: inset 3px 0 0 color-mix(in oklch, var(--primary) 55%, transparent);
+    transform: translateX(0.5px) translateZ(0);
   }
 
   .ds-empty-orb {

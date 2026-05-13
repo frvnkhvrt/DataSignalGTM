@@ -50,7 +50,7 @@ import { AnimatedDialog } from "@/components/ui/animated-dialog";
 import type { SignalStatus } from "@/types/signal";
 import { canTransition } from "@/types/signal";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { MotionListItem } from "@/components/ui/motion";
 import { isRecentlyUpdated } from "@/lib/realtime-glow";
 
@@ -575,54 +575,80 @@ export function SignalsTable({
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-border">
+            <AnimatePresence mode="wait" initial={false}>
               {isLoading ? (
-                <TableSkeleton rows={6} columns={8} />
+                <motion.tbody
+                  key="skeleton"
+                  className="divide-y divide-border"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <TableSkeleton rows={6} columns={8} />
+                </motion.tbody>
               ) : table.getRowModel().rows.length > 0 ? (
-                <AnimatePresence initial={false}>
-                  {table.getRowModel().rows.map((row) => (
-                    <MotionListItem
-                      key={row.id}
-                      as="tr"
-                      className={[
-                        "ds-row transition-colors hover:bg-surface-elevated/70 data-[selected=true]:bg-primary/10 data-[selected=true]:shadow-[inset_3px_0_0_var(--color-primary)]",
-                        isRecentlyUpdated("signals", row.original.id) ? "ds-row-updated" : "",
-                      ].join(" ")}
-                      data-selected={row.getIsSelected()}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id} className={`${rowPadding} align-middle`}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
-                    </MotionListItem>
-                  ))}
-                </AnimatePresence>
+                <motion.tbody
+                  key="content"
+                  className="divide-y divide-border"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <AnimatePresence initial={false}>
+                    {table.getRowModel().rows.map((row) => (
+                      <MotionListItem
+                        key={row.id}
+                        as="tr"
+                        className={[
+                          "ds-row transition-colors hover:bg-surface-elevated/70 data-[selected=true]:bg-primary/10 data-[selected=true]:shadow-[inset_3px_0_0_var(--color-primary)]",
+                          isRecentlyUpdated("signals", row.original.id) ? "ds-row-updated" : "",
+                        ].join(" ")}
+                        data-selected={row.getIsSelected()}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <td key={cell.id} className={`${rowPadding} align-middle`}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
+                      </MotionListItem>
+                    ))}
+                  </AnimatePresence>
+                </motion.tbody>
               ) : (
-                <tr>
-                  <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-10">
-                    <EmptyState
-                      icon={<Sparkles className="h-6 w-6" />}
-                      title="No signals in this view"
-                      description="Try clearing filters, widening the status selection, or queueing playbooks for fresh buying signals."
-                      action={
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            table.getColumn("account_name")?.setFilterValue("");
-                            table.getColumn("status")?.setFilterValue("all");
-                          }}
-                        >
-                          Clear filters
-                        </Button>
-                      }
-                    />
-                  </td>
-                </tr>
+                <motion.tbody
+                  key="empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <tr>
+                    <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-10">
+                      <EmptyState
+                        icon={<Sparkles className="h-6 w-6" />}
+                        title="No signals in this view"
+                        description="Try clearing filters, widening the status selection, or queueing playbooks for fresh buying signals."
+                        action={
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              table.getColumn("account_name")?.setFilterValue("");
+                              table.getColumn("status")?.setFilterValue("all");
+                            }}
+                          >
+                            Clear filters
+                          </Button>
+                        }
+                      />
+                    </td>
+                  </tr>
+                </motion.tbody>
               )}
-            </tbody>
+            </AnimatePresence>
           </table>
         </div>
       </Card>

@@ -135,7 +135,7 @@ function AnimatedDialog({
       {open && (
         <motion.div
           className={cn(
-            "fixed inset-0 z-50 flex bg-background/72 p-4 backdrop-blur-md",
+            "fixed inset-0 z-50 flex bg-background/68 p-4 backdrop-blur-lg",
             align === "top" ? "items-start justify-center pt-20" : "items-center justify-center",
             overlayClassName
           )}
@@ -150,7 +150,7 @@ function AnimatedDialog({
             aria-labelledby={labelledBy}
             tabIndex={-1}
             className={cn(
-              "w-full rounded-xl border border-border bg-card text-card-foreground shadow-elevated",
+              "w-full rounded-xl border border-border/80 bg-card text-card-foreground shadow-elevated ring-1 ring-primary/[0.06]",
               className
             )}
             onClick={(event) => event.stopPropagation()}
