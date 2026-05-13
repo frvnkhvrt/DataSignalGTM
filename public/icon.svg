@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="DataSignalGTM">
+  <!-- Matches `components/layout/sidebar.tsx` brand mark: Lucide Activity in a rounded-lg primary/10 well. -->
+  <rect
+    width="32"
+    height="32"
+    rx="8"
+    fill="oklch(0.72 0.17 156 / 0.1)"
+    stroke="oklch(0.72 0.17 156 / 0.22)"
+    stroke-width="1"
+  />
+  <g transform="translate(4 4) scale(0.6666667)">
+    <path
+      fill="none"
+      stroke="oklch(0.72 0.17 156)"
+      stroke-width="2.25"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"
+    />
+  </g>
+</svg>

@@ -27,6 +27,13 @@ export const metadata: Metadata = {
   title: "DataSignalGTM",
   description:
     "Signals, account data quality, and approval workflow.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
+      { url: "/icon.svg", type: "image/svg+xml", sizes: "32x32" },
+    ],
+    apple: [{ url: "/apple-icon", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({
