@@ -1,4 +1,7 @@
+"use client";
+
 import * as React from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +50,8 @@ export function KpiCard({
   size?: "sm" | "default";
   className?: string;
 }) {
+  const reduced = useReducedMotion();
+
   return (
     <Card
       variant="translucent"
@@ -63,15 +68,25 @@ export function KpiCard({
           {icon}
         </div>
       </div>
-      <div
+
+      <motion.div
+        key={String(value)}
         className={cn(
           "mt-3 font-mono tabular-nums font-semibold",
           valueTone[tone],
           size === "default" ? "text-3xl" : "text-xl"
         )}
+        initial={reduced ? {} : { opacity: 0, scale: 0.82 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={
+          reduced
+            ? { duration: 0 }
+            : { type: "spring", stiffness: 480, damping: 32, mass: 0.75 }
+        }
       >
         {value}
-      </div>
+      </motion.div>
+
       {description && (
         <p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p>
       )}

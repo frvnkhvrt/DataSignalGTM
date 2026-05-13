@@ -28,9 +28,13 @@ export const ease = {
 } as const;
 
 export const spring = {
-  snappy: { type: "spring" as const, stiffness: 500, damping: 36, mass: 0.8 },
-  bouncy: { type: "spring" as const, stiffness: 380, damping: 28, mass: 0.9 },
-  gentle: { type: "spring" as const, stiffness: 220, damping: 34, mass: 1.0 },
+  /** UI controls: buttons, pills, badges — tight, crisp, zero overshoot */
+  snappy: { type: "spring" as const, stiffness: 540, damping: 40, mass: 0.8 },
+  /** Entrance pops: card scale-in, icon reveal — slight character without bounce */
+  bouncy: { type: "spring" as const, stiffness: 400, damping: 26, mass: 0.85 },
+  /** Layout transitions: sidebar pill, tab indicator — smooth and controlled */
+  gentle: { type: "spring" as const, stiffness: 280, damping: 36, mass: 0.9 },
+  /** Heavy objects: modals, drawer overlays — authoritative, stable */
   slow: { type: "spring" as const, stiffness: 140, damping: 30, mass: 1.2 },
 } as const;
 
@@ -64,7 +68,7 @@ export const slideUp: Variants = {
 
 /** Like slideUp but with a subtle blur — use for page-level section reveals only. */
 export const slideUpBlur: Variants = {
-  hidden: { opacity: 0, y: 12, filter: "blur(4px)" },
+  hidden: { opacity: 0, y: 8, filter: "blur(2px)" },
   visible: {
     opacity: 1,
     y: 0,
@@ -73,8 +77,8 @@ export const slideUpBlur: Variants = {
   },
   exit: {
     opacity: 0,
-    y: -8,
-    filter: "blur(4px)",
+    y: -6,
+    filter: "blur(2px)",
     transition: { duration: dur.fast, ease: ease.in },
   },
 };
@@ -131,11 +135,11 @@ export const staggerContainerFast: Variants = {
 export const staggerItem: Variants = slideUp;
 
 export const listRowEnter: Variants = {
-  hidden: { opacity: 0, y: 6 },
+  hidden: { opacity: 0, y: 4 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: dur.smooth, ease: ease.premium },
+    transition: { duration: dur.base, ease: ease.premium },
   },
   // Pure fade exit — avoids upward flick in table rows and dense lists
   exit: {
@@ -361,7 +365,8 @@ function MotionCard({ children, className, ...props }: MotionDivProps) {
   return (
     <motion.div
       className={className}
-      whileHover={{ y: -2, scale: 1.012 }}
+      whileHover={{ y: -1.5, scale: 1.008 }}
+      whileTap={{ scale: 0.994, y: 0 }}
       transition={spring.snappy}
       {...props}
     >
@@ -460,6 +465,72 @@ function MotionListItem({
   );
 }
 
+// ── MotionIcon ─────────────────────────────────────────────────────────────────
+
+/**
+ * Wraps an icon node with a spring scale + rotation on hover.
+ * Ideal for CTA icons, sidebar icons, and interactive icon buttons.
+ */
+function MotionIcon({
+  children,
+  className,
+  rotate = 12,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  rotate?: number;
+}) {
+  const reduced = useReducedMotion();
+
+  if (reduced) {
+    return <span className={className}>{children}</span>;
+  }
+
+  return (
+    <motion.span
+      className={className}
+      style={{ display: "inline-flex" }}
+      whileHover={{ scale: 1.18, rotate }}
+      transition={spring.snappy}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+// ── FadeSlide ──────────────────────────────────────────────────────────────────
+
+/**
+ * Lightweight fade + slide-up for inline content reveals.
+ * Lighter than `PageReveal` — animates on mount, no scroll trigger.
+ */
+function FadeSlide({
+  children,
+  className,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  const reduced = useReducedMotion();
+
+  if (reduced) {
+    return <div className={className}>{children}</div>;
+  }
+
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: dur.fast, ease: ease.premium, delay }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 // ── Exports ────────────────────────────────────────────────────────────────────
 
 export {
@@ -471,4 +542,6 @@ export {
   MotionCard,
   MotionList,
   MotionListItem,
+  MotionIcon,
+  FadeSlide,
 };

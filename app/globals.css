@@ -199,27 +199,27 @@
 
   .ds-focus-ring {
     transition:
-      border-color 180ms var(--ease-premium),
-      box-shadow 180ms var(--ease-premium),
-      background-color 180ms var(--ease-premium),
-      color 180ms var(--ease-premium);
+      border-color 160ms var(--ease-premium),
+      box-shadow 160ms var(--ease-premium),
+      background-color 160ms var(--ease-premium),
+      color 160ms var(--ease-premium);
   }
 
   .ds-focus-ring:focus-visible {
     outline: none;
     box-shadow:
-      0 0 0 1px var(--background),
-      0 0 0 4px color-mix(in oklch, var(--ring) 26%, transparent);
+      0 0 0 1.5px var(--background),
+      0 0 0 3.5px color-mix(in oklch, var(--ring) 32%, transparent);
   }
 
   .ds-pressable {
     transform: translateZ(0);
     transition:
-      transform 180ms var(--ease-premium),
-      border-color 180ms var(--ease-premium),
-      background-color 180ms var(--ease-premium),
-      color 180ms var(--ease-premium),
-      box-shadow 180ms var(--ease-premium);
+      transform 160ms var(--ease-premium),
+      border-color 160ms var(--ease-premium),
+      background-color 160ms var(--ease-premium),
+      color 160ms var(--ease-premium),
+      box-shadow 160ms var(--ease-premium);
   }
 
   .ds-pressable:hover {
@@ -227,7 +227,9 @@
   }
 
   .ds-pressable:active {
-    transform: translateY(0) scale(0.985);
+    /* Snap into pressed state — feels physical, like pressing a real button */
+    transform: translateY(0.5px) scale(0.981);
+    transition-duration: 55ms;
   }
 
   .ds-shimmer {
@@ -243,11 +245,13 @@
     transform: translateX(-100%);
     background: linear-gradient(
       90deg,
-      transparent,
-      color-mix(in oklch, var(--foreground) 7%, transparent),
-      transparent
+      transparent 0%,
+      color-mix(in oklch, var(--foreground) 5%, transparent) 40%,
+      color-mix(in oklch, var(--foreground) 8%, transparent) 50%,
+      color-mix(in oklch, var(--foreground) 5%, transparent) 60%,
+      transparent 100%
     );
-    animation: ds-shimmer 1.55s var(--ease-premium) infinite;
+    animation: ds-shimmer 1.9s ease-in-out infinite;
   }
 
   .ds-row {
@@ -266,6 +270,27 @@
     background:
       radial-gradient(circle at 30% 25%, color-mix(in oklch, var(--primary) 35%, transparent), transparent 38%),
       linear-gradient(135deg, color-mix(in oklch, var(--surface-elevated) 80%, transparent), var(--surface));
+    animation: ds-float 3.6s ease-in-out infinite;
+  }
+
+  /* Gentle ambient float for decorative orbs — set on .ds-empty-orb automatically */
+  .ds-float {
+    animation: ds-float 3.6s ease-in-out infinite;
+  }
+
+  /* Pulsing live indicator dot — wraps a small rounded element */
+  .ds-ping-dot {
+    position: relative;
+  }
+
+  .ds-ping-dot::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0.45;
+    animation: ds-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
   }
 
   .ds-success-pop {
@@ -290,10 +315,20 @@
   }
 
   .ds-lift:hover {
-    transform: translateY(-2px) scale(1.012);
+    transform: translateY(-2px) scale(1.01);
     box-shadow:
-      0 8px 24px -4px color-mix(in oklch, var(--primary) 12%, transparent),
-      0 2px 8px -2px color-mix(in oklch, var(--primary) 8%, transparent);
+      0 8px 24px -4px color-mix(in oklch, var(--primary) 14%, transparent),
+      0 2px 8px -2px color-mix(in oklch, var(--primary) 9%, transparent);
+  }
+
+  /* Icon micro-animation — subtle rotation + scale on hover */
+  .ds-icon-hover {
+    transition: transform 160ms var(--ease-premium);
+    display: inline-flex;
+  }
+
+  .ds-icon-hover:hover {
+    transform: scale(1.18) rotate(10deg);
   }
 
   /* Shimmer delay variants for staggered skeleton grids */
@@ -311,6 +346,22 @@
 @keyframes ds-shimmer {
   100% {
     transform: translateX(100%);
+  }
+}
+
+@keyframes ds-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes ds-ping {
+  75%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
   }
 }
 
@@ -364,9 +415,20 @@
   .ds-pressable:hover,
   .ds-pressable:active,
   .ds-row:hover,
-  .ds-lift:hover {
+  .ds-lift:hover,
+  .ds-icon-hover:hover {
     transform: none;
     box-shadow: none;
+  }
+
+  .ds-empty-orb,
+  .ds-float {
+    animation: none !important;
+  }
+
+  .ds-ping-dot::before {
+    animation: none !important;
+    display: none;
   }
 
   .ds-row-updated {

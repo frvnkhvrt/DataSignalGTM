@@ -14,6 +14,7 @@ import {
   Radio,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 
 const navGroups = [
@@ -33,6 +34,8 @@ const navGroups = [
     ],
   },
 ] as const;
+
+const PILL_LAYOUT_ID = "sidebar-active-pill";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -59,7 +62,11 @@ export function Sidebar() {
         <div className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/20 bg-primary/10 shadow-glow">
           <Activity className="h-4 w-4 text-primary" />
         </div>
-        <span className={`font-display text-sm font-semibold tracking-[-0.02em] text-foreground transition-opacity ${collapsed ? "sr-only opacity-0" : "opacity-100"}`}>
+        <span
+          className={`font-display text-sm font-semibold tracking-[-0.02em] text-foreground transition-opacity ${
+            collapsed ? "sr-only opacity-0" : "opacity-100"
+          }`}
+        >
           DataSignalGTM
         </span>
         <Button
@@ -67,7 +74,7 @@ export function Sidebar() {
           variant="ghost"
           size="icon"
           className="ml-auto hidden sm:inline-flex"
-          onClick={() => setCollapsed((value) => !value)}
+          onClick={() => setCollapsed((v) => !v)}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
@@ -78,6 +85,7 @@ export function Sidebar() {
           )}
         </Button>
       </div>
+
       <nav className="grid flex-1 grid-cols-3 gap-1 px-2 py-2 sm:block sm:space-y-5 sm:px-3 sm:py-4">
         {navGroups.map((group) => (
           <div key={group.label} className="contents sm:block">
@@ -102,34 +110,53 @@ export function Sidebar() {
                     title={collapsed ? label : undefined}
                     onFocus={() => router.prefetch(href)}
                     onMouseEnter={() => router.prefetch(href)}
-                    className={`ds-focus-ring flex flex-col items-center justify-center gap-1 rounded-md border-l-0 border-t-2 px-2 py-2 text-[11px] sm:flex-row sm:gap-3 sm:border-l-2 sm:border-t-0 sm:px-3 sm:text-sm ${
+                    className={`ds-focus-ring relative flex flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] sm:flex-row sm:gap-3 sm:border-l-2 sm:border-t-0 sm:px-3 sm:text-sm ${
                       collapsed ? "sm:justify-center" : "sm:justify-start"
                     } ${
                       active
-                        ? "border-primary bg-primary/10 text-foreground shadow-soft"
+                        ? "border-primary text-foreground sm:border-transparent"
                         : "border-transparent text-muted-foreground hover:bg-surface-elevated hover:text-foreground"
                     }`}
                   >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span className={collapsed ? "sm:sr-only" : ""}>{label}</span>
+                    {/* Desktop animated pill — slides between active items via layoutId */}
+                    {active && (
+                      <motion.span
+                        layoutId={PILL_LAYOUT_ID}
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 hidden rounded-md border-l-2 border-primary bg-primary/10 shadow-soft sm:block"
+                        transition={{
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 36,
+                          mass: 0.9,
+                        }}
+                      />
+                    )}
+                    <Icon className="relative z-10 h-4 w-4 shrink-0" />
+                    <span className={`relative z-10 ${collapsed ? "sm:sr-only" : ""}`}>
+                      {label}
+                    </span>
                   </Link>
                 );
               })}
             </div>
           </div>
         ))}
+
         <div className="hidden sm:mt-auto sm:block sm:border-t sm:border-border sm:pt-4">
           <Link
             href="/help"
             title={collapsed ? "Help" : undefined}
             onFocus={() => router.prefetch("/help")}
             onMouseEnter={() => router.prefetch("/help")}
-            className={`ds-focus-ring flex items-center gap-3 rounded-md border-l-2 border-transparent px-3 py-2 text-sm text-muted-foreground hover:bg-surface-elevated hover:text-foreground ${
+            className={`ds-focus-ring relative flex items-center gap-3 overflow-hidden rounded-md border-l-2 border-transparent px-3 py-2 text-sm text-muted-foreground hover:bg-surface-elevated hover:text-foreground ${
               collapsed ? "justify-center" : ""
             }`}
           >
-            <BookOpen className="h-4 w-4 shrink-0" />
-            <span className={collapsed ? "sr-only" : ""}>Help</span>
+            <BookOpen className="relative z-10 h-4 w-4 shrink-0" />
+            <span className={`relative z-10 ${collapsed ? "sr-only" : ""}`}>
+              Help
+            </span>
           </Link>
         </div>
       </nav>

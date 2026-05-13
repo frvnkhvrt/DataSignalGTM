@@ -3,6 +3,7 @@
 import { Command, LogOut } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { useAuthContext } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -49,10 +50,19 @@ export function TopBar() {
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-border bg-background/82 px-4 backdrop-blur-xl sm:px-6">
-      {/* Contextual breadcrumb — supplements the page h1 with a short orientation label. */}
-      <p className="font-display text-sm font-medium tracking-[-0.02em] text-muted-foreground">
-        {subtitle}
-      </p>
+      {/* Contextual breadcrumb — cross-fades on route change for a premium feel */}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.p
+          key={subtitle}
+          className="font-display text-sm font-medium tracking-[-0.02em] text-muted-foreground"
+          initial={{ opacity: 0, y: 3 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -3 }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {subtitle}
+        </motion.p>
+      </AnimatePresence>
       <div className="flex items-center gap-3">
         <div className="hidden items-center gap-1 rounded-md border border-border bg-background/40 px-2 py-1 text-[11px] text-muted-foreground lg:flex">
           <Command className="h-3 w-3" />

@@ -18,6 +18,12 @@ const STATUS_LABELS: Record<SignalStatus, string> = {
 export function StatusPill({ status }: { status: SignalStatus }) {
   return (
     <Badge variant={STATUS_VARIANTS[status]} shape="square">
+      {status === "pending" && (
+        <span
+          aria-hidden="true"
+          className="ds-ping-dot relative inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-warning/70"
+        />
+      )}
       {STATUS_LABELS[status]}
     </Badge>
   );
