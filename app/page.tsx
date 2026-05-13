@@ -163,7 +163,7 @@ export default function MarketingPage() {
                   The problem
                 </p>
                 <h2 className="mb-4 text-2xl font-bold text-zinc-100">
-                  Revenue teams are drowning in noisy data
+                  Revenue teams drown in noisy data
                 </h2>
                 <ul className="space-y-3 text-sm text-zinc-400">
                   {[
