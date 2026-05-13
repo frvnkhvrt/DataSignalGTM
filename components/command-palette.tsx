@@ -194,6 +194,7 @@ export function CommandPalette() {
         <Command.List className="max-h-[420px] overflow-y-auto p-2">
           <Command.Empty className="px-3 py-8 text-center text-sm text-muted-foreground">
             <motion.div
+              aria-hidden="true"
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}

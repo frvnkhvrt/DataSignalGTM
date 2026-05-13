@@ -162,6 +162,31 @@ type RevealProps = MotionDivProps & {
   delay?: number;
 };
 
+// Semantic element types for Stagger / StaggerItem
+type StaggerAsTag = "div" | "ul" | "ol" | "section" | "nav";
+type StaggerItemAsTag = "div" | "li";
+
+// Shared HTML attributes safe to forward to any element type
+type CommonMotionProps = Omit<React.HTMLAttributes<HTMLElement>, "children"> & {
+  children: React.ReactNode;
+};
+
+// Module-level lookup so elements aren't recreated on each render.
+// Cast as React.ElementType — the standard polymorphic component pattern —
+// to avoid incompatible event-handler overloads (e.g. Motion's onDrag vs DOM's).
+const staggerTagMap: Record<StaggerAsTag, React.ElementType> = {
+  div: motion.div,
+  ul: motion.ul,
+  ol: motion.ol,
+  section: motion.section,
+  nav: motion.nav,
+};
+
+const staggerItemTagMap: Record<StaggerItemAsTag, React.ElementType> = {
+  div: motion.div,
+  li: motion.li,
+};
+
 // ── Reveal ─────────────────────────────────────────────────────────────────────
 
 /** Fade + slide-up reveal on scroll-into-view. Used for marketing sections. */
@@ -197,12 +222,17 @@ function Reveal({ delay = 0, children, ...props }: RevealProps) {
  *
  * Override with an explicit `count` prop when the child count is dynamic
  * (e.g. filtered lists) or when React.Children.count would be unreliable.
+ *
+ * Use `as` to render a semantic HTML element instead of the default `div`:
+ *   <Stagger as="ul"> → renders a <ul> (use with <StaggerItem as="li">)
+ *   <Stagger as="section"> → renders a <section>
  */
 function Stagger({
   children,
+  as = "div",
   count: countProp,
   ...props
-}: MotionDivProps & { count?: number }) {
+}: CommonMotionProps & { as?: StaggerAsTag; count?: number }) {
   const reduced = useReducedMotion();
   const autoCount = React.Children.count(children);
   const count = Math.max(1, countProp ?? autoCount);
@@ -211,11 +241,14 @@ function Stagger({
   const staggerStep = Math.min(0.08, 0.4 / count);
 
   if (reduced) {
-    return <div {...(props as React.HTMLAttributes<HTMLDivElement>)}>{children}</div>;
+    const PlainTag = as as React.ElementType;
+    return <PlainTag {...props}>{children}</PlainTag>;
   }
 
+  const MotionTag = staggerTagMap[as];
+
   return (
-    <motion.div
+    <MotionTag
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.18 }}
@@ -228,25 +261,40 @@ function Stagger({
           },
         },
       }}
-      {...props}
+      {...(props as React.HTMLAttributes<HTMLElement>)}
     >
       {children}
-    </motion.div>
+    </MotionTag>
   );
 }
 
-/** A single staggered child; place inside `<Stagger>`. */
-function StaggerItem({ children, ...props }: MotionDivProps) {
+/**
+ * A single staggered child; place inside `<Stagger>`.
+ *
+ * Use `as="li"` when the parent `<Stagger>` renders as `"ul"` or `"ol"`:
+ *   <Stagger as="ul"><StaggerItem as="li">…</StaggerItem></Stagger>
+ */
+function StaggerItem({
+  children,
+  as = "div",
+  ...props
+}: CommonMotionProps & { as?: StaggerItemAsTag }) {
   const reduced = useReducedMotion();
 
   if (reduced) {
-    return <div {...(props as React.HTMLAttributes<HTMLDivElement>)}>{children}</div>;
+    const PlainTag = as as React.ElementType;
+    return <PlainTag {...props}>{children}</PlainTag>;
   }
 
+  const MotionTag = staggerItemTagMap[as];
+
   return (
-    <motion.div variants={staggerItem} {...props}>
+    <MotionTag
+      variants={staggerItem}
+      {...(props as React.HTMLAttributes<HTMLElement>)}
+    >
       {children}
-    </motion.div>
+    </MotionTag>
   );
 }
 
