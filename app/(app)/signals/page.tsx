@@ -8,6 +8,7 @@ import { signalsRecentQuery } from "@/lib/gtm-queries";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 import { SignalsTable } from "@/components/tables/signals-table";
 import { Button } from "@/components/ui/button";
+import { QueryError } from "@/components/ui/query-error";
 
 export default function SignalsPage() {
   const org = useCurrentOrg();
@@ -16,6 +17,8 @@ export default function SignalsPage() {
     data: signals = [],
     isLoading,
     isFetching,
+    isError,
+    refetch,
   } = useQuery(signalsRecentQuery(org.id));
 
   const missingPlaybooks = signals.filter(
@@ -47,6 +50,18 @@ export default function SignalsPage() {
       toast.error(error instanceof Error ? error.message : "Backfill failed");
     },
   });
+
+  if (isError) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <QueryError
+          message="Could not load signals. Check your connection and try again."
+          onRetry={() => void refetch()}
+          className="mx-auto max-w-lg"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">

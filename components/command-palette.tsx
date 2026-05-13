@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  BarChart3,
+  BookOpen,
   Building2,
   CheckCircle2,
   Clock,
+  CreditCard,
   LayoutDashboard,
   Radio,
   Search,
@@ -37,6 +40,9 @@ const NAV_ITEMS = [
   { label: "Go to Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Go to Signals", href: "/signals", icon: Radio },
   { label: "Go to Accounts", href: "/accounts", icon: Building2 },
+  { label: "Go to Billing", href: "/settings/billing", icon: CreditCard },
+  { label: "Go to AI Usage", href: "/admin/usage", icon: BarChart3 },
+  { label: "Go to Help", href: "/help", icon: BookOpen },
 ] as const;
 
 function Highlight({ text, query }: { text: string; query: string }) {

@@ -188,12 +188,11 @@ export async function GET(request: NextRequest) {
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
       console.error("[demo-login]", message);
-      return NextResponse.json(
-        {
-          error:
-            "Demo mode is not available. Confirm SUPABASE_SERVICE_ROLE_KEY is configured.",
-        },
-        { status: 503 }
+      return NextResponse.redirect(
+        new URL(
+          "/login?error=demo_unavailable",
+          request.url
+        )
       );
     }
 
@@ -203,9 +202,8 @@ export async function GET(request: NextRequest) {
   }
 
   if (error || !user) {
-    return NextResponse.json(
-      { error: "Unable to sign in with the demo account." },
-      { status: 401 }
+    return NextResponse.redirect(
+      new URL("/login?error=demo_signin_failed", request.url)
     );
   }
 

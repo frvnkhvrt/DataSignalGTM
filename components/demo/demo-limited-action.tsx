@@ -7,9 +7,8 @@ import { useAuthContext } from "@/lib/auth-context";
 import { track } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
-const DEMO_TOOLTIP = "No disponible en modo demo";
-const DEMO_TOAST =
-  "Esta acción no está disponible en la demo. ¡Regístrate para usarla!";
+const DEMO_TOOLTIP = "Not available in demo mode";
+const DEMO_TOAST = "This action isn't available in the demo.";
 
 type DemoLimitedChildProps = {
   className?: string;
@@ -24,7 +23,7 @@ export function useDemoLimitation(surface: string) {
 
   function showDemoLimitation(action: string) {
     toast.info(DEMO_TOAST, {
-      description: "La demo es de solo lectura para mantener los datos limpios.",
+      description: "The demo is read-only to keep the sample data clean. Sign up for full access.",
     });
     track({
       event: "demo_limitation_viewed",

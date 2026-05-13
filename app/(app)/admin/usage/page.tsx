@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TableSkeleton } from "@/components/ui/skeleton";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
+import { QueryError } from "@/components/ui/query-error";
 
 type UsageRow = {
   id: string;
@@ -82,6 +83,8 @@ export default function UsagePage() {
     data: rows = [],
     isLoading,
     isFetching,
+    isError,
+    refetch,
   } = useQuery(usageQuery(org.id, window));
 
   const total = rows.length;
@@ -96,6 +99,18 @@ export default function UsagePage() {
         )
       : null;
   const estimatedCost = estimateCost(succeeded).toFixed(4);
+
+  if (isError) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <QueryError
+          message="Could not load AI usage data. Check your connection and try again."
+          onRetry={() => void refetch()}
+          className="mx-auto max-w-lg"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -179,7 +194,7 @@ export default function UsagePage() {
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[600px] text-sm">
-            <thead className="border-b border-border bg-background/60">
+            <thead className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-sm">
               <tr className="text-left text-[11px] uppercase tracking-wide text-muted-foreground">
                 <th className="px-4 py-3 font-medium">Time</th>
                 <th className="px-4 py-3 font-medium">Model</th>

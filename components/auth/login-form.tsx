@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,9 +13,19 @@ function callbackUrl(next = "/") {
   return `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 }
 
+const DEMO_ERROR_MESSAGES: Record<string, string> = {
+  demo_unavailable:
+    "The demo environment is temporarily unavailable. Please try again shortly.",
+  demo_signin_failed:
+    "We could not sign you in to the demo. Please try again or sign in with your own account.",
+};
+
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
+  const demoError = searchParams.get("error");
+  const demoErrorMessage = demoError ? DEMO_ERROR_MESSAGES[demoError] : null;
 
   function signInWithMagicLink() {
     startTransition(async () => {
@@ -51,6 +62,15 @@ export function LoginForm() {
 
   return (
     <Card elevated className="w-full max-w-md bg-card/88">
+      {demoErrorMessage && (
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-t-xl border-b border-destructive/25 bg-destructive/10 px-5 py-3 text-xs text-destructive"
+        >
+          <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          {demoErrorMessage}
+        </div>
+      )}
       <CardHeader>
         <p className="ds-eyebrow text-primary">
           DataSignalGTM

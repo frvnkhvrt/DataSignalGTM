@@ -169,9 +169,9 @@ const workflowSteps = [
 ] as const;
 
 const socialProofNames = [
-  "Acme Corp",
-  "Buildware",
+  "Growthware",
   "CloudStack",
+  "Buildforce",
   "DevEx",
   "Empirica",
   "FusionHQ",
@@ -299,7 +299,7 @@ export default function MarketingPage() {
                     premiumButtonClass
                   )}
                 >
-                  Try free demo
+                  Explore live demo
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
@@ -309,11 +309,11 @@ export default function MarketingPage() {
                     "h-auto rounded-xl bg-background/50 px-8 py-4 text-base font-medium backdrop-blur hover:border-primary/25"
                   )}
                 >
-                  Sign in
+                  Sign in to your workspace
                 </Link>
               </div>
               <p className="mt-5 text-xs text-muted-foreground/75">
-                No credit card · Instant access
+                No credit card required · Instant demo access
               </p>
             </Reveal>
           </div>

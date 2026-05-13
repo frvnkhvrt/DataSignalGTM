@@ -11,6 +11,7 @@ import {
 import { AccountsTable } from "@/components/tables/accounts-table";
 import { Card } from "@/components/ui/card";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
+import { QueryError } from "@/components/ui/query-error";
 
 function bucketCounts(accounts: AccountRow[]) {
   return {
@@ -65,10 +66,24 @@ export default function AccountsPage() {
     data: accounts = [],
     isLoading,
     isFetching,
+    isError,
+    refetch,
   } = useQuery(accountsByDqQuery(org.id));
   const { data: issueCounts = [] } = useQuery(dataIssueCountsQuery(org.id));
   const counts = bucketCounts(accounts);
   const totalGaps = issueCounts.reduce((sum, issue) => sum + issue.count, 0);
+
+  if (isError) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <QueryError
+          message="Could not load accounts. Check your connection and try again."
+          onRetry={() => void refetch()}
+          className="mx-auto max-w-lg"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">

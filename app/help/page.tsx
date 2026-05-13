@@ -5,10 +5,10 @@ export const metadata = { title: "Getting Started — DataSignalGTM Docs" };
 
 export default function GettingStartedPage() {
   return (
-    <article className="space-y-8 text-zinc-300">
+    <article className="space-y-8 text-muted-foreground">
       <div>
-        <h1 className="text-3xl font-bold text-zinc-100">Getting Started</h1>
-        <p className="mt-3 text-zinc-400">
+        <h1 className="text-3xl font-bold text-foreground">Getting Started</h1>
+        <p className="mt-3 text-muted-foreground">
           DataSignalGTM is a GTM signal layer that ingests intent data, scores
           accounts against your ICP, and generates AI playbooks for your
           revenue team. This guide gets you from zero to pipeline in under 10
@@ -17,12 +17,12 @@ export default function GettingStartedPage() {
       </div>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-zinc-100">
+        <h2 className="text-xl font-semibold text-foreground">
           1. Create an account
         </h2>
         <p>
           Visit{" "}
-          <Link href="/login" className="text-emerald-400 hover:underline">
+          <Link href="/login" className="text-primary hover:underline">
             datasignalgtm.com/login
           </Link>{" "}
           and sign in with your email (magic link) or Google account. On first
@@ -32,97 +32,97 @@ export default function GettingStartedPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-zinc-100">
+        <h2 className="text-xl font-semibold text-foreground">
           2. Explore the dashboard
         </h2>
         <p>
           After login you land on the{" "}
-          <strong className="text-zinc-100">Dashboard</strong> at{" "}
-          <code className="rounded bg-zinc-900 px-1.5 py-0.5 text-xs text-zinc-300">
+          <strong className="text-foreground">Dashboard</strong> at{" "}
+          <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-foreground">
             /dashboard
           </code>
           . You will see:
         </p>
         <ul className="list-disc space-y-1 pl-5 text-sm">
           <li>
-            <strong className="text-zinc-100">Metric cards</strong> — pending
+            <strong className="text-foreground">Metric cards</strong> — pending
             signals, average DQ score, approved signals, accounts.
           </li>
           <li>
-            <strong className="text-zinc-100">DQ trend chart</strong> — running
+            <strong className="text-foreground">DQ trend chart</strong> — running
             average data-quality score over time.
           </li>
           <li>
-            <strong className="text-zinc-100">Velocity distribution</strong> —
+            <strong className="text-foreground">Velocity distribution</strong> —
             histogram of signal velocity scores.
           </li>
           <li>
-            <strong className="text-zinc-100">ICP fit vs DQ scatter</strong> —
+            <strong className="text-foreground">ICP fit vs DQ scatter</strong> —
             spot high-fit, clean-data accounts at a glance.
           </li>
         </ul>
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-zinc-100">3. Add signals</h2>
+        <h2 className="text-xl font-semibold text-foreground">3. Add signals</h2>
         <p>
           You have three options:
         </p>
         <ol className="list-decimal space-y-2 pl-5 text-sm">
           <li>
-            <strong className="text-zinc-100">Webhook (recommended):</strong>{" "}
+            <strong className="text-foreground">Webhook (recommended):</strong>{" "}
             Push signals programmatically from your intent tools — see the{" "}
             <Link
               href="/help/webhook"
-              className="text-emerald-400 hover:underline"
+              className="text-primary hover:underline"
             >
               Webhook Integration guide
             </Link>
             .
           </li>
           <li>
-            <strong className="text-zinc-100">Demo data reset:</strong> Admin
+            <strong className="text-foreground">Demo data reset:</strong> Admin
             users can restore canonical demo data from{" "}
-            <code className="rounded bg-zinc-900 px-1.5 py-0.5 text-xs text-zinc-300">
+            <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-foreground">
               /admin
             </code>
             .
           </li>
           <li>
-            <strong className="text-zinc-100">API:</strong> Use the REST API
+            <strong className="text-foreground">API:</strong> Use the REST API
             directly (same webhook schema, with Bearer auth).
           </li>
         </ol>
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-zinc-100">
+        <h2 className="text-xl font-semibold text-foreground">
           4. Review & approve signals
         </h2>
         <p>
           Navigate to{" "}
-          <Link href="/signals" className="text-emerald-400 hover:underline">
+          <Link href="/signals" className="text-primary hover:underline">
             /signals
           </Link>
           . Filter by status, sort by composite score, and click{" "}
-          <strong className="text-zinc-100">Approve</strong> or{" "}
-          <strong className="text-zinc-100">Reject</strong> on each row — or
+          <strong className="text-foreground">Approve</strong> or{" "}
+          <strong className="text-foreground">Reject</strong> on each row — or
           use bulk actions to process many at once.
         </p>
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold text-zinc-100">
+        <h2 className="text-xl font-semibold text-foreground">
           5. Generate an AI playbook
         </h2>
         <p>
-          Click the <strong className="text-zinc-100">Generate playbook</strong>{" "}
+          Click the <strong className="text-foreground">Generate playbook</strong>{" "}
           button on any signal. A background Inngest job queues immediately and
           the UI updates in real-time via Supabase Realtime when it completes.
           See{" "}
           <Link
             href="/help/signals"
-            className="text-emerald-400 hover:underline"
+            className="text-primary hover:underline"
           >
             Signals &amp; Playbooks
           </Link>{" "}
@@ -130,16 +130,16 @@ export default function GettingStartedPage() {
         </p>
       </section>
 
-      <div className="rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-4 text-sm text-emerald-200">
+      <div className="rounded-lg border border-primary/25 bg-primary/5 p-4 text-sm text-foreground">
         <strong>Next step:</strong> Ready to connect your intent data? Head to
         the{" "}
-        <Link href="/help/webhook" className="underline hover:text-emerald-300">
+        <Link href="/help/webhook" className="text-primary underline hover:text-primary/80">
           Webhook Integration guide
         </Link>{" "}
         to start pushing signals from your tools.
         <Link
           href="/help/webhook"
-          className="mt-3 flex items-center gap-1 text-xs font-medium text-emerald-400 hover:text-emerald-300"
+          className="mt-3 flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80"
         >
           Webhook guide <ArrowRight className="h-3 w-3" />
         </Link>

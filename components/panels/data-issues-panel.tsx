@@ -49,10 +49,10 @@ const SEVERITY_BORDER: Record<string, string> = {
   low: "border-l-zinc-600",
 };
 
-const SEVERITY_BADGE: Record<string, string> = {
+  const SEVERITY_BADGE: Record<string, string> = {
   high: "border-red-500/40 text-red-300 bg-red-500/10",
   medium: "border-amber-500/40 text-amber-200 bg-amber-500/10",
-  low: "border-zinc-600 text-zinc-400 bg-zinc-800/50",
+  low: "border-border text-muted-foreground bg-muted/50",
 };
 
 const ISSUE_TYPE_LABEL: Record<string, string> = {
@@ -290,21 +290,21 @@ export function DataIssuesPanel({
     <Sheet open={!!account} onOpenChange={(o) => !o && onClose()}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-md bg-zinc-950 border-l border-zinc-800 text-zinc-100 p-0 flex flex-col"
+        className="w-full sm:max-w-md bg-card border-l border-border text-card-foreground p-0 flex flex-col"
       >
         {/* ── Fixed header ── */}
-        <SheetHeader className="px-6 py-4 border-b border-zinc-800 shrink-0">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-zinc-500">
+        <SheetHeader className="px-6 py-4 border-b border-border shrink-0">
+          <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
             <Database className="h-3.5 w-3.5" />
             Data gaps
           </div>
-          <SheetTitle className="text-zinc-100 text-base">
+          <SheetTitle className="text-foreground text-base">
             {liveAccount?.name ?? ""}
           </SheetTitle>
         </SheetHeader>
 
         {/* ── DQ ring + severity breakdown ── */}
-        <div className="px-6 py-5 border-b border-zinc-800 shrink-0">
+        <div className="px-6 py-5 border-b border-border shrink-0">
           <div className="flex items-center gap-6">
             {/* Ring gauge */}
             <div className="relative shrink-0">
@@ -315,7 +315,7 @@ export function DataIssuesPanel({
                   r="40"
                   fill="none"
                   strokeWidth="6"
-                  className="stroke-zinc-800"
+                  className="stroke-border"
                 />
                 <circle
                   cx="44"
@@ -337,7 +337,7 @@ export function DataIssuesPanel({
                 >
                   {dq}
                 </span>
-                <span className="text-[9px] uppercase tracking-wide text-zinc-500">
+                <span className="text-[9px] uppercase tracking-wide text-muted-foreground">
                   DQ
                 </span>
               </div>
@@ -346,7 +346,7 @@ export function DataIssuesPanel({
             {/* Score details */}
             <div className="flex-1 space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-zinc-400 border border-zinc-700 rounded px-2 py-0.5">
+                <span className="text-xs font-medium text-muted-foreground border border-border rounded px-2 py-0.5">
                   {label}
                 </span>
               </div>
@@ -365,15 +365,15 @@ export function DataIssuesPanel({
                     </span>
                   )}
                   {lowCount > 0 && (
-                    <span className="flex items-center gap-1 text-zinc-400">
-                      <span className="h-1.5 w-1.5 rounded-full bg-zinc-600" />
+                    <span className="flex items-center gap-1 text-muted-foreground">
+                      <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
                       {lowCount} low
                     </span>
                   )}
                 </div>
               )}
               {sorted.length > 0 && (
-                <div className="flex h-1.5 w-full rounded-full overflow-hidden bg-zinc-800">
+                <div className="flex h-1.5 w-full rounded-full overflow-hidden bg-muted">
                   {highCount > 0 && (
                     <div
                       className="h-full bg-red-500"
@@ -392,7 +392,7 @@ export function DataIssuesPanel({
                   )}
                   {lowCount > 0 && (
                     <div
-                      className="h-full bg-zinc-600"
+                      className="h-full bg-muted-foreground/40"
                       style={{
                         width: `${(lowCount / sorted.length) * 100}%`,
                       }}
@@ -406,7 +406,7 @@ export function DataIssuesPanel({
 
         {/* ── Resolve all bar ── */}
         {sorted.length >= 2 && (
-          <div className="px-6 py-3 border-b border-zinc-800 shrink-0">
+          <div className="px-6 py-3 border-b border-border shrink-0">
             <DemoLimitedAction
               action="resolve_all_data_issues"
               surface="data_issues_panel"
@@ -429,12 +429,12 @@ export function DataIssuesPanel({
 
         {/* ── Scrollable issue list ── */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
-          <div className="text-xs uppercase tracking-wide text-zinc-500 mb-2">
+          <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
             Open issues ({sorted.length})
           </div>
 
           {isLoading && (
-            <div className="flex items-center gap-2 py-4 text-xs text-zinc-400">
+            <div className="flex items-center gap-2 py-4 text-xs text-muted-foreground">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Loading issues…
             </div>
@@ -442,8 +442,8 @@ export function DataIssuesPanel({
 
           {!isLoading && sorted.length === 0 && (
             <div className="py-10 text-center">
-              <CheckCircle2 className="h-6 w-6 text-emerald-500/40 mx-auto mb-2" />
-              <div className="text-xs text-zinc-500">
+              <CheckCircle2 className="h-6 w-6 text-success/40 mx-auto mb-2" />
+              <div className="text-xs text-muted-foreground">
                 No data gaps detected for this account.
               </div>
             </div>
@@ -499,19 +499,19 @@ function IssueCard({
 
   return (
     <div
-      className={`rounded-md border border-zinc-800 border-l-[3px] ${borderClass} bg-zinc-900 p-3 space-y-2`}
+      className={`rounded-md border border-border border-l-[3px] ${borderClass} bg-background/60 p-3 space-y-2`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-zinc-400 shrink-0">
+          <span className="text-muted-foreground shrink-0">
             {fieldIcon(issue.field_name)}
           </span>
           <div className="min-w-0">
-            <span className="text-sm font-medium text-zinc-100">
+            <span className="text-sm font-medium text-foreground">
               {issue.field_name ?? "Unknown field"}
             </span>
-            <span className="mx-1.5 text-zinc-600">·</span>
-            <span className="text-xs text-zinc-400">{typeLabel}</span>
+            <span className="mx-1.5 text-border">·</span>
+            <span className="text-xs text-muted-foreground">{typeLabel}</span>
           </div>
         </div>
         <span
@@ -522,7 +522,7 @@ function IssueCard({
       </div>
 
       {issue.suggested_fix && (
-        <p className="text-xs text-zinc-400 leading-relaxed pl-6">
+        <p className="text-xs text-muted-foreground leading-relaxed pl-6">
           {issue.suggested_fix}
         </p>
       )}
@@ -544,13 +544,13 @@ function IssueCard({
             type="button"
             onClick={onDismiss}
             disabled={busy}
-            className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded border border-zinc-700 text-zinc-400 hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded border border-border text-muted-foreground hover:bg-muted disabled:opacity-50 transition-colors"
           >
             <XCircle className="h-3 w-3" />
             Dismiss
           </button>
         </DemoLimitedAction>
-        {busy && <Loader2 className="h-3 w-3 animate-spin text-zinc-500" />}
+        {busy && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
       </div>
     </div>
   );

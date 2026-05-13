@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
+import { QueryError } from "@/components/ui/query-error";
 
 function useCurrentSubscription(orgId: string) {
   return useQuery({
@@ -47,16 +48,18 @@ function PlanCard({
   currentTier,
   onUpgrade,
   onManage,
-  upgrading,
+  loadingAction,
 }: {
   plan: (typeof PLANS)[number];
   currentTier: PlanTier;
   onUpgrade: () => void;
   onManage: () => void;
-  upgrading: boolean;
+  loadingAction: string | null;
 }) {
   const isCurrent = plan.id === currentTier;
   const isDowngrade = plan.id === "free" && currentTier !== "free";
+  const isUpgrading = loadingAction === `upgrade-${plan.id}`;
+  const isManaging = loadingAction === "manage";
 
   return (
     <Card
@@ -111,11 +114,15 @@ function PlanCard({
             <Button
               type="button"
               onClick={onManage}
-              disabled={upgrading}
+              disabled={!!loadingAction}
               variant="outline"
               size="sm"
             >
-              <ExternalLink className="h-3.5 w-3.5" />
+              {isManaging ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <ExternalLink className="h-3.5 w-3.5" />
+              )}
               Manage
             </Button>
           )}
@@ -131,21 +138,22 @@ function PlanCard({
         <Button
           type="button"
           onClick={onManage}
-          disabled={upgrading}
+          disabled={!!loadingAction}
           variant="outline"
           size="sm"
         >
+          {isManaging && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           Manage in portal
         </Button>
       ) : (
         <Button
           type="button"
           onClick={onUpgrade}
-          disabled={upgrading}
+          disabled={!!loadingAction}
           variant={plan.highlighted ? "default" : "outline"}
           size="sm"
         >
-          {upgrading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+          {isUpgrading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {plan.cta}
         </Button>
       )}
@@ -156,36 +164,49 @@ function PlanCard({
 
 export default function BillingPage() {
   const org = useCurrentOrg();
-  const { data: tier = "free" } = useOrgTier(org.id);
+  const { data: tier = "free", isError: tierError, refetch: refetchTier } = useOrgTier(org.id);
   const { data: subscription } = useCurrentSubscription(org.id);
-  const [loading, setLoading] = useState<string | null>(null);
+  const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
-  async function handleUpgrade(priceId?: string) {
-    setLoading("upgrade");
+  async function handleUpgrade(planId: string) {
+    setLoadingAction(`upgrade-${planId}`);
     const res = await fetch("/api/billing/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ priceId }),
+      // priceId is resolved server-side from STRIPE_PRO_PRICE_ID; send undefined to use default
+      body: JSON.stringify({}),
     });
     const body = await res.json() as { url?: string; error?: string };
     if (body.url) {
-      window.location.href = body.url;
+      window.location.assign(body.url);
     } else {
       toast.error(body.error ?? "Upgrade failed. Please try again.");
-      setLoading(null);
+      setLoadingAction(null);
     }
   }
 
   async function handleManage() {
-    setLoading("manage");
+    setLoadingAction("manage");
     const res = await fetch("/api/billing/portal", { method: "POST" });
     const body = await res.json() as { url?: string; error?: string };
     if (body.url) {
-      window.location.href = body.url;
+      window.location.assign(body.url);
     } else {
       toast.error(body.error ?? "Could not open portal. Please try again.");
-      setLoading(null);
+      setLoadingAction(null);
     }
+  }
+
+  if (tierError) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <QueryError
+          message="Could not load billing information. Try refreshing."
+          onRetry={() => void refetchTier()}
+          className="mx-auto max-w-lg"
+        />
+      </div>
+    );
   }
 
   return (
@@ -224,9 +245,9 @@ export default function BillingPage() {
             <PlanCard
               plan={plan}
               currentTier={tier}
-              onUpgrade={() => handleUpgrade(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ? undefined : undefined)}
+              onUpgrade={() => handleUpgrade(plan.id)}
               onManage={handleManage}
-              upgrading={loading !== null}
+              loadingAction={loadingAction}
             />
           </StaggerItem>
         ))}

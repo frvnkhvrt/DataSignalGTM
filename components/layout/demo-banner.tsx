@@ -36,7 +36,7 @@ export function DemoBanner() {
       } | null;
 
       if (!response.ok) {
-        toast.error(body?.error ?? "No pudimos resetear la demo.");
+        toast.error(body?.error ?? "Could not reset demo data. Please try again.");
         return;
       }
 
@@ -67,21 +67,21 @@ export function DemoBanner() {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-sm font-semibold">
-                    Estás viendo una versión de demostración
+                    You are viewing a demo environment
                   </p>
                   <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/25 bg-emerald-300/10 px-2 py-0.5 text-[11px] font-medium text-emerald-200">
                     <ShieldCheck className="h-3 w-3" />
-                    Datos de ejemplo
+                    Sample data
                   </span>
                 </div>
                 <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  Explora cuentas, señales, calidad de datos y playbooks sin tocar
-                  un entorno real.
+                  Explore accounts, signals, data quality, and playbooks without
+                  touching a real environment.
                 </p>
                 <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-amber-100/80">
-                  <li>Solo lectura para aprobar o rechazar señales</li>
-                  <li>Playbooks generativos bloqueados</li>
-                  <li>Billing y automatizaciones desactivados</li>
+                  <li>Read-only — signal approvals disabled</li>
+                  <li>AI playbook generation disabled</li>
+                  <li>Billing and automations disabled</li>
                 </ul>
               </div>
             </div>
@@ -105,7 +105,7 @@ export function DemoBanner() {
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                 </motion.span>
-                {isResetPending ? "Reseteando..." : "Reset Demo Data"}
+                {isResetPending ? "Resetting…" : "Reset Demo Data"}
               </Button>
               <Button
                 type="button"
@@ -116,7 +116,7 @@ export function DemoBanner() {
                 className="border-amber-300/40 bg-amber-300/20 text-amber-50 hover:bg-amber-300/30"
               >
                 <LogOut className="h-3.5 w-3.5" />
-                Salir del modo demo
+                Exit demo
               </Button>
             </div>
           </div>

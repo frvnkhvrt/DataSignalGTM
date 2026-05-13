@@ -13,7 +13,7 @@ export default async function LoginPage() {
     <main
       id="main-content"
       tabIndex={-1}
-      className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 py-10 text-zinc-100"
+      className="ds-page flex min-h-screen items-center justify-center px-4 py-10"
     >
       <LoginForm />
     </main>

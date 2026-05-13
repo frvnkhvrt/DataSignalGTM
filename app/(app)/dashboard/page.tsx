@@ -17,6 +17,7 @@ import { StatusPill } from "@/components/status-pill";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { QueryError } from "@/components/ui/query-error";
 import {
   PageReveal,
   Stagger,
@@ -86,13 +87,18 @@ export default function DashboardPage() {
   const {
     data: signals = [],
     isLoading: signalsLoading,
+    isError: signalsError,
+    refetch: refetchSignals,
   } = useQuery(signalsRecentQuery(org.id));
   const {
     data: accounts = [],
     isLoading: accountsLoading,
+    isError: accountsError,
+    refetch: refetchAccounts,
   } = useQuery(accountsByDqQuery(org.id));
 
   const isLoading = signalsLoading || accountsLoading;
+  const isError = signalsError || accountsError;
   const pending = signals.filter((signal) => signal.status === "pending").length;
   const approved = signals.filter((signal) => signal.status === "approved").length;
   const playbookReady = signals.filter((signal) => signal.playbook).length;
@@ -107,6 +113,21 @@ export default function DashboardPage() {
   const atRiskAccounts = accounts
     .filter((account) => (account.data_quality_score ?? 0) < 75)
     .slice(0, 4);
+
+  if (isError) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <QueryError
+          message="Could not load dashboard data. Check your connection and try again."
+          onRetry={() => {
+            void refetchSignals();
+            void refetchAccounts();
+          }}
+          className="mx-auto max-w-lg"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 p-4 sm:p-6 lg:p-8">

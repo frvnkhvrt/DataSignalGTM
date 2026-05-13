@@ -556,7 +556,7 @@ export function SignalsTable({
       <Card className="overflow-hidden bg-card/80 p-0" aria-busy={isLoading || isRefetching}>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] text-sm">
-            <thead className="border-b border-border bg-background/60">
+            <thead className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur-sm">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
                   key={headerGroup.id}
