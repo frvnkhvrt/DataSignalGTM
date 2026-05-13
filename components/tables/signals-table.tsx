@@ -547,7 +547,7 @@ export function SignalsTable({
                   className="border-0 text-left text-[11px] uppercase tracking-wide text-muted-foreground hover:bg-transparent data-[state=selected]:bg-transparent ds-chrome-divider"
                 >
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="px-3 py-3">
+                    <TableHead key={header.id} className={cn("px-3 py-3", header.column.id === "select" && "w-12")}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(

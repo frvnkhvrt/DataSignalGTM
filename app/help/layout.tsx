@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, BookOpen, LifeBuoy, Radio, Webhook } from "lucide-react";
+import { ArrowLeft, BookOpen, LifeBuoy } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { HelpNav } from "@/components/help/help-nav";
 
@@ -10,71 +10,51 @@ export default function HelpLayout({
 }) {
   return (
     <div className="ds-page min-h-screen text-foreground">
-      <nav className="sticky top-0 z-40 border-b border-border/70 bg-background/82 backdrop-blur-xl ds-chrome-divider">
+      <nav className="sticky top-0 z-40 border-b border-border/70 bg-background/88 backdrop-blur-xl ds-chrome-divider">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:px-6">
           <Link
             href="/"
-            className="ds-focus-ring ds-transition-muted flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs text-muted-foreground hover:text-foreground"
+            className="ds-focus-ring ds-transition-muted flex shrink-0 items-center gap-1.5 rounded-md px-1 py-0.5 text-xs text-muted-foreground hover:text-foreground motion-reduce:transition-none"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
+            <ArrowLeft className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
             Back
           </Link>
-          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <BookOpen className="h-4 w-4 text-primary" />
-            Documentation
+          <div className="flex min-w-0 items-center gap-2 text-sm font-semibold text-foreground">
+            <BookOpen className="h-4 w-4 shrink-0 text-primary" strokeWidth={2} />
+            <span className="truncate">Documentation</span>
           </div>
         </div>
       </nav>
 
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[17rem_1fr]">
-        <aside className="hidden shrink-0 lg:block">
-          <div className="sticky top-24 space-y-3">
-            <Card variant="translucent" className="mb-4 p-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
-                <LifeBuoy className="h-5 w-5" />
-              </div>
-              <h2 className="ds-heading mt-3 text-base font-semibold">
-                Help Center
-              </h2>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                Practical guides for setup, signal review, and billing.
-              </p>
-            </Card>
-            <HelpNav />
-          </div>
-        </aside>
+      <div className="mx-auto max-w-6xl px-4 pb-12 pt-6 sm:px-6 sm:pb-14 sm:pt-8">
+        <div className="mb-6 lg:hidden">
+          <HelpNav variant="rail" />
+        </div>
 
-        <main id="main-content" tabIndex={-1} className="min-w-0">
-          <div className="mb-6 grid gap-3 sm:grid-cols-2">
-            <Link
-              href="/help/signals"
-              className="ds-focus-ring ds-pressable group rounded-xl border border-border/70 bg-card/70 p-4 shadow-soft backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] ds-card-inner-glow hover:border-primary/20 hover:bg-surface-elevated/80 hover:shadow-elevated"
-            >
-              <Radio className="h-4 w-4 text-primary" />
-              <div className="mt-2 text-sm font-medium">
-                Understand signal lifecycle
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Status, playbooks, rules, and what reps should do next.
-              </p>
-            </Link>
-            <Link
-              href="/help/webhook"
-              className="ds-focus-ring ds-pressable group rounded-xl border border-border/70 bg-card/70 p-4 shadow-soft backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] ds-card-inner-glow hover:border-primary/20 hover:bg-surface-elevated/80 hover:shadow-elevated"
-            >
-              <Webhook className="h-4 w-4 text-primary" />
-              <div className="mt-2 text-sm font-medium">
-                Connect signal sources
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Endpoint, auth, schema, and cURL examples for ingestion.
-              </p>
-            </Link>
-          </div>
-          <div className="prose prose-invert prose-zinc max-w-none rounded-2xl border border-border/70 bg-card/65 p-6 shadow-soft backdrop-blur-xl prose-headings:ds-heading prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-code:border prose-code:border-border prose-code:bg-background/60 prose-code:text-foreground">
-            {children}
-          </div>
-        </main>
+        <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,17rem)_1fr] lg:gap-10">
+          <aside className="hidden min-w-0 lg:block">
+            <div className="sticky top-20 space-y-4">
+              <Card variant="translucent" className="p-4 shadow-soft ds-card-inner-glow">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/22 bg-primary/10 text-primary ds-inset-top-soft">
+                  <LifeBuoy className="h-5 w-5" strokeWidth={2} />
+                </div>
+                <h2 className="ds-heading mt-3 text-base font-semibold text-foreground">
+                  Help Center
+                </h2>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  Practical guides for setup, signal review, and billing.
+                </p>
+              </Card>
+              <HelpNav variant="sidebar" />
+            </div>
+          </aside>
+
+          <main id="main-content" tabIndex={-1} className="min-w-0">
+            <div className="rounded-2xl border border-border/70 bg-card/65 p-6 shadow-soft backdrop-blur-xl sm:p-8 ds-card-inner-glow">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );

@@ -12,11 +12,21 @@ const sections = [
   { href: "/help/faq", label: "FAQ", eyebrow: "Support" },
 ];
 
-export function HelpNav() {
+export function HelpNav({
+  variant = "sidebar",
+}: {
+  variant?: "sidebar" | "rail";
+}) {
   const pathname = usePathname();
 
   return (
-    <nav className="space-y-1">
+    <nav
+      className={cn(
+        variant === "rail" &&
+          "flex flex-wrap gap-2 rounded-xl border border-border/60 bg-card/50 p-2 shadow-soft backdrop-blur-sm ds-card-inner-glow",
+        variant === "sidebar" && "space-y-1"
+      )}
+    >
       {sections.map(({ href, label, eyebrow }) => {
         const isActive = pathname === href;
         return (
@@ -25,21 +35,24 @@ export function HelpNav() {
             href={href}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "ds-focus-ring group relative flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm ds-transition-muted",
+              "ds-focus-ring group relative flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm ds-transition-muted motion-reduce:transition-none",
+              variant === "rail" && "min-w-0 flex-1 basis-[calc(50%-0.25rem)] sm:flex-none sm:basis-auto",
               isActive
                 ? "border-primary/30 bg-primary/10 text-primary shadow-[inset_2px_0_0_var(--color-primary)] ds-card-inner-glow"
-                : "border-transparent text-muted-foreground hover:border-border hover:bg-surface-elevated hover:text-foreground"
+                : "border-transparent text-muted-foreground hover:border-border/80 hover:bg-surface-elevated/80 hover:text-foreground"
             )}
           >
             <span
               className={cn(
-                "ds-eyebrow w-[4rem] shrink-0 ds-transition-muted",
+                "ds-eyebrow shrink-0 ds-transition-muted",
+                variant === "sidebar" && "w-[4rem]",
+                variant === "rail" && "w-auto pr-0 text-[10px]",
                 isActive ? "text-primary/70" : "text-muted-foreground/60 group-hover:text-muted-foreground"
               )}
             >
               {eyebrow}
             </span>
-            {label}
+            <span className="min-w-0 truncate">{label}</span>
           </Link>
         );
       })}

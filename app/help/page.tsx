@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { HelpQuickLinks } from "@/components/help/help-quick-links";
 
 export const metadata = { title: "Getting Started — DataSignalGTM Docs" };
 
 export default function GettingStartedPage() {
   return (
     <article className="space-y-8 text-muted-foreground">
+      <HelpQuickLinks />
+
       <div>
         <h1 className="text-3xl font-bold text-foreground">Getting Started</h1>
         <p className="mt-3 text-muted-foreground">

@@ -17,9 +17,9 @@ export default function SignalsPage() {
         <h2 className="ds-heading text-xl font-semibold text-foreground">
           Signal status lifecycle
         </h2>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="w-full text-sm">
-            <thead className="border-b border-border bg-background/60 text-left">
+        <div className="overflow-x-auto overscroll-x-contain rounded-lg border border-border/80 bg-background/30 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.03)]">
+          <table className="w-full min-w-0 text-sm">
+            <thead className="border-b border-border/80 bg-muted/40 text-left backdrop-blur-sm">
               <tr>
                 <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Status

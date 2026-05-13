@@ -40,7 +40,9 @@ const DashboardCharts = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-[22rem] rounded-xl" />,
+    loading: () => (
+      <Skeleton className="h-[22rem] rounded-xl border border-border/50 bg-card/40 ds-card-inner-glow" />
+    ),
   }
 );
 

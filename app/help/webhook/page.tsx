@@ -5,8 +5,8 @@ export const metadata = { title: "Webhook Integration — DataSignalGTM Docs" };
 function CodeBlock({ children, lang = "json" }: { children: string; lang?: string }) {
   void lang;
   return (
-    <pre className="overflow-x-auto rounded-lg border border-border bg-muted/60 p-4 text-xs leading-relaxed text-foreground">
-      <code>{children.trim()}</code>
+    <pre className="overflow-x-auto overscroll-x-contain rounded-lg border border-border/80 bg-muted/50 p-4 text-xs leading-relaxed text-foreground shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] ds-card-inner-glow">
+      <code className="font-mono">{children.trim()}</code>
     </pre>
   );
 }

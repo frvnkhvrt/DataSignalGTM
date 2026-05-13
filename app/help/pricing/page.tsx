@@ -16,9 +16,9 @@ export default function PricingDocsPage() {
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-foreground">Plan comparison</h2>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/60 text-left text-[11px] uppercase tracking-wide text-muted-foreground">
+        <div className="overflow-x-auto overscroll-x-contain rounded-lg border border-border/80 bg-background/30">
+          <table className="w-full min-w-0 text-sm">
+            <thead className="border-b border-border/80 bg-muted/50 text-left text-[11px] uppercase tracking-wide text-muted-foreground backdrop-blur-sm">
               <tr>
                 <th className="px-4 py-3">Plan</th>
                 <th className="px-4 py-3">Price</th>
