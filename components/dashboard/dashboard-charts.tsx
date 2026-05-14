@@ -112,8 +112,8 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="min-w-0 border border-border/65 bg-card/70 shadow-soft ring-1 ring-border/25 backdrop-blur-md dark:ring-white/[0.06] ds-card-inner-glow">
-      <CardHeader className="space-y-0 pb-3">
+    <Card className="min-w-0 overflow-hidden border border-border/70 bg-card/75 shadow-soft ring-1 ring-border/30 backdrop-blur-xl dark:bg-card/65 dark:ring-white/[0.08] ds-card-inner-glow">
+      <CardHeader className="space-y-0 pb-3 pt-1">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
             <CardTitle className="ds-heading text-base">{title}</CardTitle>
@@ -121,14 +121,14 @@ function ChartCard({
           </div>
           <Link
             href={href}
-            className="ds-focus-ring shrink-0 rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
+            className="ds-focus-ring shrink-0 self-start rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
           >
             View details
           </Link>
         </div>
       </CardHeader>
-      <CardContent className="min-w-0">
-        <div className="h-64 min-h-0 w-full">{children}</div>
+      <CardContent className="min-w-0 overflow-hidden px-4 pb-4 pt-0 sm:px-5">
+        <div className="h-64 min-h-0 w-full overflow-hidden">{children}</div>
       </CardContent>
     </Card>
   );
@@ -195,7 +195,7 @@ export function DashboardCharts({
   );
 
   return (
-    <section className="min-w-0 space-y-4 pb-0 sm:space-y-5">
+    <section className="min-w-0 space-y-3 pb-0 sm:space-y-4">
       <div className="flex min-w-0 flex-col gap-2 min-[400px]:flex-row min-[400px]:items-end min-[400px]:justify-between min-[400px]:gap-3">
         <div className="min-w-0">
           <p className="ds-eyebrow">Data design</p>
@@ -207,7 +207,7 @@ export function DashboardCharts({
           Interactive hover insights
         </Badge>
       </div>
-      <Stagger className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-3">
+      <Stagger className="grid min-w-0 grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-3">
         <StaggerItem>
           <ChartCard
             title="DQ Score Trend"
@@ -216,7 +216,7 @@ export function DashboardCharts({
           >
             <ChartContainer
               config={dqTrendChartConfig}
-              className="aspect-auto h-full min-h-0 w-full [&_.recharts-area-area]:transition-[opacity] [&_.recharts-area-area]:duration-[var(--ds-duration-tactile)] [&_.recharts-area-area]:ease-[var(--ease-premium)]"
+              className="aspect-auto h-full min-h-0 min-w-0 w-full [&_.recharts-area-area]:transition-[opacity] [&_.recharts-area-area]:duration-[var(--ds-duration-tactile)] [&_.recharts-area-area]:ease-[var(--ease-premium)]"
             >
               <AreaChart accessibilityLayer data={dqTrend} margin={{ left: 4, right: 8, top: 8, bottom: 4 }}>
                 <defs>
@@ -285,7 +285,7 @@ export function DashboardCharts({
           >
             <ChartContainer
               config={velocityChartConfig}
-              className="aspect-auto h-full min-h-0 w-full"
+              className="aspect-auto h-full min-h-0 min-w-0 w-full"
             >
               <BarChart
                 accessibilityLayer
@@ -340,7 +340,7 @@ export function DashboardCharts({
             subtitle="Prioritize high-fit accounts with clean data"
             href="/accounts"
           >
-            <ChartContainer config={scatterChartConfig} className="aspect-auto h-full min-h-0 w-full">
+            <ChartContainer config={scatterChartConfig} className="aspect-auto h-full min-h-0 min-w-0 w-full">
               <ScatterChart margin={{ left: 4, right: 8, top: 8, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="4 4" className="stroke-border/50" />
                 <XAxis
