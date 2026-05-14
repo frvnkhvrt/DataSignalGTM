@@ -17,13 +17,13 @@ export function SortButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "ds-focus-ring inline-flex items-center gap-1 rounded-md px-1 py-0.5 -mx-1 text-left font-medium text-muted-foreground",
-        "transition-[color,transform] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)]",
-        "hover:text-foreground active:scale-[0.98] active:text-foreground"
+        "ds-focus-ring inline-flex min-w-0 max-w-full items-center gap-1 rounded-md px-1 py-0.5 -mx-1 text-left font-medium text-muted-foreground",
+        "transition-[color,transform] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-[color] motion-reduce:duration-[var(--ds-duration-tactile)]",
+        "hover:text-foreground active:scale-[0.98] active:text-foreground motion-reduce:active:scale-100"
       )}
     >
       {children}
-      <ChevronsUpDown className="h-3 w-3 opacity-70" />
+      <ChevronsUpDown className="h-3 w-3 shrink-0 opacity-70" />
     </button>
   );
 }
