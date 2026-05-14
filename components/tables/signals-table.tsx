@@ -559,6 +559,8 @@ export function SignalsTable({
                         header.column.id === "select" && "w-11 min-w-[2.75rem]",
                         header.column.id === "velocity_score" && "w-[4.75rem] min-w-[4.5rem]",
                         header.column.id === "source" && "min-w-0 max-w-[9rem]",
+                        header.column.id === "playbook_status" && "min-w-0 max-w-[8.5rem]",
+                        header.column.id === "status" && "min-w-0 max-w-[11rem]",
                         header.column.id === "actions" && "w-[1%] whitespace-nowrap text-right"
                       )}
                     >
@@ -622,9 +624,10 @@ export function SignalsTable({
                                 rowPadding,
                                 "align-middle",
                                 colId === "account_name" && "min-w-0",
-                                (colId === "why_now" || colId === "playbook_status") &&
-                                  "whitespace-normal",
-                                colId === "status" && "whitespace-normal"
+                                colId === "why_now" && "min-w-0 whitespace-normal",
+                                colId === "playbook_status" && "min-w-0 max-w-[9rem] whitespace-normal",
+                                colId === "status" && "min-w-0 max-w-[12rem] whitespace-normal",
+                                colId === "actions" && "w-[1%] text-right"
                               )}
                             >
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}

@@ -73,7 +73,7 @@ export function KpiCard({
     <Card
       variant="translucent"
       className={cn(
-        "gap-0 border-l-2 p-0 transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/80",
+        "gap-0 border-l-2 p-0 shadow-none transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/80 hover:shadow-soft",
         accentTone[tone],
         className
       )}

@@ -431,6 +431,7 @@ export function AccountsTable({
                         header.column.id === "select" && "w-11 min-w-[2.75rem]",
                         header.column.id === "data_quality_score" && "min-w-0 max-w-[11rem]",
                         header.column.id === "icp_fit_score" && "w-[4.25rem] min-w-[4rem]",
+                        header.column.id === "status" && "min-w-0 max-w-[15rem]",
                         header.column.id === "actions" && "w-[1%] whitespace-nowrap text-right"
                       )}
                     >
@@ -496,7 +497,8 @@ export function AccountsTable({
                                 colId === "name" && "min-w-0",
                                 colId === "industry" && "min-w-0 whitespace-normal",
                                 colId === "data_quality_score" && "min-w-0",
-                                colId === "status" && "whitespace-normal"
+                                colId === "status" && "min-w-0 max-w-[15rem] whitespace-normal",
+                                colId === "actions" && "w-[1%] text-right"
                               )}
                             >
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}

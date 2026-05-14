@@ -127,7 +127,7 @@ export default function DashboardPage() {
     <div className="@container/dashboard min-w-0 space-y-4 overflow-x-clip p-4 sm:space-y-5 sm:p-6 lg:space-y-6 lg:p-8">
       {/* Hero + breadcrumb — block-style chrome */}
       <PageReveal order={0}>
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <Breadcrumb className="text-muted-foreground">
             <BreadcrumbList className="text-xs sm:text-sm">
               <BreadcrumbItem>
@@ -186,24 +186,24 @@ export default function DashboardPage() {
 
       {/* KPI + charts — grouped surface (shadcn dashboard block rhythm) */}
       <DashboardAnalyticsShell>
-        <div className="flex min-w-0 items-center gap-3 pb-0.5">
+        <div className="mb-0.5 flex min-w-0 items-center gap-3">
           <p className="ds-eyebrow shrink-0 text-muted-foreground">Workspace pulse</p>
           <Separator className="h-px flex-1 bg-gradient-to-r from-border/50 via-border/25 to-transparent" />
         </div>
         <PageReveal order={1}>
           {isLoading ? (
-            <div className="grid min-w-0 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+            <div className="grid min-w-0 auto-rows-fr gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
               {Array.from({ length: 4 }).map((_, index) => (
                 <Skeleton
                   key={index}
-                  className={`h-36 rounded-xl border border-border/45 bg-card/35 ds-card-inner-glow ${kpiSkeletonDelays[index % 4]}`}
+                  className={`h-full min-h-36 rounded-xl border border-border/45 bg-card/35 ds-card-inner-glow ${kpiSkeletonDelays[index % 4]}`}
                 />
               ))}
             </div>
           ) : (
-            <Stagger className="grid min-w-0 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-              <StaggerItem>
-                <MotionCard>
+            <Stagger className="grid min-w-0 auto-rows-fr gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+              <StaggerItem className="min-h-0">
+                <MotionCard className="h-full min-h-0">
                   <KpiCard
                     label="Pending signals"
                     value={pending}
@@ -211,11 +211,12 @@ export default function DashboardPage() {
                     size="default"
                     description="Need review before reps act."
                     icon={<Radio className="h-4 w-4" />}
+                    className="h-full"
                   />
                 </MotionCard>
               </StaggerItem>
-              <StaggerItem>
-                <MotionCard>
+              <StaggerItem className="min-h-0">
+                <MotionCard className="h-full min-h-0">
                   <KpiCard
                     label="Average DQ"
                     value={avgDq}
@@ -223,11 +224,12 @@ export default function DashboardPage() {
                     size="default"
                     description="Account data health across workspace."
                     icon={<ShieldCheck className="h-4 w-4" />}
+                    className="h-full"
                   />
                 </MotionCard>
               </StaggerItem>
-              <StaggerItem>
-                <MotionCard>
+              <StaggerItem className="min-h-0">
+                <MotionCard className="h-full min-h-0">
                   <KpiCard
                     label="Approved"
                     value={approved}
@@ -235,11 +237,12 @@ export default function DashboardPage() {
                     size="default"
                     description="Ready for follow-up motion."
                     icon={<CheckCircle2 className="h-4 w-4" />}
+                    className="h-full"
                   />
                 </MotionCard>
               </StaggerItem>
-              <StaggerItem>
-                <MotionCard>
+              <StaggerItem className="min-h-0">
+                <MotionCard className="h-full min-h-0">
                   <KpiCard
                     label="Playbooks"
                     value={playbookReady}
@@ -247,6 +250,7 @@ export default function DashboardPage() {
                     size="default"
                     description="Generated strategies attached to signals."
                     icon={<Sparkles className="h-4 w-4" />}
+                    className="h-full"
                   />
                 </MotionCard>
               </StaggerItem>
@@ -254,7 +258,7 @@ export default function DashboardPage() {
           )}
         </PageReveal>
 
-        <Separator className="bg-gradient-to-r from-transparent via-border/45 to-transparent" />
+        <Separator className="my-1 bg-gradient-to-r from-transparent via-border/40 to-transparent sm:my-1.5" />
 
         <PageReveal order={2}>
           <DashboardCharts accounts={accounts} signals={signals} />
@@ -268,7 +272,7 @@ export default function DashboardPage() {
           <Separator className="h-px flex-1 bg-gradient-to-r from-border/50 via-border/25 to-transparent" />
         </div>
         <section className="grid min-w-0 gap-4 @md/dashboard:gap-5 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)] lg:items-stretch lg:gap-5 xl:gap-6">
-          <Card variant="translucent" className="flex min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.04] dark:ring-white/[0.06] ds-card-inner-glow">
+          <Card variant="translucent" className="flex h-full min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.04] dark:ring-white/[0.06] ds-card-inner-glow">
             <CardHeader className="flex flex-row items-start justify-between gap-3 pb-3 sm:items-center sm:pb-4">
               <div className="min-w-0 space-y-1">
                 <CardTitle className="ds-heading">Recent signal queue</CardTitle>
@@ -323,12 +327,12 @@ export default function DashboardPage() {
                               side="top"
                               align="start"
                               sideOffset={6}
-                              className="max-w-xs border border-border/50 bg-popover px-3 py-2 text-popover-foreground shadow-lg"
+                              className="max-w-xs border border-border/45 bg-popover/95 px-3 py-2 text-popover-foreground shadow-elevated ring-1 ring-border/25 backdrop-blur-md"
                             >
                               <p className="font-medium text-foreground">
                                 {signal.account_name ?? "Unknown account"}
                               </p>
-                              <p className="mt-1 text-muted-foreground">
+                              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                                 {signal.why_now ?? signal.source ?? "Signal context pending"}
                               </p>
                             </TooltipContent>
@@ -345,7 +349,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card variant="translucent" className="flex min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.04] dark:ring-white/[0.06] ds-card-inner-glow">
+          <Card variant="translucent" className="flex h-full min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.04] dark:ring-white/[0.06] ds-card-inner-glow">
             <CardHeader className="flex flex-row items-start justify-between gap-3 pb-3 sm:items-center sm:pb-4">
               <div className="min-w-0 space-y-1">
                 <CardTitle className="ds-heading">Data quality focus</CardTitle>
@@ -397,7 +401,7 @@ export default function DashboardPage() {
                               side="top"
                               align="start"
                               sideOffset={6}
-                              className="max-w-xs border border-border/50 bg-popover px-3 py-2 text-popover-foreground shadow-lg"
+                              className="max-w-xs border border-border/45 bg-popover/95 px-3 py-2 text-popover-foreground shadow-elevated ring-1 ring-border/25 backdrop-blur-md"
                             >
                               <span className="font-medium text-foreground">{account.name}</span>
                               <span className="mt-1 block font-mono text-xs tabular-nums text-warning">

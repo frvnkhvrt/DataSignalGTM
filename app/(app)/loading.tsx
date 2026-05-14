@@ -15,10 +15,10 @@ export default function AppLoading() {
         </div>
       </Card>
 
-      <div className="grid min-w-0 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+      <div className="grid min-w-0 auto-rows-fr gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <Card key={i} variant="translucent" className="p-4">
-            <Skeleton className="h-28 w-full min-w-0 rounded-lg" />
+            <Skeleton className="h-full min-h-36 w-full min-w-0 rounded-lg" />
           </Card>
         ))}
       </div>

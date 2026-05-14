@@ -121,7 +121,7 @@ function ChartCard({
           </div>
           <Link
             href={href}
-            className="ds-focus-ring shrink-0 rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
+            className="ds-focus-ring shrink-0 self-start rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
           >
             View details
           </Link>
@@ -216,7 +216,7 @@ export function DashboardCharts({
           >
             <ChartContainer
               config={dqTrendChartConfig}
-              className="aspect-auto h-full min-h-0 w-full [&_.recharts-area-area]:transition-[opacity] [&_.recharts-area-area]:duration-[var(--ds-duration-tactile)] [&_.recharts-area-area]:ease-[var(--ease-premium)]"
+              className="aspect-auto h-full min-h-0 min-w-0 w-full [&_.recharts-area-area]:transition-[opacity] [&_.recharts-area-area]:duration-[var(--ds-duration-tactile)] [&_.recharts-area-area]:ease-[var(--ease-premium)]"
             >
               <AreaChart accessibilityLayer data={dqTrend} margin={{ left: 4, right: 8, top: 8, bottom: 4 }}>
                 <defs>
@@ -285,7 +285,7 @@ export function DashboardCharts({
           >
             <ChartContainer
               config={velocityChartConfig}
-              className="aspect-auto h-full min-h-0 w-full"
+              className="aspect-auto h-full min-h-0 min-w-0 w-full"
             >
               <BarChart
                 accessibilityLayer
@@ -340,7 +340,7 @@ export function DashboardCharts({
             subtitle="Prioritize high-fit accounts with clean data"
             href="/accounts"
           >
-            <ChartContainer config={scatterChartConfig} className="aspect-auto h-full min-h-0 w-full">
+            <ChartContainer config={scatterChartConfig} className="aspect-auto h-full min-h-0 min-w-0 w-full">
               <ScatterChart margin={{ left: 4, right: 8, top: 8, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="4 4" className="stroke-border/50" />
                 <XAxis
