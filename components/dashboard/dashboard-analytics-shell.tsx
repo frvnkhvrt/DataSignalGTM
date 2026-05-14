@@ -17,8 +17,9 @@ export function DashboardAnalyticsShell({
   return (
     <div
       className={cn(
-        "@container/analytics space-y-5 rounded-2xl border border-border/45 bg-card/35 p-3 shadow-soft ring-1 ring-black/[0.03] backdrop-blur-md dark:bg-card/25 dark:ring-white/[0.05] sm:space-y-6 sm:p-5",
+        "@container/analytics relative space-y-4 rounded-2xl border border-border/45 bg-card/35 p-4 shadow-soft ring-1 ring-black/[0.03] backdrop-blur-md dark:bg-card/25 dark:ring-white/[0.05] sm:space-y-5 sm:p-5",
         "ds-card-inner-glow",
+        "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/12 before:to-transparent dark:before:via-white/8",
         className
       )}
     >

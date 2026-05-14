@@ -23,7 +23,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { QueryError } from "@/components/ui/query-error";
@@ -36,6 +42,7 @@ import {
   MotionListItem,
 } from "@/components/ui/motion";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -64,7 +71,7 @@ const DashboardCharts = dynamic(
   {
     ssr: false,
     loading: () => (
-      <Skeleton className="h-[22rem] rounded-xl border border-border/50 bg-card/40 ds-card-inner-glow" />
+      <Skeleton className="h-[22rem] rounded-lg border border-border/50 bg-card/40 ds-card-inner-glow sm:rounded-xl" />
     ),
   }
 );
@@ -135,8 +142,8 @@ export default function DashboardPage() {
             </BreadcrumbList>
           </Breadcrumb>
           <section className="ds-card-inner-glow overflow-hidden rounded-2xl border border-border/70 bg-card/65 p-5 shadow-soft ring-1 ring-black/[0.04] backdrop-blur-sm dark:ring-white/[0.06] sm:p-6">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <div className="min-w-0">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-stretch lg:justify-between lg:gap-10">
+              <div className="min-w-0 flex-1">
                 <Badge variant="brand" className="mb-3">
                   <Sparkles className="h-3 w-3" />
                   Executive overview
@@ -149,16 +156,28 @@ export default function DashboardPage() {
                   into Signals for workflow and Accounts for data quality remediation.
                 </p>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-2">
-                <Button asChild variant="default" size="default">
-                  <Link href="/signals">
-                    Review signals
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="default">
-                  <Link href="/help/signals">Learn lifecycle</Link>
-                </Button>
+              <div className="flex shrink-0 flex-col justify-end border-t border-border/45 pt-5 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
+                <ButtonGroup className="gap-0 overflow-hidden rounded-xl border border-border/55 bg-background/30 p-0.5 shadow-soft ring-1 ring-black/[0.04] backdrop-blur-sm dark:bg-background/20 dark:ring-white/[0.06]">
+                  <Button
+                    asChild
+                    variant="default"
+                    size="default"
+                    className="rounded-none border-0 px-4 shadow-none sm:px-5"
+                  >
+                    <Link href="/signals">
+                      Review signals
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="default"
+                    className="rounded-none border-0 bg-background/40 shadow-none hover:bg-surface-elevated/80 sm:px-5"
+                  >
+                    <Link href="/help/signals">Learn lifecycle</Link>
+                  </Button>
+                </ButtonGroup>
               </div>
             </div>
           </section>
@@ -167,6 +186,10 @@ export default function DashboardPage() {
 
       {/* KPI + charts — grouped surface (shadcn dashboard block rhythm) */}
       <DashboardAnalyticsShell>
+        <div className="flex min-w-0 items-center gap-3 pb-0.5">
+          <p className="ds-eyebrow shrink-0 text-muted-foreground">Workspace pulse</p>
+          <Separator className="h-px flex-1 bg-gradient-to-r from-border/50 via-border/25 to-transparent" />
+        </div>
         <PageReveal order={1}>
           {isLoading ? (
             <div className="grid min-w-0 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
@@ -231,7 +254,7 @@ export default function DashboardPage() {
           )}
         </PageReveal>
 
-        <Separator className="bg-border/40" />
+        <Separator className="bg-gradient-to-r from-transparent via-border/45 to-transparent" />
 
         <PageReveal order={2}>
           <DashboardCharts accounts={accounts} signals={signals} />
@@ -240,14 +263,18 @@ export default function DashboardPage() {
 
       {/* Bottom panels — last to arrive */}
       <PageReveal order={3}>
+        <div className="mb-4 flex min-w-0 items-center gap-3 sm:mb-5">
+          <p className="ds-eyebrow shrink-0 text-muted-foreground">Operational queues</p>
+          <Separator className="h-px flex-1 bg-gradient-to-r from-border/50 via-border/25 to-transparent" />
+        </div>
         <section className="grid min-w-0 gap-4 @md/dashboard:gap-5 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch">
           <Card variant="translucent" className="flex min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.03] dark:ring-white/[0.05] ds-card-inner-glow">
             <CardHeader className="flex flex-row items-start justify-between gap-3 sm:items-center">
-              <div className="min-w-0">
+              <div className="min-w-0 space-y-1">
                 <CardTitle className="ds-heading">Recent signal queue</CardTitle>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <CardDescription>
                   Triage these before moving to account remediation.
-                </p>
+                </CardDescription>
               </div>
               <Link
                 href="/signals"
@@ -270,59 +297,61 @@ export default function DashboardPage() {
                   }
                 />
               ) : (
-                <MotionList className="divide-y divide-border">
-                  <AnimatePresence initial={false}>
-                    {topSignals.map((signal) => (
-                      <MotionListItem
-                        key={signal.id}
-                        className="flex items-center justify-between gap-3 rounded-lg py-2.5 pl-1 pr-1 transition-[background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/35"
-                      >
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div
-                              className="ds-focus-ring min-w-0 flex-1 cursor-default rounded-md text-left outline-none"
-                              tabIndex={0}
-                            >
-                              <div className="truncate text-sm font-medium text-foreground">
-                                {signal.account_name ?? "Unknown account"}
+                <div className="rounded-xl border border-border/35 bg-background/[0.06] p-1 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.03)] dark:bg-background/[0.08] dark:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]">
+                  <MotionList className="divide-y divide-border/60">
+                    <AnimatePresence initial={false}>
+                      {topSignals.map((signal) => (
+                        <MotionListItem
+                          key={signal.id}
+                          className="flex items-center justify-between gap-3 rounded-lg py-2.5 pl-1 pr-1 transition-[background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/35"
+                        >
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div
+                                className="ds-focus-ring min-w-0 flex-1 cursor-default rounded-md text-left outline-none"
+                                tabIndex={0}
+                              >
+                                <div className="truncate text-sm font-medium text-foreground">
+                                  {signal.account_name ?? "Unknown account"}
+                                </div>
+                                <p className="line-clamp-1 text-xs text-muted-foreground">
+                                  {signal.why_now ?? signal.source ?? "Signal context pending"}
+                                </p>
                               </div>
-                              <p className="line-clamp-1 text-xs text-muted-foreground">
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              align="start"
+                              sideOffset={6}
+                              className="max-w-xs border border-border/50 bg-popover px-3 py-2 text-popover-foreground shadow-lg"
+                            >
+                              <p className="font-medium text-foreground">
+                                {signal.account_name ?? "Unknown account"}
+                              </p>
+                              <p className="mt-1 text-muted-foreground">
                                 {signal.why_now ?? signal.source ?? "Signal context pending"}
                               </p>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="top"
-                            align="start"
-                            sideOffset={6}
-                            className="max-w-xs border border-border/50 bg-popover px-3 py-2 text-popover-foreground shadow-lg"
-                          >
-                            <p className="font-medium text-foreground">
-                              {signal.account_name ?? "Unknown account"}
-                            </p>
-                            <p className="mt-1 text-muted-foreground">
-                              {signal.why_now ?? signal.source ?? "Signal context pending"}
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <div className="shrink-0">
-                          <StatusPill status={(signal.status ?? "pending") as SignalStatus} />
-                        </div>
-                      </MotionListItem>
-                    ))}
-                  </AnimatePresence>
-                </MotionList>
+                            </TooltipContent>
+                          </Tooltip>
+                          <div className="shrink-0">
+                            <StatusPill status={(signal.status ?? "pending") as SignalStatus} />
+                          </div>
+                        </MotionListItem>
+                      ))}
+                    </AnimatePresence>
+                  </MotionList>
+                </div>
               )}
             </CardContent>
           </Card>
 
           <Card variant="translucent" className="flex min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.03] dark:ring-white/[0.05] ds-card-inner-glow">
             <CardHeader className="flex flex-row items-start justify-between gap-3 sm:items-center">
-              <div className="min-w-0">
+              <div className="min-w-0 space-y-1">
                 <CardTitle className="ds-heading">Data quality focus</CardTitle>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <CardDescription>
                   Accounts below 75 DQ are most likely to block signal conversion.
-                </p>
+                </CardDescription>
               </div>
               <Link
                 href="/accounts"
@@ -345,40 +374,42 @@ export default function DashboardPage() {
                   }
                 />
               ) : (
-                <MotionList className="space-y-3">
-                  <AnimatePresence initial={false}>
-                    {atRiskAccounts.map((account) => (
-                      <MotionListItem key={account.id}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Link
-                              href="/accounts"
-                              className="ds-focus-ring ds-inset-top-soft flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border bg-background/35 px-3 py-2 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/80 hover:bg-surface-elevated"
+                <div className="rounded-xl border border-border/35 bg-background/[0.06] p-1 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.03)] dark:bg-background/[0.08] dark:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]">
+                  <MotionList className="space-y-2.5 p-0.5">
+                    <AnimatePresence initial={false}>
+                      {atRiskAccounts.map((account) => (
+                        <MotionListItem key={account.id}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Link
+                                href="/accounts"
+                                className="ds-focus-ring ds-inset-top-soft flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border bg-background/35 px-3 py-2 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/80 hover:bg-surface-elevated"
+                              >
+                                <span className="truncate text-sm font-medium text-foreground">
+                                  {account.name}
+                                </span>
+                                <span className="shrink-0 font-mono text-xs tabular-nums text-warning">
+                                  {account.data_quality_score ?? 0} DQ
+                                </span>
+                              </Link>
+                            </TooltipTrigger>
+                            <TooltipContent
+                              side="top"
+                              align="start"
+                              sideOffset={6}
+                              className="max-w-xs border border-border/50 bg-popover px-3 py-2 text-popover-foreground shadow-lg"
                             >
-                              <span className="truncate text-sm font-medium text-foreground">
-                                {account.name}
+                              <span className="font-medium text-foreground">{account.name}</span>
+                              <span className="mt-1 block font-mono text-xs tabular-nums text-warning">
+                                Data quality {account.data_quality_score ?? 0}
                               </span>
-                              <span className="shrink-0 font-mono text-xs tabular-nums text-warning">
-                                {account.data_quality_score ?? 0} DQ
-                              </span>
-                            </Link>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="top"
-                            align="start"
-                            sideOffset={6}
-                            className="max-w-xs border border-border/50 bg-popover px-3 py-2 text-popover-foreground shadow-lg"
-                          >
-                            <span className="font-medium text-foreground">{account.name}</span>
-                            <span className="mt-1 block font-mono text-xs tabular-nums text-warning">
-                              Data quality {account.data_quality_score ?? 0}
-                            </span>
-                          </TooltipContent>
-                        </Tooltip>
-                      </MotionListItem>
-                    ))}
-                  </AnimatePresence>
-                </MotionList>
+                            </TooltipContent>
+                          </Tooltip>
+                        </MotionListItem>
+                      ))}
+                    </AnimatePresence>
+                  </MotionList>
+                </div>
               )}
             </CardContent>
           </Card>

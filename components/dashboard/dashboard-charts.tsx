@@ -18,7 +18,7 @@ import {
 } from "recharts";
 import type { AccountRow, SignalRow } from "@/lib/gtm-queries";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
@@ -113,11 +113,11 @@ function ChartCard({
 }) {
   return (
     <Card className="min-w-0 border border-border/65 bg-card/70 shadow-soft ring-1 ring-border/25 backdrop-blur-md dark:ring-white/[0.06] ds-card-inner-glow">
-      <CardHeader className="pb-3">
+      <CardHeader className="space-y-0 pb-3">
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
+          <div className="min-w-0 space-y-1">
             <CardTitle className="ds-heading text-base">{title}</CardTitle>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">{subtitle}</p>
+            <CardDescription className="text-xs leading-5">{subtitle}</CardDescription>
           </div>
           <Link
             href={href}
