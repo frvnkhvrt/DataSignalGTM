@@ -71,7 +71,7 @@ const DashboardCharts = dynamic(
   {
     ssr: false,
     loading: () => (
-      <Skeleton className="h-[22rem] rounded-lg border border-border/50 bg-card/40 ds-card-inner-glow sm:rounded-xl" />
+      <Skeleton className="h-[18.5rem] w-full min-w-0 rounded-xl border border-border/50 bg-card/45 ds-card-inner-glow sm:h-[19rem]" />
     ),
   }
 );
@@ -110,7 +110,7 @@ export default function DashboardPage() {
 
   if (isError) {
     return (
-      <div className="min-w-0 p-4 sm:p-6 lg:p-8">
+      <div className="min-w-0 overflow-x-clip p-4 sm:p-6 lg:p-8">
         <QueryError
           message="Could not load dashboard data. Check your connection and try again."
           onRetry={() => {
@@ -124,7 +124,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="@container/dashboard min-w-0 space-y-5 p-4 sm:space-y-6 sm:p-6 lg:p-8">
+    <div className="@container/dashboard min-w-0 space-y-4 overflow-x-clip p-4 sm:space-y-5 sm:p-6 lg:space-y-6 lg:p-8">
       {/* Hero + breadcrumb — block-style chrome */}
       <PageReveal order={0}>
         <div className="space-y-4">
@@ -141,8 +141,8 @@ export default function DashboardPage() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <section className="ds-card-inner-glow overflow-hidden rounded-2xl border border-border/70 bg-card/65 p-5 shadow-soft ring-1 ring-black/[0.04] backdrop-blur-sm dark:ring-white/[0.06] sm:p-6">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-stretch lg:justify-between lg:gap-10">
+          <section className="ds-card-inner-glow overflow-hidden rounded-2xl border border-border/65 bg-card/72 p-5 shadow-soft ring-1 ring-black/[0.05] backdrop-blur-md dark:bg-card/60 dark:ring-white/[0.07] sm:p-6">
+            <div className="flex flex-col gap-5 sm:gap-6 lg:flex-row lg:items-stretch lg:justify-between lg:gap-8 xl:gap-10">
               <div className="min-w-0 flex-1">
                 <Badge variant="brand" className="mb-3">
                   <Sparkles className="h-3 w-3" />
@@ -156,8 +156,8 @@ export default function DashboardPage() {
                   into Signals for workflow and Accounts for data quality remediation.
                 </p>
               </div>
-              <div className="flex shrink-0 flex-col justify-end border-t border-border/45 pt-5 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
-                <ButtonGroup className="gap-0 overflow-hidden rounded-xl border border-border/55 bg-background/30 p-0.5 shadow-soft ring-1 ring-black/[0.04] backdrop-blur-sm dark:bg-background/20 dark:ring-white/[0.06]">
+              <div className="flex shrink-0 flex-col justify-end border-t border-border/50 pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0 xl:pl-10">
+                <ButtonGroup className="gap-0 overflow-hidden rounded-xl border border-border/60 bg-background/40 p-0.5 shadow-soft ring-1 ring-black/[0.05] backdrop-blur-md dark:bg-background/25 dark:ring-white/[0.07]">
                   <Button
                     asChild
                     variant="default"
@@ -263,13 +263,13 @@ export default function DashboardPage() {
 
       {/* Bottom panels — last to arrive */}
       <PageReveal order={3}>
-        <div className="mb-4 flex min-w-0 items-center gap-3 sm:mb-5">
+        <div className="mb-3 flex min-w-0 items-center gap-3 sm:mb-4">
           <p className="ds-eyebrow shrink-0 text-muted-foreground">Operational queues</p>
           <Separator className="h-px flex-1 bg-gradient-to-r from-border/50 via-border/25 to-transparent" />
         </div>
-        <section className="grid min-w-0 gap-4 @md/dashboard:gap-5 lg:grid-cols-[1.15fr_0.85fr] lg:items-stretch">
-          <Card variant="translucent" className="flex min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.03] dark:ring-white/[0.05] ds-card-inner-glow">
-            <CardHeader className="flex flex-row items-start justify-between gap-3 sm:items-center">
+        <section className="grid min-w-0 gap-4 @md/dashboard:gap-5 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)] lg:items-stretch lg:gap-5 xl:gap-6">
+          <Card variant="translucent" className="flex min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.04] dark:ring-white/[0.06] ds-card-inner-glow">
+            <CardHeader className="flex flex-row items-start justify-between gap-3 pb-3 sm:items-center sm:pb-4">
               <div className="min-w-0 space-y-1">
                 <CardTitle className="ds-heading">Recent signal queue</CardTitle>
                 <CardDescription>
@@ -297,24 +297,24 @@ export default function DashboardPage() {
                   }
                 />
               ) : (
-                <div className="rounded-xl border border-border/35 bg-background/[0.06] p-1 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.03)] dark:bg-background/[0.08] dark:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]">
-                  <MotionList className="divide-y divide-border/60">
+                <div className="rounded-xl border border-border/40 bg-background/[0.07] p-1.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] dark:bg-background/[0.09] dark:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)]">
+                  <MotionList className="space-y-2 p-0.5">
                     <AnimatePresence initial={false}>
                       {topSignals.map((signal) => (
                         <MotionListItem
                           key={signal.id}
-                          className="flex items-center justify-between gap-3 rounded-lg py-2.5 pl-1 pr-1 transition-[background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/35"
+                          className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/45 bg-background/30 px-2.5 py-2 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.03)] transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:border-border/70 hover:bg-surface-elevated/45 dark:bg-background/25"
                         >
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div
-                                className="ds-focus-ring min-w-0 flex-1 cursor-default rounded-md text-left outline-none"
+                                className="ds-focus-ring min-w-0 flex-1 cursor-default rounded-md py-0.5 text-left outline-none"
                                 tabIndex={0}
                               >
                                 <div className="truncate text-sm font-medium text-foreground">
                                   {signal.account_name ?? "Unknown account"}
                                 </div>
-                                <p className="line-clamp-1 text-xs text-muted-foreground">
+                                <p className="line-clamp-2 text-xs leading-snug text-muted-foreground sm:line-clamp-1">
                                   {signal.why_now ?? signal.source ?? "Signal context pending"}
                                 </p>
                               </div>
@@ -345,8 +345,8 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card variant="translucent" className="flex min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.03] dark:ring-white/[0.05] ds-card-inner-glow">
-            <CardHeader className="flex flex-row items-start justify-between gap-3 sm:items-center">
+          <Card variant="translucent" className="flex min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.04] dark:ring-white/[0.06] ds-card-inner-glow">
+            <CardHeader className="flex flex-row items-start justify-between gap-3 pb-3 sm:items-center sm:pb-4">
               <div className="min-w-0 space-y-1">
                 <CardTitle className="ds-heading">Data quality focus</CardTitle>
                 <CardDescription>
@@ -374,8 +374,8 @@ export default function DashboardPage() {
                   }
                 />
               ) : (
-                <div className="rounded-xl border border-border/35 bg-background/[0.06] p-1 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.03)] dark:bg-background/[0.08] dark:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]">
-                  <MotionList className="space-y-2.5 p-0.5">
+                <div className="rounded-xl border border-border/40 bg-background/[0.07] p-1.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] dark:bg-background/[0.09] dark:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)]">
+                  <MotionList className="space-y-2 p-0.5">
                     <AnimatePresence initial={false}>
                       {atRiskAccounts.map((account) => (
                         <MotionListItem key={account.id}>
@@ -383,7 +383,7 @@ export default function DashboardPage() {
                             <TooltipTrigger asChild>
                               <Link
                                 href="/accounts"
-                                className="ds-focus-ring ds-inset-top-soft flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border bg-background/35 px-3 py-2 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/80 hover:bg-surface-elevated"
+                                className="ds-focus-ring ds-inset-top-soft flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/50 bg-background/35 px-3 py-2.5 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/85 hover:bg-surface-elevated/90 dark:bg-background/28"
                               >
                                 <span className="truncate text-sm font-medium text-foreground">
                                   {account.name}
