@@ -78,7 +78,7 @@ function ScatterAccountTooltip({
   return (
     <div
       className={cn(
-        "grid min-w-[12rem] max-w-[min(100vw-2rem,16rem)] gap-1.5 rounded-lg border border-border/50 bg-background/95 px-2.5 py-1.5 text-xs shadow-xl ring-1 ring-border/40 backdrop-blur-xl"
+        "grid min-w-[12rem] max-w-[min(100vw-2rem,16rem)] gap-1.5 rounded-lg border border-border/50 bg-background/95 px-2.5 py-1.5 text-xs shadow-elevated ring-1 ring-border/35 backdrop-blur-xl"
       )}
     >
       <div className="truncate font-medium text-foreground" title={data.name}>
@@ -105,30 +105,37 @@ function ChartCard({
   subtitle,
   href,
   children,
+  className,
 }: {
   title: string;
   subtitle: string;
   href: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <Card className="min-w-0 border border-border/65 bg-card/70 shadow-soft ring-1 ring-border/25 backdrop-blur-md dark:ring-white/[0.06] ds-card-inner-glow">
-      <CardHeader className="space-y-0 pb-3">
+    <Card
+      className={cn(
+        "flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden border border-border/70 bg-card/75 shadow-soft ring-1 ring-border/30 backdrop-blur-xl dark:bg-card/65 dark:ring-white/[0.08] ds-card-inner-glow",
+        className
+      )}
+    >
+      <CardHeader className="shrink-0 space-y-0 pb-3 pt-1">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
             <CardTitle className="ds-heading text-base">{title}</CardTitle>
-            <CardDescription className="text-xs leading-5">{subtitle}</CardDescription>
+            <CardDescription className="text-pretty text-xs leading-5">{subtitle}</CardDescription>
           </div>
           <Link
             href={href}
-            className="ds-focus-ring shrink-0 rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
+            className="ds-focus-ring shrink-0 self-start rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
           >
             View details
           </Link>
         </div>
       </CardHeader>
-      <CardContent className="min-w-0">
-        <div className="h-64 min-h-0 w-full">{children}</div>
+      <CardContent className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-4 pt-0 sm:px-5">
+        <div className="min-h-64 w-full min-w-0 flex-1 overflow-hidden">{children}</div>
       </CardContent>
     </Card>
   );
@@ -195,11 +202,11 @@ export function DashboardCharts({
   );
 
   return (
-    <section className="min-w-0 space-y-4 pb-0 sm:space-y-5">
+    <section className="min-w-0 space-y-3 pb-0 sm:space-y-4">
       <div className="flex min-w-0 flex-col gap-2 min-[400px]:flex-row min-[400px]:items-end min-[400px]:justify-between min-[400px]:gap-3">
         <div className="min-w-0">
           <p className="ds-eyebrow">Data design</p>
-          <h2 className="ds-heading mt-1 text-2xl font-semibold text-foreground">
+          <h2 className="ds-heading mt-1 text-balance text-2xl font-semibold text-foreground">
             Health, velocity, and fit
           </h2>
         </div>
@@ -207,8 +214,8 @@ export function DashboardCharts({
           Interactive hover insights
         </Badge>
       </div>
-      <Stagger className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-3">
-        <StaggerItem>
+      <Stagger className="grid min-w-0 auto-rows-fr grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-3">
+        <StaggerItem className="flex h-full min-h-0 min-w-0">
           <ChartCard
             title="DQ Score Trend"
             subtitle="Running average by account creation order"
@@ -216,7 +223,7 @@ export function DashboardCharts({
           >
             <ChartContainer
               config={dqTrendChartConfig}
-              className="aspect-auto h-full min-h-0 w-full [&_.recharts-area-area]:transition-[opacity] [&_.recharts-area-area]:duration-[var(--ds-duration-tactile)] [&_.recharts-area-area]:ease-[var(--ease-premium)]"
+              className="aspect-auto h-full min-h-0 min-w-0 w-full [&_.recharts-area-area]:transition-[opacity] [&_.recharts-area-area]:duration-[var(--ds-duration-tactile)] [&_.recharts-area-area]:ease-[var(--ease-premium)]"
             >
               <AreaChart accessibilityLayer data={dqTrend} margin={{ left: 4, right: 8, top: 8, bottom: 4 }}>
                 <defs>
@@ -277,7 +284,7 @@ export function DashboardCharts({
           </ChartCard>
         </StaggerItem>
 
-        <StaggerItem>
+        <StaggerItem className="flex h-full min-h-0 min-w-0">
           <ChartCard
             title="Velocity Distribution"
             subtitle="Signals grouped by velocity score"
@@ -285,7 +292,7 @@ export function DashboardCharts({
           >
             <ChartContainer
               config={velocityChartConfig}
-              className="aspect-auto h-full min-h-0 w-full"
+              className="aspect-auto h-full min-h-0 min-w-0 w-full"
             >
               <BarChart
                 accessibilityLayer
@@ -334,13 +341,13 @@ export function DashboardCharts({
           </ChartCard>
         </StaggerItem>
 
-        <StaggerItem>
+        <StaggerItem className="flex h-full min-h-0 min-w-0">
           <ChartCard
             title="ICP Fit vs Data Quality"
             subtitle="Prioritize high-fit accounts with clean data"
             href="/accounts"
           >
-            <ChartContainer config={scatterChartConfig} className="aspect-auto h-full min-h-0 w-full">
+            <ChartContainer config={scatterChartConfig} className="aspect-auto h-full min-h-0 min-w-0 w-full">
               <ScatterChart margin={{ left: 4, right: 8, top: 8, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="4 4" className="stroke-border/50" />
                 <XAxis

@@ -171,7 +171,7 @@ export function AccountsTable({
             <button
               type="button"
               onClick={() => openAccount(row.original)}
-              className="ds-focus-ring min-w-0 max-w-[14rem] rounded-md text-left transition-[color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] sm:max-w-[18rem]"
+              className="ds-focus-ring block w-full min-w-0 rounded-md text-left transition-[color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)]"
               title={row.original.name}
             >
               <div className="truncate font-medium text-foreground hover:text-primary">
@@ -195,7 +195,10 @@ export function AccountsTable({
         cell: ({ row }) => {
           const industry = row.original.industry ?? "-";
           return (
-            <span className="block max-w-[6.5rem] truncate text-muted-foreground sm:max-w-[9rem]" title={industry}>
+            <span
+              className="block max-w-[min(100%,7rem)] truncate text-muted-foreground sm:max-w-[10rem]"
+              title={industry}
+            >
               {industry}
             </span>
           );
@@ -226,7 +229,7 @@ export function AccountsTable({
                 ? "text-warning"
                 : "text-destructive";
           return (
-            <div className="flex min-w-0 max-w-[10rem] items-center gap-2 sm:max-w-[12rem] sm:gap-3">
+            <div className="flex min-w-0 max-w-full items-center gap-2 sm:max-w-[13rem] sm:gap-3">
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                 <div
                   className={`h-full rounded-full ${bar}`}
@@ -262,7 +265,7 @@ export function AccountsTable({
           const tone = dqTone(score);
           const gaps = issueMap.get(row.original.id) ?? 0;
           return (
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
               <StatusChip tone={tone} label={dqStatusLabel(score)} />
               {gaps > 0 && (
                 <Badge variant="warning" className="px-1.5 py-0 text-[10px] tabular-nums">
@@ -287,15 +290,15 @@ export function AccountsTable({
                 onClick={() => openAccount(account)}
                 variant={healthy ? "default" : "warning"}
                 size="sm"
-                className="shrink-0 whitespace-nowrap"
+                className="shrink-0 gap-1 whitespace-nowrap px-2 sm:gap-1.5 sm:px-3"
                 aria-label={`${healthy ? "Open playbook for" : "Review data gaps for"} ${account.name}`}
               >
                 {healthy ? (
-                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
                 ) : (
-                  <Wrench className="h-3.5 w-3.5" />
+                  <Wrench className="h-3.5 w-3.5 shrink-0" />
                 )}
-                {healthy ? "Playbook" : "Review gaps"}
+                <span className="hidden sm:inline">{healthy ? "Playbook" : "Review gaps"}</span>
               </Button>
             </div>
           );
@@ -357,7 +360,7 @@ export function AccountsTable({
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
             placeholder="Search accounts..."
-            className="sm:max-w-xs"
+            className="min-w-0 flex-1 sm:max-w-xs"
           />
           <Select
             value={
@@ -412,9 +415,9 @@ export function AccountsTable({
       </Card>
 
       <Card className="min-w-0 bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
-        <div className="min-w-0 overflow-x-auto overscroll-x-contain overscroll-y-contain touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-gutter:stable] max-lg:max-h-[min(70vh,28rem)] max-lg:overflow-y-auto max-lg:rounded-b-xl">
-          <Table className="min-w-[min(100%,48rem)]">
-            <TableHeader className="sticky top-0 z-20 isolate border-b border-border/70 bg-background/[0.97] shadow-[0_6px_16px_-8px_rgb(0_0_0/0.28)] ring-1 ring-border/15 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 dark:supports-[backdrop-filter]:bg-background/70">
+        <div className="relative min-w-0 max-w-full overflow-x-auto overscroll-x-contain overscroll-y-contain rounded-b-xl border-t border-border/30 touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-gutter:stable] max-lg:max-h-[min(70vh,28rem)] max-lg:overflow-y-auto">
+          <Table className="w-full min-w-0">
+            <TableHeader className="sticky top-0 z-20 isolate border-b border-border/75 bg-background/[0.98] shadow-[0_8px_20px_-10px_rgb(0_0_0/0.35)] ring-1 ring-border/20 backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-background/82 dark:supports-[backdrop-filter]:bg-background/72">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
@@ -425,7 +428,10 @@ export function AccountsTable({
                       key={header.id}
                       className={cn(
                         "px-3 py-3",
-                        header.column.id === "select" && "w-12",
+                        header.column.id === "select" && "w-11 min-w-[2.75rem]",
+                        header.column.id === "data_quality_score" && "min-w-0 max-w-[11rem]",
+                        header.column.id === "icp_fit_score" && "w-[4.25rem] min-w-[4rem]",
+                        header.column.id === "status" && "min-w-0 max-w-[15rem]",
                         header.column.id === "actions" && "w-[1%] whitespace-nowrap text-right"
                       )}
                     >
@@ -491,7 +497,8 @@ export function AccountsTable({
                                 colId === "name" && "min-w-0",
                                 colId === "industry" && "min-w-0 whitespace-normal",
                                 colId === "data_quality_score" && "min-w-0",
-                                colId === "status" && "whitespace-normal"
+                                colId === "status" && "min-w-0 max-w-[15rem] whitespace-normal",
+                                colId === "actions" && "w-[1%] text-right"
                               )}
                             >
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -544,7 +551,7 @@ export function AccountsTable({
         </div>
       </Card>
 
-      <div className="flex min-w-0 flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2">
+      <div className="flex min-w-0 flex-col gap-3 border-t border-border/25 pt-4 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2">
         <span className="inline-flex min-w-0 items-center rounded-full border border-border bg-background/40 px-3 py-1 text-[11px] font-medium tabular-nums ds-inset-top-mid">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount() || 1}

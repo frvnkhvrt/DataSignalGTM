@@ -277,10 +277,10 @@ export function SignalsTable({
                 row.original.account_name &&
                 setReceiptFor({ name: row.original.account_name })
               }
-              className="ds-focus-ring min-w-0 max-w-[12rem] truncate rounded-md text-left text-sm font-medium text-foreground transition-[color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary sm:max-w-[16rem]"
+              className="ds-focus-ring block w-full min-w-0 rounded-md text-left transition-[color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary"
               title={name}
             >
-              {name}
+              <span className="block truncate text-sm font-medium text-foreground">{name}</span>
             </button>
           );
         },
@@ -295,7 +295,7 @@ export function SignalsTable({
         header: "Why now",
         cell: ({ row }) => (
           <span
-            className="line-clamp-2 min-w-0 max-w-[12rem] text-muted-foreground sm:max-w-[16rem]"
+            className="line-clamp-2 min-w-0 max-w-[min(100%,18rem)] text-muted-foreground xl:max-w-[22rem]"
             title={row.original.why_now ?? undefined}
           >
             {row.original.why_now ?? "-"}
@@ -342,7 +342,10 @@ export function SignalsTable({
             signal.playbook_status === "generating";
 
           return (
-            <div className="flex justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="flex min-w-0 max-w-[min(100vw-5rem,22rem)] flex-wrap justify-end gap-1 sm:flex-nowrap sm:gap-1.5"
+              onClick={(e) => e.stopPropagation()}
+            >
               {!signal.playbook && signal.status !== "rejected" && (
                 <DemoLimitedAction action="generate_playbook" surface="signals_table">
                   <Button
@@ -374,9 +377,10 @@ export function SignalsTable({
                     disabled={approve.isPending && approve.variables === name}
                     aria-label={`Approve signal for ${name}`}
                     size="sm"
+                    className="shrink-0 gap-1 px-2 sm:gap-1.5 sm:px-3"
                   >
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    Approve
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                    <span className="hidden sm:inline">Approve</span>
                   </Button>
                 </DemoLimitedAction>
               )}
@@ -389,9 +393,10 @@ export function SignalsTable({
                     aria-label={`Reject signal for ${name}`}
                     variant="destructive"
                     size="sm"
+                    className="shrink-0 gap-1 px-2 sm:gap-1.5 sm:px-3"
                   >
-                    <XCircle className="h-3.5 w-3.5" />
-                    Reject
+                    <XCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span className="hidden sm:inline">Reject</span>
                   </Button>
                 </DemoLimitedAction>
               )}
@@ -461,7 +466,7 @@ export function SignalsTable({
               table.getColumn("account_name")?.setFilterValue(event.target.value)
             }
             placeholder="Search accounts..."
-            className="sm:max-w-xs"
+            className="min-w-0 flex-1 sm:max-w-xs"
           />
           <Select
             value={(table.getColumn("status")?.getFilterValue() as string) ?? "all"}
@@ -538,9 +543,9 @@ export function SignalsTable({
       </Card>
 
       <Card className="min-w-0 bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
-        <div className="min-w-0 overflow-x-auto overscroll-x-contain overscroll-y-contain touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-gutter:stable] max-lg:max-h-[min(70vh,28rem)] max-lg:overflow-y-auto max-lg:rounded-b-xl">
-          <Table className="min-w-[min(100%,52rem)]">
-            <TableHeader className="sticky top-0 z-20 isolate border-b border-border/70 bg-background/[0.97] shadow-[0_6px_16px_-8px_rgb(0_0_0/0.28)] ring-1 ring-border/15 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 dark:supports-[backdrop-filter]:bg-background/70">
+        <div className="relative min-w-0 max-w-full overflow-x-auto overscroll-x-contain overscroll-y-contain rounded-b-xl border-t border-border/30 touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-gutter:stable] max-lg:max-h-[min(70vh,28rem)] max-lg:overflow-y-auto">
+          <Table className="w-full min-w-0">
+            <TableHeader className="sticky top-0 z-20 isolate border-b border-border/75 bg-background/[0.98] shadow-[0_8px_20px_-10px_rgb(0_0_0/0.35)] ring-1 ring-border/20 backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-background/82 dark:supports-[backdrop-filter]:bg-background/72">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
@@ -551,7 +556,11 @@ export function SignalsTable({
                       key={header.id}
                       className={cn(
                         "px-3 py-3",
-                        header.column.id === "select" && "w-12",
+                        header.column.id === "select" && "w-11 min-w-[2.75rem]",
+                        header.column.id === "velocity_score" && "w-[4.75rem] min-w-[4.5rem]",
+                        header.column.id === "source" && "min-w-0 max-w-[9rem]",
+                        header.column.id === "playbook_status" && "min-w-0 max-w-[8.5rem]",
+                        header.column.id === "status" && "min-w-0 max-w-[11rem]",
                         header.column.id === "actions" && "w-[1%] whitespace-nowrap text-right"
                       )}
                     >
@@ -615,9 +624,10 @@ export function SignalsTable({
                                 rowPadding,
                                 "align-middle",
                                 colId === "account_name" && "min-w-0",
-                                (colId === "why_now" || colId === "playbook_status") &&
-                                  "whitespace-normal",
-                                colId === "status" && "whitespace-normal"
+                                colId === "why_now" && "min-w-0 whitespace-normal",
+                                colId === "playbook_status" && "min-w-0 max-w-[9rem] whitespace-normal",
+                                colId === "status" && "min-w-0 max-w-[12rem] whitespace-normal",
+                                colId === "actions" && "w-[1%] text-right"
                               )}
                             >
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -670,7 +680,7 @@ export function SignalsTable({
         </div>
       </Card>
 
-      <div className="flex min-w-0 flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2">
+      <div className="flex min-w-0 flex-col gap-3 border-t border-border/25 pt-4 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2">
         <span className="inline-flex min-w-0 items-center rounded-full border border-border bg-background/40 px-3 py-1 text-[11px] font-medium tabular-nums ds-inset-top-mid">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount() || 1}

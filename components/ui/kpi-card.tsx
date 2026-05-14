@@ -73,12 +73,12 @@ export function KpiCard({
     <Card
       variant="translucent"
       className={cn(
-        "gap-0 border-l-2 p-0 transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/80",
+        "flex min-h-0 flex-col gap-0 border-l-2 p-0 shadow-none transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/80 hover:shadow-soft",
         accentTone[tone],
         className
       )}
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+      <CardHeader className="flex shrink-0 flex-row items-center justify-between space-y-0 p-4 pb-2">
         <div className="ds-eyebrow">{label}</div>
         <div
           className={cn(
@@ -91,7 +91,7 @@ export function KpiCard({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-1.5 px-4 pb-4 pt-0">
+      <CardContent className="flex min-h-0 flex-1 flex-col justify-between gap-1.5 px-4 pb-4 pt-0">
         <motion.div
           key={String(value)}
           className={cn(
@@ -107,9 +107,9 @@ export function KpiCard({
         </motion.div>
 
         {description && (
-          <p className="text-xs leading-5 text-muted-foreground">{description}</p>
+          <p className="text-pretty text-xs leading-5 text-muted-foreground">{description}</p>
         )}
-        {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
+        {sub && <div className="text-pretty text-xs text-muted-foreground">{sub}</div>}
       </CardContent>
     </Card>
   );

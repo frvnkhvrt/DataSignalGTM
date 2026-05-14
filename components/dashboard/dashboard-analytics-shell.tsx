@@ -17,9 +17,10 @@ export function DashboardAnalyticsShell({
   return (
     <div
       className={cn(
-        "@container/analytics relative space-y-4 rounded-2xl border border-border/45 bg-card/35 p-4 shadow-soft ring-1 ring-black/[0.03] backdrop-blur-md dark:bg-card/25 dark:ring-white/[0.05] sm:space-y-5 sm:p-5",
+        "@container/analytics relative isolate space-y-4 rounded-2xl border border-border/50 bg-card/42 p-4 shadow-soft ring-1 ring-black/[0.04] backdrop-blur-xl dark:bg-card/30 dark:ring-white/[0.06] sm:space-y-5 sm:p-5 lg:p-6",
         "ds-card-inner-glow",
-        "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/12 before:to-transparent dark:before:via-white/8",
+        "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/14 before:to-transparent dark:before:via-white/9",
+        "after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-black/[0.06] after:to-transparent dark:after:via-white/[0.05]",
         className
       )}
     >

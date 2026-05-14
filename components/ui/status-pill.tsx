@@ -18,7 +18,7 @@ const STATUS_LABELS: Record<SignalStatus, string> = {
 /** Signal lifecycle chip — shadcn `Badge` + product ping for pending. */
 export function StatusPill({ status }: { status: SignalStatus }) {
   return (
-    <Badge variant={STATUS_VARIANTS[status]} shape="square">
+    <Badge variant={STATUS_VARIANTS[status]} shape="square" className="max-w-full shrink-0 whitespace-nowrap">
       {status === "pending" && (
         <span
           aria-hidden="true"
