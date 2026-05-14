@@ -24,7 +24,7 @@ export default function AppLoading() {
       </div>
 
       <Card variant="translucent" className="p-4 sm:p-5">
-        <Skeleton className="h-[18.5rem] w-full min-w-0 rounded-xl sm:h-[19rem]" />
+        <Skeleton className="min-h-[20rem] w-full min-w-0 rounded-xl sm:min-h-[21rem]" />
       </Card>
 
       <div className="grid min-w-0 gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)] lg:gap-5 xl:gap-6">

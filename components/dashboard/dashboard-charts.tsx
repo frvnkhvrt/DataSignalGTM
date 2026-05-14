@@ -116,7 +116,7 @@ function ChartCard({
   return (
     <Card
       className={cn(
-        "flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden border border-border/70 bg-card/75 shadow-soft ring-1 ring-border/30 backdrop-blur-xl dark:bg-card/65 dark:ring-white/[0.08] ds-card-inner-glow",
+        "flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden border border-border/70 bg-card/75 shadow-soft ring-1 ring-border/30 backdrop-blur-xl transition-[box-shadow,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none dark:bg-card/65 dark:ring-white/[0.08] ds-card-inner-glow hover:border-border/80 hover:shadow-soft",
         className
       )}
     >

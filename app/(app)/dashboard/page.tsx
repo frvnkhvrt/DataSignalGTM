@@ -71,7 +71,7 @@ const DashboardCharts = dynamic(
   {
     ssr: false,
     loading: () => (
-      <Skeleton className="h-[18.5rem] w-full min-w-0 rounded-xl border border-border/50 bg-card/45 ds-card-inner-glow sm:h-[19rem]" />
+      <Skeleton className="min-h-[20rem] w-full min-w-0 rounded-xl border border-border/50 bg-card/45 ds-card-inner-glow sm:min-h-[21rem]" />
     ),
   }
 );
@@ -131,7 +131,7 @@ export default function DashboardPage() {
           <Breadcrumb className="text-muted-foreground">
             <BreadcrumbList className="text-xs sm:text-sm">
               <BreadcrumbItem>
-                <BreadcrumbLink asChild className="text-muted-foreground hover:text-foreground">
+                <BreadcrumbLink asChild className="text-muted-foreground transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-foreground motion-reduce:transition-none">
                   <Link href="/">Home</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
@@ -156,8 +156,8 @@ export default function DashboardPage() {
                   into Signals for workflow and Accounts for data quality remediation.
                 </p>
               </div>
-              <div className="flex shrink-0 flex-col justify-end border-t border-border/50 pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0 xl:pl-10">
-                <ButtonGroup className="gap-0 overflow-hidden rounded-xl border border-border/60 bg-background/40 p-0.5 shadow-soft ring-1 ring-black/[0.05] backdrop-blur-md dark:bg-background/25 dark:ring-white/[0.07]">
+              <div className="flex w-full min-w-0 shrink-0 flex-col justify-end border-t border-border/50 pt-5 lg:w-auto lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0 xl:pl-10">
+                <ButtonGroup className="w-full min-w-0 gap-0 overflow-hidden rounded-xl border border-border/60 bg-background/40 p-0.5 shadow-soft ring-1 ring-black/[0.05] backdrop-blur-md dark:bg-background/25 dark:ring-white/[0.07] lg:w-auto">
                   <Button
                     asChild
                     variant="default"
@@ -175,7 +175,9 @@ export default function DashboardPage() {
                     size="default"
                     className="rounded-none border-0 bg-background/40 shadow-none hover:bg-surface-elevated/80 sm:px-5"
                   >
-                    <Link href="/help/signals">Learn lifecycle</Link>
+                    <Link href="/help/signals" className="min-w-0 truncate sm:overflow-visible sm:whitespace-normal">
+                      Learn lifecycle
+                    </Link>
                   </Button>
                 </ButtonGroup>
               </div>
@@ -272,10 +274,10 @@ export default function DashboardPage() {
           <Separator className="h-px flex-1 bg-gradient-to-r from-border/50 via-border/25 to-transparent" />
         </div>
         <section className="grid min-w-0 gap-4 @md/dashboard:gap-5 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)] lg:items-stretch lg:gap-5 xl:gap-6">
-          <Card variant="translucent" className="flex h-full min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.04] dark:ring-white/[0.06] ds-card-inner-glow">
+          <Card variant="translucent" className="flex h-full min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.04] transition-[box-shadow,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none dark:ring-white/[0.06] ds-card-inner-glow hover:border-border/55 hover:shadow-soft">
             <CardHeader className="flex flex-row items-start justify-between gap-3 pb-3 sm:items-center sm:pb-4">
               <div className="min-w-0 space-y-1">
-                <CardTitle className="ds-heading">Recent signal queue</CardTitle>
+                <CardTitle className="ds-heading text-base sm:text-[1.0625rem]">Recent signal queue</CardTitle>
                 <CardDescription className="text-pretty">
                   Triage these before moving to account remediation.
                 </CardDescription>
@@ -307,7 +309,7 @@ export default function DashboardPage() {
                       {topSignals.map((signal) => (
                         <MotionListItem
                           key={signal.id}
-                          className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/45 bg-background/30 px-2.5 py-2 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.03)] transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:border-border/70 hover:bg-surface-elevated/45 dark:bg-background/25"
+                          className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/45 bg-background/30 px-2.5 py-2 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.03)] transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:border-border/70 hover:bg-surface-elevated/45 focus-within:border-border/65 focus-within:shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary)_22%,transparent)] dark:bg-background/25"
                         >
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -349,10 +351,10 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card variant="translucent" className="flex h-full min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.04] dark:ring-white/[0.06] ds-card-inner-glow">
+          <Card variant="translucent" className="flex h-full min-h-0 min-w-0 flex-col shadow-soft ring-1 ring-black/[0.04] transition-[box-shadow,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none dark:ring-white/[0.06] ds-card-inner-glow hover:border-border/55 hover:shadow-soft">
             <CardHeader className="flex flex-row items-start justify-between gap-3 pb-3 sm:items-center sm:pb-4">
               <div className="min-w-0 space-y-1">
-                <CardTitle className="ds-heading">Data quality focus</CardTitle>
+                <CardTitle className="ds-heading text-base sm:text-[1.0625rem]">Data quality focus</CardTitle>
                 <CardDescription className="text-pretty">
                   Accounts below 75 DQ are most likely to block signal conversion.
                 </CardDescription>
@@ -387,7 +389,7 @@ export default function DashboardPage() {
                             <TooltipTrigger asChild>
                               <Link
                                 href="/accounts"
-                                className="ds-focus-ring ds-inset-top-soft flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/50 bg-background/35 px-3 py-2.5 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/85 hover:bg-surface-elevated/90 dark:bg-background/28"
+                                className="ds-focus-ring ds-inset-top-soft flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border/50 bg-background/35 px-3 py-2.5 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:border-border/85 hover:bg-surface-elevated/90 focus-visible:shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary)_22%,transparent)] dark:bg-background/28"
                               >
                                 <span className="truncate text-sm font-medium text-foreground">
                                   {account.name}

@@ -385,7 +385,7 @@ export function AccountsTable({
           </Select>
         </div>
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
-          <div className="inline-flex rounded-lg border border-border/80 bg-background/45 p-1 ds-inset-top-soft shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none">
+          <div className="inline-flex shrink-0 rounded-lg border border-border/80 bg-background/45 p-1 ds-inset-top-soft shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none">
             {(["comfortable", "compact"] as const).map((value) => (
               <Button
                 key={value}
@@ -563,6 +563,7 @@ export function AccountsTable({
             disabled={!table.getCanPreviousPage()}
             variant="outline"
             size="sm"
+            className="touch-manipulation gap-1"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
             Previous
@@ -573,6 +574,7 @@ export function AccountsTable({
             disabled={!table.getCanNextPage()}
             variant="outline"
             size="sm"
+            className="touch-manipulation gap-1"
           >
             Next
             <ChevronRight className="h-3.5 w-3.5" />
