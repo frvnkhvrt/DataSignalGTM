@@ -148,10 +148,10 @@ export default function DashboardPage() {
                   <Sparkles className="h-3 w-3" />
                   Executive overview
                 </Badge>
-                <h1 className="ds-heading text-3xl font-semibold text-foreground sm:text-4xl">
+                <h1 className="ds-heading text-balance text-3xl font-semibold text-foreground sm:text-4xl">
                   Your GTM signal layer, at a glance
                 </h1>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                <p className="mt-2 max-w-2xl text-pretty text-sm leading-6 text-muted-foreground">
                   Start with signal volume, data health, and playbook readiness. Drill
                   into Signals for workflow and Accounts for data quality remediation.
                 </p>
@@ -164,9 +164,9 @@ export default function DashboardPage() {
                     size="default"
                     className="rounded-none border-0 px-4 shadow-none sm:px-5"
                   >
-                    <Link href="/signals">
-                      Review signals
-                      <ArrowRight className="h-4 w-4" />
+                    <Link href="/signals" className="inline-flex min-w-0 max-w-full items-center justify-center gap-2">
+                      <span className="min-w-0 truncate">Review signals</span>
+                      <ArrowRight className="h-4 w-4 shrink-0" />
                     </Link>
                   </Button>
                   <Button
@@ -276,13 +276,13 @@ export default function DashboardPage() {
             <CardHeader className="flex flex-row items-start justify-between gap-3 pb-3 sm:items-center sm:pb-4">
               <div className="min-w-0 space-y-1">
                 <CardTitle className="ds-heading">Recent signal queue</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-pretty">
                   Triage these before moving to account remediation.
                 </CardDescription>
               </div>
               <Link
                 href="/signals"
-                className="ds-focus-ring shrink-0 rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
+                className="ds-focus-ring shrink-0 self-start rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
               >
                 View all
               </Link>
@@ -353,13 +353,13 @@ export default function DashboardPage() {
             <CardHeader className="flex flex-row items-start justify-between gap-3 pb-3 sm:items-center sm:pb-4">
               <div className="min-w-0 space-y-1">
                 <CardTitle className="ds-heading">Data quality focus</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-pretty">
                   Accounts below 75 DQ are most likely to block signal conversion.
                 </CardDescription>
               </div>
               <Link
                 href="/accounts"
-                className="ds-focus-ring shrink-0 rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
+                className="ds-focus-ring shrink-0 self-start rounded-md px-1.5 py-0.5 text-xs font-medium text-primary transition-colors duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:text-primary/85"
               >
                 View accounts
               </Link>
@@ -382,7 +382,7 @@ export default function DashboardPage() {
                   <MotionList className="space-y-2 p-0.5">
                     <AnimatePresence initial={false}>
                       {atRiskAccounts.map((account) => (
-                        <MotionListItem key={account.id}>
+                        <MotionListItem key={account.id} className="min-w-0">
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Link

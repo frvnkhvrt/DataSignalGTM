@@ -360,7 +360,7 @@ export function AccountsTable({
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
             placeholder="Search accounts..."
-            className="sm:max-w-xs"
+            className="min-w-0 flex-1 sm:max-w-xs"
           />
           <Select
             value={
@@ -417,7 +417,7 @@ export function AccountsTable({
       <Card className="min-w-0 bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
         <div className="relative min-w-0 max-w-full overflow-x-auto overscroll-x-contain overscroll-y-contain rounded-b-xl border-t border-border/30 touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-gutter:stable] max-lg:max-h-[min(70vh,28rem)] max-lg:overflow-y-auto">
           <Table className="w-full min-w-0">
-            <TableHeader className="sticky top-0 z-20 isolate border-b border-border/75 bg-background/[0.98] shadow-[0_8px_20px_-10px_rgb(0_0_0/0.35)] ring-1 ring-border/20 backdrop-blur-md supports-[backdrop-filter]:bg-background/82 dark:supports-[backdrop-filter]:bg-background/72">
+            <TableHeader className="sticky top-0 z-20 isolate border-b border-border/75 bg-background/[0.98] shadow-[0_8px_20px_-10px_rgb(0_0_0/0.35)] ring-1 ring-border/20 backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-background/82 dark:supports-[backdrop-filter]:bg-background/72">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
@@ -551,7 +551,7 @@ export function AccountsTable({
         </div>
       </Card>
 
-      <div className="flex min-w-0 flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2">
+      <div className="flex min-w-0 flex-col gap-3 border-t border-border/25 pt-4 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2">
         <span className="inline-flex min-w-0 items-center rounded-full border border-border bg-background/40 px-3 py-1 text-[11px] font-medium tabular-nums ds-inset-top-mid">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount() || 1}

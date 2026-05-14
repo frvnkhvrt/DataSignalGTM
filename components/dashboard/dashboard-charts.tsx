@@ -78,7 +78,7 @@ function ScatterAccountTooltip({
   return (
     <div
       className={cn(
-        "grid min-w-[12rem] max-w-[min(100vw-2rem,16rem)] gap-1.5 rounded-lg border border-border/50 bg-background/95 px-2.5 py-1.5 text-xs shadow-xl ring-1 ring-border/40 backdrop-blur-xl"
+        "grid min-w-[12rem] max-w-[min(100vw-2rem,16rem)] gap-1.5 rounded-lg border border-border/50 bg-background/95 px-2.5 py-1.5 text-xs shadow-elevated ring-1 ring-border/35 backdrop-blur-xl"
       )}
     >
       <div className="truncate font-medium text-foreground" title={data.name}>
@@ -105,19 +105,26 @@ function ChartCard({
   subtitle,
   href,
   children,
+  className,
 }: {
   title: string;
   subtitle: string;
   href: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <Card className="min-w-0 overflow-hidden border border-border/70 bg-card/75 shadow-soft ring-1 ring-border/30 backdrop-blur-xl dark:bg-card/65 dark:ring-white/[0.08] ds-card-inner-glow">
-      <CardHeader className="space-y-0 pb-3 pt-1">
+    <Card
+      className={cn(
+        "flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden border border-border/70 bg-card/75 shadow-soft ring-1 ring-border/30 backdrop-blur-xl dark:bg-card/65 dark:ring-white/[0.08] ds-card-inner-glow",
+        className
+      )}
+    >
+      <CardHeader className="shrink-0 space-y-0 pb-3 pt-1">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
             <CardTitle className="ds-heading text-base">{title}</CardTitle>
-            <CardDescription className="text-xs leading-5">{subtitle}</CardDescription>
+            <CardDescription className="text-pretty text-xs leading-5">{subtitle}</CardDescription>
           </div>
           <Link
             href={href}
@@ -127,8 +134,8 @@ function ChartCard({
           </Link>
         </div>
       </CardHeader>
-      <CardContent className="min-w-0 overflow-hidden px-4 pb-4 pt-0 sm:px-5">
-        <div className="h-64 min-h-0 w-full overflow-hidden">{children}</div>
+      <CardContent className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-4 pt-0 sm:px-5">
+        <div className="min-h-64 w-full min-w-0 flex-1 overflow-hidden">{children}</div>
       </CardContent>
     </Card>
   );
@@ -199,7 +206,7 @@ export function DashboardCharts({
       <div className="flex min-w-0 flex-col gap-2 min-[400px]:flex-row min-[400px]:items-end min-[400px]:justify-between min-[400px]:gap-3">
         <div className="min-w-0">
           <p className="ds-eyebrow">Data design</p>
-          <h2 className="ds-heading mt-1 text-2xl font-semibold text-foreground">
+          <h2 className="ds-heading mt-1 text-balance text-2xl font-semibold text-foreground">
             Health, velocity, and fit
           </h2>
         </div>
@@ -207,8 +214,8 @@ export function DashboardCharts({
           Interactive hover insights
         </Badge>
       </div>
-      <Stagger className="grid min-w-0 grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-3">
-        <StaggerItem>
+      <Stagger className="grid min-w-0 auto-rows-fr grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-3">
+        <StaggerItem className="flex h-full min-h-0 min-w-0">
           <ChartCard
             title="DQ Score Trend"
             subtitle="Running average by account creation order"
@@ -277,7 +284,7 @@ export function DashboardCharts({
           </ChartCard>
         </StaggerItem>
 
-        <StaggerItem>
+        <StaggerItem className="flex h-full min-h-0 min-w-0">
           <ChartCard
             title="Velocity Distribution"
             subtitle="Signals grouped by velocity score"
@@ -334,7 +341,7 @@ export function DashboardCharts({
           </ChartCard>
         </StaggerItem>
 
-        <StaggerItem>
+        <StaggerItem className="flex h-full min-h-0 min-w-0">
           <ChartCard
             title="ICP Fit vs Data Quality"
             subtitle="Prioritize high-fit accounts with clean data"
