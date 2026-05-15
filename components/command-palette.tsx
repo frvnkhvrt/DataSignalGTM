@@ -30,7 +30,7 @@ import {
 import { useDemoLimitation } from "@/components/demo/demo-limited-action";
 import { canTransition } from "@/types/signal";
 import type { SignalStatus } from "@/types/signal";
-import { AnimatedDialog } from "@/components/ui/animated-dialog";
+import { Dialog, DialogMotionContent, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {
@@ -220,22 +220,29 @@ export function CommandPalette() {
   if (!flags.enable_command_palette) return null;
 
   return (
-    <AnimatedDialog
-      open={open}
-      onClose={() => setOpen(false)}
-      labelledBy="command-palette-title"
-      align="top"
-      className="max-w-2xl overflow-hidden"
-    >
-      <Command className="bg-transparent">
-        <h2 id="command-palette-title" className="sr-only">
-          Command palette
-        </h2>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogMotionContent
+        open={open}
+        align="top"
+        showCloseButton={false}
+        className="max-w-2xl overflow-hidden p-0 shadow-none"
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          requestAnimationFrame(() => {
+            document.getElementById("command-palette-search")?.focus();
+          });
+        }}
+      >
+        <Command className="bg-transparent">
+          <DialogTitle id="command-palette-title" className="sr-only">
+            Command palette
+          </DialogTitle>
         <div className="relative px-4 pb-3 pt-2.5">
           <div className="flex items-start gap-2.5">
             <div className="relative flex min-h-10 min-w-0 flex-1 items-center gap-2.5 rounded-lg border border-border/55 bg-background/40 px-3 py-2 ds-input-well shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)] transition-[border-color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none focus-within:border-primary/35 focus-within:bg-background/55 focus-within:shadow-soft">
               <Search className="h-4 w-4 shrink-0 text-muted-foreground opacity-90" strokeWidth={2} />
               <Command.Input
+                id="command-palette-search"
                 value={search}
                 onValueChange={setSearch}
                 aria-label="Search commands, accounts, and signal actions"
@@ -451,7 +458,8 @@ export function CommandPalette() {
             </CommandGroupStagger>
           </Command.Group>
         </Command.List>
-      </Command>
-    </AnimatedDialog>
+        </Command>
+      </DialogMotionContent>
+    </Dialog>
   );
 }

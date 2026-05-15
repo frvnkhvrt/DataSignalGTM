@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowRight,
@@ -14,7 +14,7 @@ import {
 import { supabase } from "@/lib/supabase/client";
 import { useAuthContext } from "@/lib/auth-context";
 import { track } from "@/lib/analytics";
-import { AnimatedDialog } from "@/components/ui/animated-dialog";
+import { Dialog, DialogMotionContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { transitionOnboardingStep } from "@/components/ui/motion";
 
@@ -67,12 +67,17 @@ export function OnboardingModal({
   onComplete: () => void;
 }) {
   const { user } = useAuthContext();
+  const finishedRef = useRef(false);
+  const [dialogOpen, setDialogOpen] = useState(true);
   const [step, setStep] = useState(0);
   const [completing, setCompleting] = useState(false);
   const reducedMotion = useReducedMotion();
 
   async function handleComplete() {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
     setCompleting(true);
+    setDialogOpen(false);
     try {
       await supabase
         .from("profiles")
@@ -100,12 +105,18 @@ export function OnboardingModal({
   const isLast = step === STEPS.length - 1;
 
   return (
-    <AnimatedDialog
-      open
-      onClose={handleDismiss}
-      labelledBy="onboarding-title"
-      className="relative max-w-md overflow-hidden rounded-2xl"
+    <Dialog
+      open={dialogOpen}
+      onOpenChange={(next) => {
+        if (!next) void handleComplete();
+      }}
     >
+      <DialogMotionContent
+        open={dialogOpen}
+        align="center"
+        showCloseButton={false}
+        className="relative max-w-md overflow-hidden rounded-2xl p-0 shadow-none"
+      >
         {/* Dismiss */}
         <Button
           type="button"
@@ -153,9 +164,12 @@ export function OnboardingModal({
             <div className="ds-empty-orb mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-border">
               {current.icon}
             </div>
-            <h2 id="onboarding-title" className="ds-heading mb-2 text-lg font-semibold text-foreground">
+            <DialogTitle
+              id="onboarding-title"
+              className="ds-heading mb-2 text-lg font-semibold text-foreground"
+            >
               {current.title}
-            </h2>
+            </DialogTitle>
             <p className="text-sm leading-relaxed text-muted-foreground">
               {current.description}
             </p>
@@ -202,6 +216,7 @@ export function OnboardingModal({
             {!isLast && <ArrowRight className="h-4 w-4" />}
           </Button>
         </div>
-    </AnimatedDialog>
+      </DialogMotionContent>
+    </Dialog>
   );
 }

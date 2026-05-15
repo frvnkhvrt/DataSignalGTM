@@ -45,7 +45,7 @@ export const spring = {
   gentle: { type: "spring" as const, stiffness: 280, damping: 36, mass: 0.9 },
   /** Heavy objects: modals, drawer overlays — authoritative, stable */
   slow: { type: "spring" as const, stiffness: 140, damping: 30, mass: 1.2 },
-  /** AnimatedDialog / command-sheet panels — tuned blur settle (pairs with overlayPanelMotion) */
+  /** DialogMotionContent / command-sheet panels — tuned blur settle (pairs with overlayPanelMotion) */
   dialogPanel: { type: "spring" as const, stiffness: 420, damping: 32, mass: 0.85 },
   /** Sidebar `layoutId` active pill */
   sidebarPill: { type: "spring" as const, stiffness: 380, damping: 36, mass: 0.9 },
@@ -75,7 +75,7 @@ export function overlayBackdropMotion(reduced: boolean | null) {
 }
 
 /**
- * Shared modal / palette panel choreography for AnimatedDialog — keeps every overlay
+ * Shared modal / palette panel choreography for `DialogMotionContent` — keeps every overlay
  * shell visually aligned (spring in, premium ease out).
  */
 export function overlayPanelMotion(reduced: boolean | null, align: "center" | "top") {

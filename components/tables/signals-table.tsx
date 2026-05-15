@@ -53,7 +53,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/ui/toggle-group";
-import { AnimatedDialog } from "@/components/ui/animated-dialog";
+import { Dialog, DialogDescription, DialogMotionContent, DialogTitle } from "@/components/ui/dialog";
 import type { SignalStatus } from "@/types/signal";
 import { canTransition } from "@/types/signal";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
@@ -730,47 +730,52 @@ export function SignalsTable({
         </div>
       </div>
 
-      <AnimatedDialog
+      <Dialog
         open={!!bulkAction}
-        onClose={() => {
-          if (!bulk.isPending) setBulkAction(null);
+        onOpenChange={(next) => {
+          if (!next && !bulk.isPending) setBulkAction(null);
         }}
-        labelledBy="bulk-action-title"
-        className="max-w-md p-5"
       >
-        {bulkAction && (
-          <>
-            <h2 id="bulk-action-title" className="text-base font-semibold text-foreground">
-              Confirm bulk {bulkAction}
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              This will {bulkAction} {selectedNames.length} selected signal(s).
-            </p>
-            <div className="mt-5 flex justify-end gap-2">
-              <Button
-                type="button"
-                onClick={() => setBulkAction(null)}
-                disabled={bulk.isPending}
-                variant="outline"
-                size="sm"
-              >
-                Cancel
-              </Button>
-              <DemoLimitedAction action={`bulk_${bulkAction}`} surface="signals_table">
+        <DialogMotionContent
+          open={!!bulkAction}
+          align="center"
+          showCloseButton={false}
+          className="max-w-md gap-0 p-5 shadow-none"
+        >
+          {bulkAction && (
+            <>
+              <DialogTitle id="bulk-action-title" className="text-base font-semibold text-foreground">
+                Confirm bulk {bulkAction}
+              </DialogTitle>
+              <DialogDescription className="mt-2 text-sm text-muted-foreground">
+                This will {bulkAction} {selectedNames.length} selected signal(s).
+              </DialogDescription>
+              <div className="mt-5 flex justify-end gap-2">
                 <Button
                   type="button"
-                  onClick={() => bulk.mutate({ action: bulkAction, signalIds: selectedIds })}
+                  onClick={() => setBulkAction(null)}
                   disabled={bulk.isPending}
+                  variant="outline"
                   size="sm"
-                  aria-live="polite"
                 >
-                  {bulk.isPending ? "Working..." : "Confirm"}
+                  Cancel
                 </Button>
-              </DemoLimitedAction>
-            </div>
-          </>
-        )}
-      </AnimatedDialog>
+                <DemoLimitedAction action={`bulk_${bulkAction}`} surface="signals_table">
+                  <Button
+                    type="button"
+                    onClick={() => bulk.mutate({ action: bulkAction, signalIds: selectedIds })}
+                    disabled={bulk.isPending}
+                    size="sm"
+                    aria-live="polite"
+                  >
+                    {bulk.isPending ? "Working..." : "Confirm"}
+                  </Button>
+                </DemoLimitedAction>
+              </div>
+            </>
+          )}
+        </DialogMotionContent>
+      </Dialog>
 
       <ReceiptPanel account={receiptFor} onClose={() => setReceiptFor(null)} />
     </div>

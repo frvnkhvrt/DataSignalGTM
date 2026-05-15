@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Copy, X } from "lucide-react";
 import { toast } from "sonner";
 import type { AccountRow } from "@/lib/gtm-queries";
-import { AnimatedDialog } from "@/components/ui/animated-dialog";
+import { Dialog, DialogMotionContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 function draftMessage(account: AccountRow): string {
@@ -33,16 +33,18 @@ export function EngageModal({
   onClose: () => void;
 }) {
   return (
-    <AnimatedDialog
-      open={!!account}
-      onClose={onClose}
-      labelledBy="engage-title"
-      className="max-w-lg overflow-hidden"
-    >
-      {account && (
-        <EngageModalContent key={account.id} account={account} onClose={onClose} />
-      )}
-    </AnimatedDialog>
+    <Dialog open={!!account} onOpenChange={(next) => !next && onClose()}>
+      <DialogMotionContent
+        open={!!account}
+        align="center"
+        showCloseButton={false}
+        className="max-w-lg overflow-hidden p-0 shadow-none"
+      >
+        {account && (
+          <EngageModalContent key={account.id} account={account} onClose={onClose} />
+        )}
+      </DialogMotionContent>
+    </Dialog>
   );
 }
 
@@ -70,9 +72,9 @@ function EngageModalContent({
     <>
         <div className="relative flex items-center justify-between px-5 py-4">
           <div>
-            <div id="engage-title" className="text-sm font-semibold text-foreground">
+            <DialogTitle id="engage-title" className="text-sm font-semibold text-foreground">
               {account.name}
-            </div>
+            </DialogTitle>
             <div className="mt-0.5 text-xs text-muted-foreground">
               Edit the note before copying it into your sequence.
             </div>
