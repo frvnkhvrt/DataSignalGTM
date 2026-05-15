@@ -198,7 +198,7 @@ export function DashboardCharts({
     <section className="min-w-0 space-y-4 pb-0 sm:space-y-5">
       <div className="flex min-w-0 flex-col gap-2 min-[400px]:flex-row min-[400px]:items-end min-[400px]:justify-between min-[400px]:gap-3">
         <div className="min-w-0">
-          <p className="ds-eyebrow">Data design</p>
+          <p className="ds-eyebrow">Signal analytics</p>
           <h2 className="ds-heading mt-1 text-2xl font-semibold text-foreground">
             Health, velocity, and fit
           </h2>

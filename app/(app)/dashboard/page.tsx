@@ -298,7 +298,7 @@ export default function DashboardPage() {
                       {topSignals.map((signal) => (
                         <MotionListItem
                           key={signal.id}
-                          className="flex items-center justify-between gap-3 rounded-lg py-2.5 pl-1 pr-1 transition-[background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/35"
+                          className="ds-row flex items-center justify-between gap-3 rounded-lg py-2.5 pl-1 pr-1 transition-[background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/35"
                         >
                           <div className="min-w-0 flex-1">
                             <div className="truncate text-sm font-medium text-foreground">
@@ -356,7 +356,7 @@ export default function DashboardPage() {
                         <MotionListItem key={account.id}>
                           <Link
                             href="/accounts"
-                            className="ds-focus-ring ds-inset-top-soft flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border bg-background/35 px-3 py-2 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/80 hover:bg-surface-elevated"
+                            className="ds-focus-ring ds-inset-top-soft ds-card-inner-glow flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border bg-background/35 px-3 py-2 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/80 hover:bg-surface-elevated"
                           >
                             <span className="truncate text-sm font-medium text-foreground">
                               {account.name}

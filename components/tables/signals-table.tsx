@@ -530,37 +530,45 @@ export function SignalsTable({
               Compact
             </ToggleGroupItem>
           </ToggleGroup>
-          {flags.enable_bulk_actions && (
-            <ButtonGroup className="min-w-0 gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none">
-              <ButtonGroupText className="shrink-0 rounded-none border-0 bg-transparent px-2 py-1.5 text-[11px] tabular-nums text-muted-foreground shadow-none">
-                {selectedSignals.length} selected
-              </ButtonGroupText>
-              <ButtonGroupSeparator className="bg-border/55" />
-              <DemoLimitedAction action="bulk_approve" surface="signals_table">
-                <Button
-                  type="button"
-                  onClick={() => setBulkAction("approve")}
-                  disabled={selectedSignals.length === 0}
-                  size="sm"
-                  className="rounded-none border-0 shadow-none"
-                >
-                  Bulk approve
-                </Button>
-              </DemoLimitedAction>
-              <DemoLimitedAction action="bulk_reject" surface="signals_table">
-                <Button
-                  type="button"
-                  onClick={() => setBulkAction("reject")}
-                  disabled={selectedSignals.length === 0}
-                  variant="destructive"
-                  size="sm"
-                  className="rounded-none border-0 shadow-none"
-                >
-                  Bulk reject
-                </Button>
-              </DemoLimitedAction>
-            </ButtonGroup>
-          )}
+          <AnimatePresence>
+            {flags.enable_bulk_actions && selectedSignals.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, width: 0 }}
+                animate={{ opacity: 1, scale: 1, width: "auto" }}
+                exit={{ opacity: 0, scale: 0.95, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex"
+              >
+                <ButtonGroup className="min-w-0 gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none">
+                  <ButtonGroupText className="shrink-0 rounded-none border-0 bg-transparent px-2 py-1.5 text-[11px] tabular-nums text-muted-foreground shadow-none">
+                    {selectedSignals.length} selected
+                  </ButtonGroupText>
+                  <ButtonGroupSeparator className="bg-border/55" />
+                  <DemoLimitedAction action="bulk_approve" surface="signals_table">
+                    <Button
+                      type="button"
+                      onClick={() => setBulkAction("approve")}
+                      size="sm"
+                      className="rounded-none border-0 shadow-none"
+                    >
+                      Bulk approve
+                    </Button>
+                  </DemoLimitedAction>
+                  <DemoLimitedAction action="bulk_reject" surface="signals_table">
+                    <Button
+                      type="button"
+                      onClick={() => setBulkAction("reject")}
+                      variant="destructive"
+                      size="sm"
+                      className="rounded-none border-0 shadow-none"
+                    >
+                      Bulk reject
+                    </Button>
+                  </DemoLimitedAction>
+                </ButtonGroup>
+              </motion.div>
+            )}
+          </AnimatePresence>
           <TableColumnsMenu table={table} />
         </div>
       </Card>
@@ -572,7 +580,7 @@ export function SignalsTable({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
-                  className="border-0 text-left text-[11px] uppercase tracking-wide text-muted-foreground hover:bg-transparent data-[state=selected]:bg-transparent ds-chrome-divider"
+                  className="border-0 text-left text-xs uppercase tracking-wide text-muted-foreground hover:bg-transparent data-[state=selected]:bg-transparent ds-chrome-divider"
                 >
                   {headerGroup.headers.map((header) => (
                     <TableHead
@@ -699,8 +707,7 @@ export function SignalsTable({
 
       <div className="flex min-w-0 flex-col gap-3 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4 sm:gap-y-2">
         <span className="inline-flex min-w-0 items-center rounded-full border border-border bg-background/40 px-3 py-1 text-[11px] font-medium tabular-nums ds-inset-top-mid">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount() || 1}
+          Showing {table.getFilteredRowModel().rows.length === 0 ? 0 : table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}–{Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, table.getFilteredRowModel().rows.length)} of {table.getFilteredRowModel().rows.length}
         </span>
         <div className="flex min-w-0 flex-wrap items-center gap-1.5">
           <ButtonGroup className="gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]">
