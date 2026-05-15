@@ -22,6 +22,7 @@ export default function AppError({
   return (
     <div className="flex min-h-[60vh] items-center justify-center p-8">
       <EmptyState
+        density="compact"
         icon={<AlertTriangle className="h-6 w-6 text-destructive" />}
         title="Something went wrong"
         description={

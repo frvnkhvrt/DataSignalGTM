@@ -62,39 +62,44 @@ export default function AccountsPage() {
       />
 
       <Stagger className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <StaggerItem>
+        <StaggerItem className="h-full">
           <KpiCard
+            className="h-full"
             label="Total"
             value={counts.total}
             icon={<ShieldCheck className="h-4 w-4" />}
           />
         </StaggerItem>
-        <StaggerItem>
+        <StaggerItem className="h-full">
           <KpiCard
+            className="h-full"
             label="Healthy"
             value={counts.healthy}
             tone="success"
             icon={<ShieldCheck className="h-4 w-4" />}
           />
         </StaggerItem>
-        <StaggerItem>
+        <StaggerItem className="h-full">
           <KpiCard
+            className="h-full"
             label="Held"
             value={counts.held}
             tone="warning"
             icon={<AlertTriangle className="h-4 w-4" />}
           />
         </StaggerItem>
-        <StaggerItem>
+        <StaggerItem className="h-full">
           <KpiCard
+            className="h-full"
             label="Critical"
             value={counts.critical}
             tone="destructive"
             icon={<CircleAlert className="h-4 w-4" />}
           />
         </StaggerItem>
-        <StaggerItem>
+        <StaggerItem className="h-full">
           <KpiCard
+            className="h-full"
             label="Open gaps"
             value={totalGaps}
             tone={totalGaps > 0 ? "warning" : "default"}

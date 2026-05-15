@@ -367,7 +367,7 @@ export function AccountsTable({
             <div className="ds-refetch-stripe" />
           </div>
         )}
-        <ButtonGroup className="min-h-9 w-full min-w-0 flex-1 gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:w-auto sm:max-w-xl">
+        <ButtonGroup className="min-h-9 w-full min-w-0 gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:w-fit sm:flex-none">
           <label htmlFor="account-search" className="sr-only">
             Search accounts
           </label>
@@ -378,7 +378,7 @@ export function AccountsTable({
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
             placeholder="Search accounts..."
-            className="h-9 min-h-9 border-0 bg-transparent shadow-none placeholder:text-muted-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 sm:max-w-[14rem]"
+            className="h-9 min-h-9 border-0 bg-transparent shadow-none placeholder:text-muted-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 sm:min-w-[14rem]"
           />
           <Select
             value={
@@ -390,7 +390,7 @@ export function AccountsTable({
           >
             <SelectTrigger
               aria-label="Filter account health"
-              className="h-9 min-h-9 w-full min-w-[9.5rem] shrink-0 rounded-none border-0 border-l border-border/55 bg-transparent shadow-none focus:ring-0 focus:ring-offset-0 data-[state=open]:border-border/55 sm:min-w-[11rem] sm:max-w-[200px]"
+              className="h-9 min-h-9 w-full min-w-[9.5rem] shrink-0 rounded-none border-0 border-l border-border/55 bg-transparent shadow-none focus:ring-0 focus:ring-offset-0 data-[state=open]:border-border/55 sm:min-w-[11rem]"
             >
               <SelectValue placeholder="Health" />
             </SelectTrigger>

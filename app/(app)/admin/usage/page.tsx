@@ -118,23 +118,26 @@ export default function UsagePage() {
       />
 
       <Stagger className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <StaggerItem>
+        <StaggerItem className="h-full">
           <KpiCard
+            className="h-full"
             label="Total jobs"
             value={isLoading ? "—" : total}
             icon={<Activity className="h-4 w-4" />}
           />
         </StaggerItem>
-        <StaggerItem>
+        <StaggerItem className="h-full">
           <KpiCard
+            className="h-full"
             label="Succeeded"
             value={isLoading ? "—" : succeeded}
             tone="success"
             icon={<CheckCircle2 className="h-4 w-4" />}
           />
         </StaggerItem>
-        <StaggerItem>
+        <StaggerItem className="h-full">
           <KpiCard
+            className="h-full"
             label="Failed"
             value={isLoading ? "—" : failed}
             tone={failed > 0 ? "destructive" : "default"}
@@ -142,15 +145,17 @@ export default function UsagePage() {
             icon={<XCircle className="h-4 w-4" />}
           />
         </StaggerItem>
-        <StaggerItem>
+        <StaggerItem className="h-full">
           <KpiCard
+            className="h-full"
             label="Avg duration"
             value={isLoading ? "—" : avgDuration != null ? `${avgDuration} ms` : "—"}
             icon={<Clock className="h-4 w-4" />}
           />
         </StaggerItem>
-        <StaggerItem>
+        <StaggerItem className="h-full">
           <KpiCard
+            className="h-full"
             label="Est. cost (USD)"
             value={isLoading ? "—" : `$${estimatedCost}`}
             sub="~$0.075 / 1M tokens"
