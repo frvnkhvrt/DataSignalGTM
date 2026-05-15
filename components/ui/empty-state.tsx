@@ -56,7 +56,7 @@ function EmptyState({
       >
         <motion.div
           className={cn(
-            "ds-empty-orb ds-empty-orb-glow flex items-center justify-center border border-primary/20 text-primary",
+            "ds-empty-orb ds-empty-orb-glow mx-auto flex items-center justify-center border border-primary/20 text-primary",
             compact
               ? "mb-3 h-11 w-11 rounded-xl"
               : "mb-4 h-14 w-14 rounded-2xl"

@@ -165,7 +165,7 @@ export function Sidebar() {
                         className={cn(
                           "ds-nav-active-pill pointer-events-none absolute hidden border-l-2 border-primary bg-gradient-to-r from-primary/14 to-primary/6 sm:block",
                           collapsed
-                            ? "inset-1 rounded-md"
+                            ? "inset-0 rounded-lg"
                             : "inset-0 rounded-md"
                         )}
                         transition={
@@ -195,7 +195,7 @@ export function Sidebar() {
               "ds-focus-ring relative flex items-center gap-3 overflow-hidden rounded-md border-l-2 border-transparent py-2 text-sm text-muted-foreground transition-[color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated hover:text-foreground sm:hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]",
               helpActive && "text-foreground sm:font-medium",
               collapsed
-                ? "justify-center px-2 sm:mx-auto sm:size-10 sm:max-w-10 sm:rounded-lg sm:px-0"
+                ? "justify-center px-2 sm:mx-auto sm:size-10 sm:max-w-10 sm:justify-center sm:gap-0 sm:rounded-lg sm:px-0"
                 : "px-3"
             )}
           >
@@ -205,7 +205,7 @@ export function Sidebar() {
                 aria-hidden="true"
                 className={cn(
                   "ds-nav-active-pill pointer-events-none absolute hidden border-l-2 border-primary bg-gradient-to-r from-primary/14 to-primary/6 sm:block",
-                  collapsed ? "inset-1 rounded-md" : "inset-0 rounded-md"
+                  collapsed ? "inset-0 rounded-lg" : "inset-0 rounded-md"
                 )}
                 transition={reducedMotion ? { duration: 0.01 } : spring.sidebarPill}
               />

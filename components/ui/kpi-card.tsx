@@ -73,7 +73,7 @@ export function KpiCard({
     <Card
       variant="translucent"
       className={cn(
-        "gap-0 border-l-2 p-0 transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/80",
+        "flex flex-col gap-0 border-l-2 p-0 transition-[background-color,box-shadow,border-color] duration-[var(--ds-duration-fast)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/80",
         accentTone[tone],
         className
       )}
@@ -91,7 +91,7 @@ export function KpiCard({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-1.5 px-4 pb-4 pt-0">
+      <CardContent className="flex flex-1 flex-col space-y-1.5 px-4 pb-4 pt-0">
         <motion.div
           key={String(value)}
           className={cn(
@@ -106,10 +106,14 @@ export function KpiCard({
           {value}
         </motion.div>
 
-        {description && (
-          <p className="text-xs leading-5 text-muted-foreground">{description}</p>
+        {(description || sub) && (
+          <div className="mt-auto flex flex-col gap-1 pt-1">
+            {description && (
+              <p className="text-xs leading-5 text-muted-foreground">{description}</p>
+            )}
+            {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
+          </div>
         )}
-        {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
       </CardContent>
     </Card>
   );

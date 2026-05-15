@@ -198,8 +198,9 @@ export default function DashboardPage() {
           ) : (
             <Stagger className="grid min-w-0 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
               <StaggerItem>
-                <MotionCard>
+                <MotionCard className="h-full">
                   <KpiCard
+                    className="h-full"
                     label="Pending signals"
                     value={pending}
                     tone="warning"
@@ -210,8 +211,9 @@ export default function DashboardPage() {
                 </MotionCard>
               </StaggerItem>
               <StaggerItem>
-                <MotionCard>
+                <MotionCard className="h-full">
                   <KpiCard
+                    className="h-full"
                     label="Average DQ"
                     value={avgDq}
                     tone={avgDq >= 85 ? "success" : "warning"}
@@ -222,8 +224,9 @@ export default function DashboardPage() {
                 </MotionCard>
               </StaggerItem>
               <StaggerItem>
-                <MotionCard>
+                <MotionCard className="h-full">
                   <KpiCard
+                    className="h-full"
                     label="Approved"
                     value={approved}
                     tone="success"
@@ -234,8 +237,9 @@ export default function DashboardPage() {
                 </MotionCard>
               </StaggerItem>
               <StaggerItem>
-                <MotionCard>
+                <MotionCard className="h-full">
                   <KpiCard
+                    className="h-full"
                     label="Playbooks"
                     value={playbookReady}
                     tone="info"

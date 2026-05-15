@@ -48,7 +48,7 @@ export function HelpNav({
             <span
               className={cn(
                 "ds-eyebrow shrink-0 ds-transition-muted",
-                variant === "sidebar" && "w-[4rem]",
+                variant === "sidebar" && "w-24",
                 variant === "rail" && "w-auto pr-0 text-[10px]",
                 isActive ? "text-primary/70" : "text-muted-foreground/60 group-hover:text-muted-foreground"
               )}
