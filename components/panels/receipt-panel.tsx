@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   XCircle,
   Sparkles,
+  Copy,
 } from "lucide-react";
 import {
   approveSignal,
@@ -280,6 +281,7 @@ export function ReceiptPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={transitionReceiptContent}
+              className="space-y-5"
             >
               <div>
                 <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
@@ -297,6 +299,8 @@ export function ReceiptPanel({
                 </p>
               </div>
 
+              <div className="ds-separator" aria-hidden />
+
               <div>
                 <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
                   Channels
@@ -313,18 +317,24 @@ export function ReceiptPanel({
                 </div>
               </div>
 
+              <div className="ds-separator" aria-hidden />
+
               <div>
                 <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-2">
                   Sequence
                 </div>
-                <div className="space-y-2">
+                <div className="relative space-y-2 pl-1">
+                  {/* Timeline connector line */}
+                  {pb.steps.length > 1 && (
+                    <div className="pointer-events-none absolute bottom-4 left-[1.625rem] top-4 w-px bg-gradient-to-b from-border via-border/60 to-transparent" aria-hidden />
+                  )}
                   {pb.steps.map((s: PlaybookStep, i: number) => (
                     <div
                       key={i}
-                      className="rounded-md border border-border bg-background/60 p-3 flex gap-3"
+                      className="relative rounded-md border border-border bg-background/60 p-3 flex gap-3 transition-[background-color,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:bg-surface-elevated/60 hover:border-border/80"
                     >
-                      <div className="flex-shrink-0 w-10 flex flex-col items-center justify-center rounded border border-border bg-background py-1">
-                        <div className="text-[9px] uppercase tracking-wide text-muted-foreground">
+                      <div className="relative z-10 flex-shrink-0 w-12 flex flex-col items-center justify-center rounded border border-border bg-background py-1 ds-inset-top-soft">
+                        <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
                           Day
                         </div>
                         <div className="text-sm font-mono tabular-nums font-semibold text-foreground">
@@ -350,6 +360,39 @@ export function ReceiptPanel({
                   ))}
                 </div>
               </div>
+
+              {/* Copy playbook action */}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="w-full"
+                onClick={async () => {
+                  const text = [
+                    `Playbook: ${account?.name}`,
+                    `Role: ${pb.role_target}`,
+                    `Rationale: ${pb.rationale}`,
+                    `Channels: ${pb.channels.join(", ")}`,
+                    "",
+                    "Sequence:",
+                    ...pb.steps.map(
+                      (s: PlaybookStep) =>
+                        `  Day ${s.day} — ${s.channel}: ${s.action} (${s.message_hint})`
+                    ),
+                  ].join("\n");
+                  try {
+                    await navigator.clipboard.writeText(text);
+                    toast.success("Playbook copied", {
+                      description: `${account?.name} playbook is on your clipboard.`,
+                    });
+                  } catch {
+                    toast.error("Could not copy to clipboard");
+                  }
+                }}
+              >
+                <Copy className="h-3.5 w-3.5" />
+                Copy playbook
+              </Button>
             </motion.div>
           )}
           </AnimatePresence>
@@ -406,10 +449,19 @@ export function ReceiptPanel({
         )}
 
         {terminal && (
-          <div className="px-6 py-4 text-center">
-            <span className="ds-eyebrow capitalize text-muted-foreground">
-              {status}
-            </span>
+          <div className="px-6 py-4">
+            <div className={`flex items-center justify-center gap-2 rounded-lg px-4 py-3 ${
+              status === "approved"
+                ? "border border-success/30 bg-success/8 text-success"
+                : "border border-destructive/30 bg-destructive/8 text-destructive"
+            }`}>
+              {status === "approved" ? (
+                <CheckCircle2 className="h-4 w-4" />
+              ) : (
+                <XCircle className="h-4 w-4" />
+              )}
+              <span className="text-sm font-medium capitalize">{status}</span>
+            </div>
           </div>
         )}
       </SheetContent>

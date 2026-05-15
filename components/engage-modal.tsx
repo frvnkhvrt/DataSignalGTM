@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import type { AccountRow } from "@/lib/gtm-queries";
 import { Dialog, DialogMotionContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 function draftMessage(account: AccountRow): string {
   const employees =
@@ -97,14 +98,17 @@ function EngageModalContent({
           >
             Message draft
           </label>
-          <textarea
+          <Textarea
             id="engage-draft"
             value={message}
             onChange={(event) => setMessage(event.target.value)}
-            className="ds-focus-ring ds-input-well h-56 w-full resize-y rounded-md border border-input bg-background/60 p-3 text-sm leading-relaxed text-foreground transition-[border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] placeholder:text-muted-foreground hover:border-border/90 focus-visible:border-ring/60"
+            className="ds-input-well h-56 w-full resize-y rounded-md bg-background/60 p-3 leading-relaxed transition-[border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/90"
           />
+          <div className="mt-1.5 text-right text-[10px] tabular-nums text-muted-foreground/70">
+            {message.length} chars
+          </div>
         </div>
-        <div className="relative flex items-center justify-end gap-2 px-5 pb-3 pt-4">
+        <div className="relative flex items-center justify-end gap-2 px-5 py-4">
           <div className="ds-separator pointer-events-none absolute inset-x-0 top-0" aria-hidden />
           <Button
             type="button"

@@ -1,5 +1,8 @@
 "use client";
 
+import * as React from "react";
+import { useEffect } from "react";
+
 import {
   Sheet,
   SheetContent,
@@ -22,11 +25,11 @@ import {
 } from "lucide-react";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { MotionListItem } from "@/components/ui/motion";
+import { MotionListItem, spring } from "@/components/ui/motion";
 import type {
   AccountRow,
   DataIssueCount,
@@ -288,6 +291,23 @@ export function DataIssuesPanel({
 
   const circumference = 2 * Math.PI * 40;
   const offset = circumference - (dq / 100) * circumference;
+  const reduced = useReducedMotion();
+
+  // Ring draw-in: start unmounted (full circle), defer to rAF for the
+  // transition to kick in. A ref avoids the lint issue with setState in
+  // an effect body — the key on the ring container forces remount on
+  // account change, which naturally resets the animation.
+  const ringRef = React.useRef<SVGCircleElement>(null);
+  useEffect(() => {
+    const el = ringRef.current;
+    if (!el) return;
+    // Start at full circumference (empty ring), then transition to target
+    el.style.strokeDashoffset = String(circumference);
+    const raf = requestAnimationFrame(() => {
+      el.style.strokeDashoffset = String(offset);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [circumference, offset]);
 
   return (
     <Sheet open={!!account} onOpenChange={(o) => !o && onClose()}>
@@ -321,6 +341,7 @@ export function DataIssuesPanel({
                   className="stroke-border"
                 />
                 <circle
+                  ref={ringRef}
                   cx="44"
                   cy="44"
                   r="40"
@@ -329,11 +350,17 @@ export function DataIssuesPanel({
                   strokeLinecap="round"
                   className={cn(ringColor, "ds-ring-dash")}
                   strokeDasharray={circumference}
-                  strokeDashoffset={offset}
+                  strokeDashoffset={circumference}
                   transform="rotate(-90 44 44)"
                 />
               </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <motion.div
+                className="absolute inset-0 flex flex-col items-center justify-center"
+                key={account?.id ?? "dq-score"}
+                initial={reduced ? {} : { opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={reduced ? { duration: 0 } : spring.metricPop}
+              >
                 <span
                   className={`text-xl font-semibold font-mono tabular-nums ${scoreColor}`}
                 >
@@ -342,7 +369,7 @@ export function DataIssuesPanel({
                 <span className="text-[9px] uppercase tracking-wide text-muted-foreground">
                   DQ
                 </span>
-              </div>
+              </motion.div>
             </div>
 
             {/* Score details */}
@@ -456,7 +483,12 @@ export function DataIssuesPanel({
 
           {!isLoading && sorted.length === 0 && (
             <div className="py-10 text-center">
-              <CheckCircle2 className="h-6 w-6 text-success/40 mx-auto mb-2" />
+              <div className="ds-empty-orb ds-empty-orb-glow mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl border border-success/20 text-success">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              <div className="text-sm font-medium text-foreground mb-1">
+                All clear
+              </div>
               <div className="text-xs text-muted-foreground">
                 No data gaps detected for this account.
               </div>
@@ -513,7 +545,7 @@ function IssueCard({
 
   return (
     <div
-      className={`rounded-md border border-border border-l-[3px] ${borderClass} bg-background/60 p-3 space-y-2`}
+      className={`rounded-md border border-border border-l-[3px] ${borderClass} bg-background/60 p-3 space-y-2 transition-[background-color,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:bg-surface-elevated/60 hover:border-border/80`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2 min-w-0">

@@ -29,7 +29,7 @@ interface Step {
 const STEPS: Step[] = [
   {
     id: "welcome",
-    icon: <Zap className="h-6 w-6 text-emerald-400" />,
+    icon: <Zap className="h-6 w-6 text-primary" />,
     title: "Welcome to DataSignalGTM",
     description:
       "You've just set up the GTM signal layer that turns intent data into revenue. Let's walk you through the key concepts in 60 seconds.",
@@ -37,7 +37,7 @@ const STEPS: Step[] = [
   },
   {
     id: "signals",
-    icon: <Target className="h-6 w-6 text-violet-400" />,
+    icon: <Target className="h-6 w-6 text-info" />,
     title: "Understand signals & scoring",
     description:
       "Every account gets a composite score from velocity, intent, fit, and timing signals. Pending signals await your review — approve them to move accounts into the active pipeline.",
@@ -45,7 +45,7 @@ const STEPS: Step[] = [
   },
   {
     id: "playbooks",
-    icon: <Brain className="h-6 w-6 text-cyan-400" />,
+    icon: <Brain className="h-6 w-6 text-info" />,
     title: "Generate AI playbooks",
     description:
       "Click \"Generate playbook\" on any signal to queue an AI-powered outreach strategy via Gemini. Jobs run in the background and your dashboard updates in real-time.",
@@ -53,7 +53,7 @@ const STEPS: Step[] = [
   },
   {
     id: "sources",
-    icon: <Plug className="h-6 w-6 text-amber-400" />,
+    icon: <Plug className="h-6 w-6 text-warning" />,
     title: "Connect your data sources",
     description:
       "Push signals from any tool using our webhook endpoint (POST /api/webhooks/signals). Supports Clearbit, 6sense, Bombora, Apollo, and any custom source.",
@@ -136,7 +136,7 @@ export function OnboardingModal({
               key={s.id}
               type="button"
               onClick={() => setStep(i)}
-              className={`h-1.5 rounded-full transition-[width,background-color,box-shadow] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] ${
+              className={`ds-focus-ring h-1.5 rounded-full transition-[width,background-color,box-shadow] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] ${
                 i === step
                   ? "w-6 bg-primary shadow-glow"
                   : i < step
@@ -186,11 +186,24 @@ export function OnboardingModal({
               "Review pending signals on the Signals page",
               "Generate an AI playbook for a high-score account",
               "Connect an intent data source via webhook",
-            ].map((item) => (
-              <div key={item} className="flex items-start gap-2 py-1 text-xs text-muted-foreground">
-                <CheckCircle2 className="ds-success-pop mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
+            ].map((item, i) => (
+              <motion.div
+                key={item}
+                className="flex items-start gap-2 py-1 text-xs text-muted-foreground"
+                initial={reducedMotion ? false : { opacity: 0, x: -4 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={
+                  reducedMotion
+                    ? { duration: 0 }
+                    : { delay: i * 0.14, duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }
+                }
+              >
+                <CheckCircle2
+                  className="ds-success-pop mt-0.5 h-3.5 w-3.5 shrink-0 text-success"
+                  style={{ animationDelay: `${i * 140}ms` }}
+                />
                 {item}
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
