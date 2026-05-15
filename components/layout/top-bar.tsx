@@ -1,6 +1,7 @@
 "use client";
 
 import { Command, LogOut } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -75,16 +76,23 @@ export function TopBar() {
         </motion.p>
       </AnimatePresence>
       <div className="flex items-center gap-3">
-        <div className="hidden items-center gap-1.5 rounded-md border border-border bg-background/40 px-2 py-1 text-[11px] text-muted-foreground transition-[border-color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none ds-inset-top-mid hover:border-primary/12 lg:flex">
+        <button
+          type="button"
+          onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+          className="hidden items-center gap-1.5 rounded-md border border-border bg-background/40 px-2 py-1 text-[11px] text-muted-foreground transition-[border-color,background-color,box-shadow,color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none ds-inset-top-mid hover:border-primary/20 hover:text-foreground lg:flex cursor-pointer group"
+        >
           <Command className="h-3 w-3" />
-          <kbd className="rounded-md border border-border/70 bg-muted/55 px-1.5 py-0.5 font-mono text-[10px] leading-none text-muted-foreground/90 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)]">{shortcut}</kbd>
-        </div>
-        <div className="hidden rounded-md border border-border/50 bg-background/30 px-2.5 py-1.5 text-right transition-[border-color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none ds-inset-top-soft hover:border-border/65 hover:bg-background/40 sm:block">
+          <kbd className="rounded-md border border-border/70 bg-muted/55 px-1.5 py-0.5 font-mono text-[10px] leading-none text-muted-foreground/90 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)] transition-colors group-hover:bg-muted/80">{shortcut}</kbd>
+        </button>
+        <Link 
+          href="/settings/billing"
+          className="hidden rounded-md border border-border/50 bg-background/30 px-2.5 py-1.5 text-right transition-[border-color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none ds-inset-top-soft hover:border-border/65 hover:bg-background/40 sm:block"
+        >
           <div className="text-xs font-medium text-foreground">{org.name}</div>
           <div className="text-[11px] text-muted-foreground">
             {user.email ?? "Authenticated user"} · {org.role}
           </div>
-        </div>
+        </Link>
         <Button
           type="button"
           onClick={signOut}

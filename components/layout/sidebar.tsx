@@ -31,7 +31,7 @@ const navGroups = [
   {
     label: "Operations",
     items: [
-      { href: "/admin/usage", label: "AI Usage", icon: BarChart3 },
+      { href: "/admin/usage", label: "AI Usage", icon: BarChart3, hideOnMobile: true },
       { href: "/settings/billing", label: "Billing", icon: CreditCard },
     ],
   },
@@ -116,7 +116,7 @@ export function Sidebar() {
 
       <nav
         className={cn(
-          "grid flex-1 grid-cols-3 gap-1 px-2 py-2 sm:block sm:px-3 sm:py-4",
+          "grid flex-1 grid-cols-4 gap-1 px-2 py-2 sm:block sm:px-3 sm:py-4",
           collapsed ? "sm:space-y-4" : "sm:space-y-5"
         )}
       >
@@ -131,7 +131,9 @@ export function Sidebar() {
               {group.label}
             </div>
             <div className="contents sm:block sm:space-y-0.5">
-              {group.items.map(({ href, label, icon: Icon }) => {
+              {group.items.map((item) => {
+                const { href, label, icon: Icon } = item;
+                const hideOnMobile = "hideOnMobile" in item ? item.hideOnMobile : false;
                 const active =
                   href === "/dashboard"
                     ? pathname === "/dashboard"
@@ -145,7 +147,8 @@ export function Sidebar() {
                     onFocus={() => router.prefetch(href)}
                     onMouseEnter={() => router.prefetch(href)}
                     className={cn(
-                      "ds-focus-ring relative flex flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] transition-[color,background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:flex-row sm:border-l-2 sm:border-t-0 sm:text-sm",
+                      "ds-focus-ring relative flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] transition-[color,background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:flex-row sm:border-l-2 sm:border-t-0 sm:text-sm",
+                      hideOnMobile ? "hidden sm:flex" : "flex",
                       collapsed
                         ? "sm:mx-auto sm:size-10 sm:max-w-10 sm:justify-center sm:gap-0 sm:rounded-lg sm:border-l-transparent sm:px-0 sm:py-0"
                         : "sm:justify-start sm:gap-3 sm:px-3 sm:py-2",
@@ -196,6 +199,17 @@ export function Sidebar() {
                 : "px-3"
             )}
           >
+            {helpActive && (
+              <motion.span
+                layoutId={PILL_LAYOUT_ID}
+                aria-hidden="true"
+                className={cn(
+                  "ds-nav-active-pill pointer-events-none absolute hidden border-l-2 border-primary bg-gradient-to-r from-primary/14 to-primary/6 sm:block",
+                  collapsed ? "inset-1 rounded-md" : "inset-0 rounded-md"
+                )}
+                transition={reducedMotion ? { duration: 0.01 } : spring.sidebarPill}
+              />
+            )}
             <BookOpen className="relative z-10 size-4 shrink-0" strokeWidth={2} />
             <span className={cn("relative z-10", collapsed && "sm:sr-only")}>
               Help

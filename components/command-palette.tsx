@@ -41,6 +41,7 @@ import {
 import { motion, useReducedMotion } from "motion/react";
 
 const RECENT_KEY = "datasignalgtm.commandPalette.recent";
+const cmdGroupClass = "mt-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70";
 const NAV_ITEMS = [
   { label: "Go to Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Go to Signals", href: "/signals", icon: Radio },
@@ -75,12 +76,16 @@ const paletteRowBase =
 function CmdItem({
   children,
   className,
+  variant = "default",
   ...props
-}: React.ComponentProps<typeof Command.Item>) {
+}: React.ComponentProps<typeof Command.Item> & { variant?: "default" | "success" | "destructive" }) {
   const reduced = useReducedMotion();
   const merged = cn(
     paletteRowBase,
-    !reduced && "data-[selected=true]:translate-x-px",
+    variant === "default" && "aria-selected:bg-gradient-to-r aria-selected:from-primary/12 aria-selected:to-primary/6 aria-selected:text-primary aria-selected:shadow-[inset_2px_0_0_var(--color-primary)]",
+    variant === "success" && "aria-selected:bg-gradient-to-r aria-selected:from-success/12 aria-selected:to-success/6 aria-selected:text-success aria-selected:shadow-[inset_2px_0_0_var(--color-success)]",
+    variant === "destructive" && "aria-selected:bg-gradient-to-r aria-selected:from-destructive/12 aria-selected:to-destructive/6 aria-selected:text-destructive aria-selected:shadow-[inset_2px_0_0_var(--color-destructive)]",
+    !reduced && "aria-selected:translate-x-px",
     className
   );
   if (reduced) {
@@ -277,7 +282,7 @@ export function CommandPalette() {
           </Command.Empty>
 
           {recent.length > 0 && (
-            <Command.Group heading="Recently used" className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70">
+            <Command.Group heading="Recently used" className={cn("!mt-0", cmdGroupClass)}>
               <CommandGroupStagger>
                 {recent.map((label) => (
                   <CmdItem
@@ -314,7 +319,6 @@ export function CommandPalette() {
                     }}
                     className={cn(
                       "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground",
-                      "aria-selected:bg-gradient-to-r aria-selected:from-primary/12 aria-selected:to-primary/6 aria-selected:text-primary aria-selected:shadow-[inset_2px_0_0_var(--color-primary)]",
                       isDemo && isMutableRecentLabel(label) && "cursor-not-allowed opacity-55"
                     )}
                   >
@@ -326,14 +330,14 @@ export function CommandPalette() {
             </Command.Group>
           )}
 
-          <Command.Group heading="Navigate" className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70">
+          <Command.Group heading="Navigate" className={cn("!mt-0", cmdGroupClass)}>
             <CommandGroupStagger>
               {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
                 <CmdItem
                   key={href}
                   value={label}
                   onSelect={() => navigate(label, href)}
-                  className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-gradient-to-r aria-selected:from-primary/12 aria-selected:to-primary/6 aria-selected:text-primary aria-selected:shadow-[inset_2px_0_0_var(--color-primary)]"
+                  className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground"
                 >
                   <Icon className="h-3.5 w-3.5 text-muted-foreground" />
                   <Highlight text={label} query={search} />
@@ -342,7 +346,7 @@ export function CommandPalette() {
             </CommandGroupStagger>
           </Command.Group>
 
-          <Command.Group heading="Accounts" className="mt-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70">
+          <Command.Group heading="Accounts" className={cmdGroupClass}>
             <CommandGroupStagger>
               {accounts.map((account) => {
               const signal = signalsByAccount.get(account.name);
@@ -370,7 +374,7 @@ export function CommandPalette() {
                     }
                   }}
                   className={cn(
-                    "flex cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-gradient-to-r aria-selected:from-primary/12 aria-selected:to-primary/6 aria-selected:text-primary aria-selected:shadow-[inset_2px_0_0_var(--color-primary)]",
+                    "flex cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-sm text-foreground",
                     isDemo && canGenerate && "cursor-not-allowed opacity-55"
                   )}
                 >
@@ -394,7 +398,7 @@ export function CommandPalette() {
             </CommandGroupStagger>
           </Command.Group>
 
-          <Command.Group heading="Signals" className="mt-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.12em] [&_[cmdk-group-heading]]:text-muted-foreground/70">
+          <Command.Group heading="Signals" className={cmdGroupClass}>
             <CommandGroupStagger>
               {signals.map((signal) => {
               const name = signal.account_name ?? "";
@@ -417,8 +421,9 @@ export function CommandPalette() {
                           signalId: signal.id,
                         });
                       }}
+                      variant="success"
                       className={cn(
-                        "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-gradient-to-r aria-selected:from-success/12 aria-selected:to-success/6 aria-selected:text-success aria-selected:shadow-[inset_2px_0_0_var(--color-success)]",
+                        "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground",
                         isDemo && "cursor-not-allowed opacity-55"
                       )}
                     >
@@ -441,8 +446,9 @@ export function CommandPalette() {
                           signalId: signal.id,
                         });
                       }}
+                      variant="destructive"
                       className={cn(
-                        "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground aria-selected:bg-gradient-to-r aria-selected:from-destructive/12 aria-selected:to-destructive/6 aria-selected:text-destructive aria-selected:shadow-[inset_2px_0_0_var(--color-destructive)]",
+                        "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground",
                         isDemo && "cursor-not-allowed opacity-55"
                       )}
                     >
@@ -458,6 +464,11 @@ export function CommandPalette() {
             </CommandGroupStagger>
           </Command.Group>
         </Command.List>
+        <div className="flex items-center justify-center gap-4 border-t border-border/50 bg-background/40 px-4 py-2.5 text-[10px] font-medium text-muted-foreground/60 ds-chrome-divider">
+          <span><kbd className="font-sans">↑↓</kbd> Navigate</span>
+          <span><kbd className="font-sans">↵</kbd> Select</span>
+          <span><kbd className="font-sans">Esc</kbd> Close</span>
+        </div>
         </Command>
       </DialogMotionContent>
     </Dialog>
