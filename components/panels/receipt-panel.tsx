@@ -73,12 +73,15 @@ export function ReceiptPanel({
   });
 
   const approve = useMutation({
-    mutationFn: () => approveSignal(org.id, account!.name),
-    onSuccess: () => {
+    mutationFn: () => {
+      if (!data?.id) throw new Error("Signal data not loaded yet");
+      return approveSignal(org.id, data.id);
+    },
+    onSuccess: ({ accountName }) => {
       qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
       qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
       toast.success("Signal approved", {
-        description: account?.name,
+        description: accountName,
       });
     },
     onError: (e) => {
@@ -93,12 +96,15 @@ export function ReceiptPanel({
   });
 
   const reject = useMutation({
-    mutationFn: () => rejectSignal(org.id, account!.name),
-    onSuccess: () => {
+    mutationFn: () => {
+      if (!data?.id) throw new Error("Signal data not loaded yet");
+      return rejectSignal(org.id, data.id);
+    },
+    onSuccess: ({ accountName }) => {
       qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
       qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
       toast.success("Signal rejected", {
-        description: account?.name,
+        description: accountName,
       });
     },
     onError: (e) =>
@@ -361,7 +367,7 @@ export function ReceiptPanel({
                 <Button
                   type="button"
                   variant="default"
-                  disabled={approve.isPending}
+                  disabled={approve.isPending || !data?.id}
                   onClick={() => tryApprove()}
                   className="w-full"
                 >
@@ -383,7 +389,7 @@ export function ReceiptPanel({
                 <Button
                   type="button"
                   variant="destructive"
-                  disabled={reject.isPending}
+                  disabled={reject.isPending || !data?.id}
                   onClick={() => tryReject()}
                   className="w-full"
                 >

@@ -335,6 +335,28 @@
     transform: translateX(0.5px) translateZ(0);
   }
 
+  /* Selected row — gradient fill + saturated left edge. Stays applied on hover
+     so a row keeps its "this is selected" identity even while mousing over. */
+  .ds-row[data-selected="true"] {
+    background-image: linear-gradient(
+      to right,
+      color-mix(in oklch, var(--primary) 12%, transparent),
+      color-mix(in oklch, var(--primary) 4%, transparent)
+    );
+    box-shadow: inset 2px 0 0 var(--color-primary);
+  }
+
+  .ds-row[data-selected="true"]:hover {
+    background-image: linear-gradient(
+      to right,
+      color-mix(in oklch, var(--primary) 18%, transparent),
+      color-mix(in oklch, var(--primary) 6%, transparent)
+    );
+    box-shadow:
+      inset 2px 0 0 var(--color-primary),
+      inset 0 1px 0 rgb(255 255 255 / 0.04);
+  }
+
   .ds-empty-orb {
     background:
       radial-gradient(circle at 30% 25%, color-mix(in oklch, var(--primary) 35%, transparent), transparent 38%),
@@ -453,6 +475,30 @@
   /* Top-edge lit-from-above highlight — cards, badges, dense chips */
   .ds-card-inner-glow {
     box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+  }
+
+  /* Canonical floating surface — popover, select, dropdown, tooltip,
+     chart tooltip. Encapsulates background, blur, hairline border, lit edge,
+     ring and elevated shadow so floating chrome stays visually coherent.
+     --ds-floating-surface-bg: shared with tooltip arrows / fills. */
+  .ds-floating-surface {
+    --ds-floating-surface-bg: color-mix(in oklch, var(--popover) 97%, transparent);
+    background-color: var(--ds-floating-surface-bg);
+    color: var(--popover-foreground);
+    border: 1px solid color-mix(in oklch, var(--border) 90%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow:
+      0 0 0 1px color-mix(in oklch, var(--border) 82%, var(--ring) 14%),
+      var(--shadow-elevated),
+      inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+  }
+
+  .dark .ds-floating-surface {
+    box-shadow:
+      0 0 0 1px color-mix(in oklch, var(--border) 78%, var(--ring) 18%),
+      var(--shadow-elevated),
+      inset 0 1px 0 0 rgb(255 255 255 / 0.06);
   }
 
   /* Muted link / nav color transitions — matches tactile timing */

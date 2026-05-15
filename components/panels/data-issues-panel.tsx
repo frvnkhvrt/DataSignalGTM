@@ -23,6 +23,7 @@ import {
 import { useCurrentOrg } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 import { AnimatePresence } from "motion/react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { MotionListItem } from "@/components/ui/motion";
@@ -51,10 +52,10 @@ const SEVERITY_BORDER: Record<string, string> = {
   low: "border-l-border",
 };
 
-const SEVERITY_BADGE: Record<string, string> = {
-  high: "border-destructive/40 text-destructive bg-destructive/10",
-  medium: "border-warning/40 text-warning bg-warning/10",
-  low: "border-border text-muted-foreground bg-muted/50",
+const SEVERITY_VARIANT: Record<string, "destructive" | "warning" | "muted"> = {
+  high: "destructive",
+  medium: "warning",
+  low: "muted",
 };
 
 const ISSUE_TYPE_LABEL: Record<string, string> = {
@@ -347,9 +348,19 @@ export function DataIssuesPanel({
             {/* Score details */}
             <div className="flex-1 space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-muted-foreground border border-border rounded px-2 py-0.5">
+                <Badge
+                  variant={
+                    tone === "good"
+                      ? "success"
+                      : tone === "warn"
+                        ? "warning"
+                        : "destructive"
+                  }
+                  shape="square"
+                  className="text-[10px] uppercase"
+                >
                   {label}
-                </span>
+                </Badge>
               </div>
               {sorted.length > 0 && (
                 <div className="flex items-center gap-3 text-[11px]">
@@ -496,7 +507,7 @@ function IssueCard({
   busy: boolean;
 }) {
   const sev = issue.severity ?? "low";
-  const sevBadge = SEVERITY_BADGE[sev] ?? SEVERITY_BADGE.low;
+  const sevVariant = SEVERITY_VARIANT[sev] ?? SEVERITY_VARIANT.low;
   const borderClass = SEVERITY_BORDER[sev] ?? SEVERITY_BORDER.low;
   const typeLabel = ISSUE_TYPE_LABEL[issue.issue_type ?? ""] ?? issue.issue_type?.replace(/_/g, " ") ?? "unknown";
 
@@ -517,11 +528,13 @@ function IssueCard({
             <span className="text-xs text-muted-foreground">{typeLabel}</span>
           </div>
         </div>
-        <span
-          className={`inline-flex items-center shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-medium uppercase ${sevBadge}`}
+        <Badge
+          variant={sevVariant}
+          shape="square"
+          className="shrink-0 text-[10px] uppercase"
         >
           {sev}
-        </span>
+        </Badge>
       </div>
 
       {issue.suggested_fix && (

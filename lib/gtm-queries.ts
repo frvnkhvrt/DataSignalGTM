@@ -270,21 +270,32 @@ export function assertSignalTransition({
   }
 }
 
+export type SignalTransitionResult = {
+  signalId: string;
+  accountName: string;
+};
+
+/**
+ * Transition a signal by row id. Account name is resolved from the row so
+ * callers can never accidentally target the wrong signal when multiple rows
+ * share an account_name (e.g. webhook duplicates).
+ */
 export async function transitionSignal(
   orgId: string,
-  accountName: string,
+  signalId: string,
   to: SignalStatus
-) {
+): Promise<SignalTransitionResult> {
   const { data: current, error: fetchErr } = await supabase
     .from("signals")
-    .select("status,playbook")
+    .select("id,account_name,status,playbook")
     .eq("org_id", orgId)
-    .eq("account_name", accountName)
+    .eq("id", signalId)
     .maybeSingle();
   if (fetchErr) throw fetchErr;
-  if (!current) throw new Error(`Signal not found for ${accountName}`);
+  if (!current) throw new Error(`Signal ${signalId} not found`);
 
   const from = (current.status ?? "pending") as SignalStatus;
+  const accountName = current.account_name ?? "(unnamed signal)";
   assertSignalTransition({
     accountName,
     from,
@@ -296,16 +307,17 @@ export async function transitionSignal(
     .from("signals")
     .update({ status: to })
     .eq("org_id", orgId)
-    .eq("account_name", accountName);
+    .eq("id", signalId);
   if (error) throw error;
+  return { signalId, accountName };
 }
 
-export async function approveSignal(orgId: string, accountName: string) {
-  return transitionSignal(orgId, accountName, "approved");
+export async function approveSignal(orgId: string, signalId: string) {
+  return transitionSignal(orgId, signalId, "approved");
 }
 
-export async function rejectSignal(orgId: string, accountName: string) {
-  return transitionSignal(orgId, accountName, "rejected");
+export async function rejectSignal(orgId: string, signalId: string) {
+  return transitionSignal(orgId, signalId, "rejected");
 }
 
 /* ------------------------------------------------------------------ */

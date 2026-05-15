@@ -45,11 +45,6 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { accountsByDqQuery, signalsRecentQuery } from "@/lib/gtm-queries";
 import type { SignalStatus } from "@/types/signal";
@@ -305,34 +300,14 @@ export default function DashboardPage() {
                           key={signal.id}
                           className="flex items-center justify-between gap-3 rounded-lg py-2.5 pl-1 pr-1 transition-[background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated/35"
                         >
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div
-                                className="ds-focus-ring min-w-0 flex-1 cursor-default rounded-md text-left outline-none"
-                                tabIndex={0}
-                              >
-                                <div className="truncate text-sm font-medium text-foreground">
-                                  {signal.account_name ?? "Unknown account"}
-                                </div>
-                                <p className="line-clamp-1 text-xs text-muted-foreground">
-                                  {signal.why_now ?? signal.source ?? "Signal context pending"}
-                                </p>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="top"
-                              align="start"
-                              sideOffset={6}
-                              className="max-w-xs border border-border/50 bg-popover px-3 py-2 text-popover-foreground shadow-lg"
-                            >
-                              <p className="font-medium text-foreground">
-                                {signal.account_name ?? "Unknown account"}
-                              </p>
-                              <p className="mt-1 text-muted-foreground">
-                                {signal.why_now ?? signal.source ?? "Signal context pending"}
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-sm font-medium text-foreground">
+                              {signal.account_name ?? "Unknown account"}
+                            </div>
+                            <p className="line-clamp-1 text-xs text-muted-foreground">
+                              {signal.why_now ?? signal.source ?? "Signal context pending"}
+                            </p>
+                          </div>
                           <div className="shrink-0">
                             <StatusPill status={(signal.status ?? "pending") as SignalStatus} />
                           </div>
@@ -379,32 +354,17 @@ export default function DashboardPage() {
                     <AnimatePresence initial={false}>
                       {atRiskAccounts.map((account) => (
                         <MotionListItem key={account.id}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Link
-                                href="/accounts"
-                                className="ds-focus-ring ds-inset-top-soft flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border bg-background/35 px-3 py-2 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/80 hover:bg-surface-elevated"
-                              >
-                                <span className="truncate text-sm font-medium text-foreground">
-                                  {account.name}
-                                </span>
-                                <span className="shrink-0 font-mono text-xs tabular-nums text-warning">
-                                  {account.data_quality_score ?? 0} DQ
-                                </span>
-                              </Link>
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="top"
-                              align="start"
-                              sideOffset={6}
-                              className="max-w-xs border border-border/50 bg-popover px-3 py-2 text-popover-foreground shadow-lg"
-                            >
-                              <span className="font-medium text-foreground">{account.name}</span>
-                              <span className="mt-1 block font-mono text-xs tabular-nums text-warning">
-                                Data quality {account.data_quality_score ?? 0}
-                              </span>
-                            </TooltipContent>
-                          </Tooltip>
+                          <Link
+                            href="/accounts"
+                            className="ds-focus-ring ds-inset-top-soft flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border bg-background/35 px-3 py-2 transition-[background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-border/80 hover:bg-surface-elevated"
+                          >
+                            <span className="truncate text-sm font-medium text-foreground">
+                              {account.name}
+                            </span>
+                            <span className="shrink-0 font-mono text-xs tabular-nums text-warning">
+                              {account.data_quality_score ?? 0} DQ
+                            </span>
+                          </Link>
                         </MotionListItem>
                       ))}
                     </AnimatePresence>

@@ -16,11 +16,9 @@ import {
 } from "@tanstack/react-table";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  AlertTriangle,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  Clock,
   Sparkles,
   XCircle,
 } from "lucide-react";
@@ -38,14 +36,23 @@ import { useCurrentOrg } from "@/lib/auth-context";
 import { useFlags } from "@/lib/use-flags";
 import { SourceBadge } from "@/components/source-badge";
 import { ReceiptPanel } from "@/components/panels/receipt-panel";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
+} from "@/components/ui/button-group";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TableSkeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { StatusPill } from "@/components/ui/status-pill";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group";
 import { AnimatedDialog } from "@/components/ui/animated-dialog";
 import type { SignalStatus } from "@/types/signal";
 import { canTransition } from "@/types/signal";
@@ -57,7 +64,8 @@ import {
   transitionTableSkeletonFade,
 } from "@/components/ui/motion";
 import { isRecentlyUpdated } from "@/lib/realtime-glow";
-import { SortButton, tableCheckboxClassName } from "@/components/tables/table-primitives";
+import { SortButton } from "@/components/tables/table-primitives";
+import { Checkbox } from "@/components/ui/checkbox";
 import { TableColumnsMenu } from "@/components/tables/table-columns-menu";
 import {
   Table,
@@ -70,37 +78,33 @@ import {
 type BulkAction = "approve" | "reject";
 type Density = "comfortable" | "compact";
 
-function signalStatus(value: string | null): SignalStatus {
-  return (value ?? "pending") as SignalStatus;
+async function runWithConcurrency<T, R>(
+  items: readonly T[],
+  worker: (item: T) => Promise<R>,
+  concurrency = 5
+): Promise<{ ok: R[]; failed: { item: T; error: unknown }[] }> {
+  const ok: R[] = [];
+  const failed: { item: T; error: unknown }[] = [];
+  let cursor = 0;
+  const runners = Array.from(
+    { length: Math.min(concurrency, items.length) },
+    async () => {
+      while (cursor < items.length) {
+        const item = items[cursor++];
+        try {
+          ok.push(await worker(item));
+        } catch (error) {
+          failed.push({ item, error });
+        }
+      }
+    }
+  );
+  await Promise.all(runners);
+  return { ok, failed };
 }
 
-function StatusBadge({ status }: { status: SignalStatus }) {
-  if (status === "approved") {
-    return (
-      <Badge variant="success" shape="square">
-        <CheckCircle2 className="h-3 w-3 shrink-0" /> Approved
-      </Badge>
-    );
-  }
-  if (status === "rejected") {
-    return (
-      <Badge variant="destructive" shape="square">
-        <XCircle className="h-3 w-3 shrink-0" /> Rejected
-      </Badge>
-    );
-  }
-  if (status === "held") {
-    return (
-      <Badge variant="warning" shape="square">
-        <AlertTriangle className="h-3 w-3 shrink-0" /> Held
-      </Badge>
-    );
-  }
-  return (
-    <Badge variant="muted" shape="square">
-      <Clock className="h-3 w-3 shrink-0" /> Pending
-    </Badge>
-  );
+function signalStatus(value: string | null): SignalStatus {
+  return (value ?? "pending") as SignalStatus;
 }
 
 function PlaybookState({ signal }: { signal: SignalRow }) {
@@ -157,14 +161,14 @@ export function SignalsTable({
   };
 
   const approve = useMutation({
-    mutationFn: (name: string) => approveSignal(org.id, name),
-    onSuccess: (_data, name) => {
+    mutationFn: (signalId: string) => approveSignal(org.id, signalId),
+    onSuccess: ({ accountName }) => {
       invalidateSignals();
       toast.success("Signal approved", {
-        description: name,
+        description: accountName,
         action: {
           label: "View",
-          onClick: () => setReceiptFor({ name }),
+          onClick: () => setReceiptFor({ name: accountName }),
         },
       });
     },
@@ -176,10 +180,10 @@ export function SignalsTable({
   });
 
   const reject = useMutation({
-    mutationFn: (name: string) => rejectSignal(org.id, name),
-    onSuccess: (_data, name) => {
+    mutationFn: (signalId: string) => rejectSignal(org.id, signalId),
+    onSuccess: ({ accountName }) => {
       invalidateSignals();
-      toast.success("Signal rejected", { description: name });
+      toast.success("Signal rejected", { description: accountName });
     },
     onError: (error) =>
       isTransitionError(error)
@@ -202,33 +206,36 @@ export function SignalsTable({
   const bulk = useMutation({
     mutationFn: async ({
       action,
-      names,
+      signalIds,
     }: {
       action: BulkAction;
-      names: string[];
+      signalIds: string[];
     }) => {
-      for (const name of names) {
-        if (action === "approve") {
-          await approveSignal(org.id, name);
-        } else {
-          await rejectSignal(org.id, name);
-        }
-      }
-      return { action, count: names.length };
+      const fn = action === "approve" ? approveSignal : rejectSignal;
+      const { ok, failed } = await runWithConcurrency(
+        signalIds,
+        (id) => fn(org.id, id),
+        5
+      );
+      return { action, ok: ok.length, failed: failed.length };
     },
-    onSuccess: ({ action, count }) => {
+    onSuccess: ({ action, ok, failed }) => {
       setRowSelection({});
       setBulkAction(null);
       invalidateSignals();
-      toast.success(
-        `${action === "approve" ? "Approved" : "Rejected"} ${count} signal(s)`,
-        {
+      const verb = action === "approve" ? "Approved" : "Rejected";
+      if (failed === 0) {
+        toast.success(`${verb} ${ok} signal(s)`, {
           description:
             action === "approve"
               ? "Approved signals are ready for follow-up."
               : "Rejected signals were removed from the active queue.",
-        }
-      );
+        });
+      } else {
+        toast.warning(`${verb} ${ok} of ${ok + failed} signal(s)`, {
+          description: `${failed} could not be ${action === "approve" ? "approved" : "rejected"} — open one to see the reason.`,
+        });
+      }
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "Bulk action failed");
@@ -242,29 +249,34 @@ export function SignalsTable({
         enableHiding: false,
         enableSorting: false,
         header: ({ table }) => (
-          <input
-            type="checkbox"
+          <Checkbox
             aria-label="Select all visible signals"
-            checked={table.getIsAllPageRowsSelected()}
-            onChange={table.getToggleAllPageRowsSelectedHandler()}
-            className={tableCheckboxClassName}
+            checked={
+              table.getIsAllPageRowsSelected()
+                ? true
+                : table.getIsSomePageRowsSelected()
+                  ? "indeterminate"
+                  : false
+            }
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           />
         ),
         cell: ({ row }) => (
-          <input
-            type="checkbox"
+          <Checkbox
             aria-label={`Select ${row.original.account_name ?? "signal"}`}
             checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
             onClick={(event) => event.stopPropagation()}
-            onChange={row.getToggleSelectedHandler()}
-            className={tableCheckboxClassName}
           />
         ),
       },
       {
         accessorKey: "account_name",
         header: ({ column }) => (
-          <SortButton onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          <SortButton
+            sorted={column.getIsSorted()}
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
             Account
           </SortButton>
         ),
@@ -305,7 +317,10 @@ export function SignalsTable({
       {
         accessorKey: "velocity_score",
         header: ({ column }) => (
-          <SortButton onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          <SortButton
+            sorted={column.getIsSorted()}
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
             Velocity
           </SortButton>
         ),
@@ -320,7 +335,9 @@ export function SignalsTable({
         header: "Status",
         filterFn: (row, id, value) =>
           value === "all" ? true : row.getValue(id) === value,
-        cell: ({ row }) => <StatusBadge status={signalStatus(row.original.status)} />,
+        cell: ({ row }) => (
+          <StatusPill status={signalStatus(row.original.status)} showIcon />
+        ),
       },
       {
         accessorKey: "playbook_status",
@@ -366,13 +383,13 @@ export function SignalsTable({
                   </Button>
                 </DemoLimitedAction>
               )}
-              {canApprove && name && (
+              {canApprove && (
                 <DemoLimitedAction action="approve_signal" surface="signals_table">
                   <Button
                     type="button"
-                    onClick={() => approve.mutate(name)}
-                    disabled={approve.isPending && approve.variables === name}
-                    aria-label={`Approve signal for ${name}`}
+                    onClick={() => approve.mutate(signal.id)}
+                    disabled={approve.isPending && approve.variables === signal.id}
+                    aria-label={`Approve signal for ${name || "signal"}`}
                     size="sm"
                   >
                     <CheckCircle2 className="h-3.5 w-3.5" />
@@ -380,13 +397,13 @@ export function SignalsTable({
                   </Button>
                 </DemoLimitedAction>
               )}
-              {canReject && name && (
+              {canReject && (
                 <DemoLimitedAction action="reject_signal" surface="signals_table">
                   <Button
                     type="button"
-                    onClick={() => reject.mutate(name)}
-                    disabled={reject.isPending && reject.variables === name}
-                    aria-label={`Reject signal for ${name}`}
+                    onClick={() => reject.mutate(signal.id)}
+                    disabled={reject.isPending && reject.variables === signal.id}
+                    aria-label={`Reject signal for ${name || "signal"}`}
                     variant="destructive"
                     size="sm"
                   >
@@ -431,9 +448,11 @@ export function SignalsTable({
 
   const selectedSignals = table
     .getFilteredSelectedRowModel()
-    .rows.map((row) => row.original)
-    .filter((signal) => signal.account_name);
-  const selectedNames = selectedSignals.map((signal) => signal.account_name!);
+    .rows.map((row) => row.original);
+  const selectedIds = selectedSignals.map((signal) => signal.id);
+  const selectedNames = selectedSignals.map(
+    (signal) => signal.account_name ?? "(unnamed)"
+  );
   const rowPadding = density === "compact" ? "px-3 py-2" : "px-3 py-3";
   const visibleRowCount = table.getRowModel().rows.length;
 
@@ -450,7 +469,7 @@ export function SignalsTable({
             <div className="ds-refetch-stripe" />
           </div>
         )}
-        <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+        <ButtonGroup className="min-h-9 w-full min-w-0 flex-1 gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:w-auto sm:max-w-xl">
           <label className="sr-only" htmlFor="signal-search">
             Search signals
           </label>
@@ -461,7 +480,7 @@ export function SignalsTable({
               table.getColumn("account_name")?.setFilterValue(event.target.value)
             }
             placeholder="Search accounts..."
-            className="sm:max-w-xs"
+            className="h-9 min-h-9 border-0 bg-transparent shadow-none placeholder:text-muted-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 sm:max-w-[14rem]"
           />
           <Select
             value={(table.getColumn("status")?.getFilterValue() as string) ?? "all"}
@@ -469,7 +488,7 @@ export function SignalsTable({
           >
             <SelectTrigger
               aria-label="Filter signal status"
-              className="w-full min-w-0 sm:max-w-[200px]"
+              className="h-9 min-h-9 w-full min-w-[9.5rem] shrink-0 rounded-none border-0 border-l border-border/55 bg-transparent shadow-none focus:ring-0 focus:ring-offset-0 data-[state=open]:border-border/55 sm:min-w-[11rem] sm:max-w-[200px]"
             >
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -481,41 +500,49 @@ export function SignalsTable({
               <SelectItem value="rejected">Rejected</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </ButtonGroup>
         <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <div className="inline-flex rounded-lg border border-border/80 bg-background/45 p-1 ds-inset-top-soft shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none">
-            {(["comfortable", "compact"] as const).map((value) => (
-              <Button
-                key={value}
-                type="button"
-                variant={density === value ? "secondary" : "ghost"}
-                size="xs"
-                aria-pressed={density === value}
-                onClick={() => {
-                  setDensity(value);
-                  table.setPageSize(value === "compact" ? 12 : 8);
-                }}
-                className={
-                  density === value
-                    ? "bg-foreground text-background hover:bg-foreground/90"
-                    : ""
-                }
-              >
-                {value === "comfortable" ? "Comfort" : "Compact"}
-              </Button>
-            ))}
-          </div>
+          <ToggleGroup
+            type="single"
+            value={density}
+            onValueChange={(value) => {
+              if (!value) return;
+              const next = value as Density;
+              setDensity(next);
+              table.setPageSize(next === "compact" ? 12 : 8);
+            }}
+            size="sm"
+            spacing={0}
+            className="rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none"
+          >
+            <ToggleGroupItem
+              value="comfortable"
+              aria-label="Comfortable density"
+              className="text-xs text-muted-foreground data-[state=on]:bg-foreground data-[state=on]:text-background hover:data-[state=on]:bg-foreground/90"
+            >
+              Comfort
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="compact"
+              aria-label="Compact density"
+              className="text-xs text-muted-foreground data-[state=on]:bg-foreground data-[state=on]:text-background hover:data-[state=on]:bg-foreground/90"
+            >
+              Compact
+            </ToggleGroupItem>
+          </ToggleGroup>
           {flags.enable_bulk_actions && (
-            <>
-              <span className="rounded-full border border-border/80 bg-background/45 px-2 py-1 text-xs tabular-nums text-muted-foreground transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] ds-inset-top-mid">
+            <ButtonGroup className="min-w-0 gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none">
+              <ButtonGroupText className="shrink-0 rounded-none border-0 bg-transparent px-2 py-1.5 text-[11px] tabular-nums text-muted-foreground shadow-none">
                 {selectedSignals.length} selected
-              </span>
+              </ButtonGroupText>
+              <ButtonGroupSeparator className="bg-border/55" />
               <DemoLimitedAction action="bulk_approve" surface="signals_table">
                 <Button
                   type="button"
                   onClick={() => setBulkAction("approve")}
                   disabled={selectedSignals.length === 0}
                   size="sm"
+                  className="rounded-none border-0 shadow-none"
                 >
                   Bulk approve
                 </Button>
@@ -527,11 +554,12 @@ export function SignalsTable({
                   disabled={selectedSignals.length === 0}
                   variant="destructive"
                   size="sm"
+                  className="rounded-none border-0 shadow-none"
                 >
                   Bulk reject
                 </Button>
               </DemoLimitedAction>
-            </>
+            </ButtonGroup>
           )}
           <TableColumnsMenu table={table} />
         </div>
@@ -598,12 +626,11 @@ export function SignalsTable({
                       <MotionListItem
                         key={row.id}
                         as="tr"
-                        className={[
+                        className={cn(
                           "ds-row hover:bg-surface-elevated/70",
-                          "data-[selected=true]:bg-gradient-to-r data-[selected=true]:from-primary/12 data-[selected=true]:to-primary/4",
-                          "data-[selected=true]:shadow-[inset_2px_0_0_var(--color-primary)]",
-                          isRecentlyUpdated("signals", row.original.id) ? "ds-row-updated" : "",
-                        ].join(" ")}
+                          isRecentlyUpdated("signals", row.original.id) &&
+                            "ds-row-updated"
+                        )}
                         data-selected={row.getIsSelected()}
                       >
                         {row.getVisibleCells().map((cell) => {
@@ -676,26 +703,30 @@ export function SignalsTable({
           {table.getPageCount() || 1}
         </span>
         <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-          <Button
-            type="button"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            variant="outline"
-            size="sm"
-          >
-            <ChevronLeft className="h-3.5 w-3.5" />
-            Previous
-          </Button>
-          <Button
-            type="button"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            variant="outline"
-            size="sm"
-          >
-            Next
-            <ChevronRight className="h-3.5 w-3.5" />
-          </Button>
+          <ButtonGroup className="gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]">
+            <Button
+              type="button"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              variant="outline"
+              size="sm"
+              className="rounded-none border-0 shadow-none"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+              Previous
+            </Button>
+            <Button
+              type="button"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              variant="outline"
+              size="sm"
+              className="rounded-none border-0 shadow-none"
+            >
+              Next
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </ButtonGroup>
         </div>
       </div>
 
@@ -728,7 +759,7 @@ export function SignalsTable({
               <DemoLimitedAction action={`bulk_${bulkAction}`} surface="signals_table">
                 <Button
                   type="button"
-                  onClick={() => bulk.mutate({ action: bulkAction, names: selectedNames })}
+                  onClick={() => bulk.mutate({ action: bulkAction, signalIds: selectedIds })}
                   disabled={bulk.isPending}
                   size="sm"
                   aria-live="polite"

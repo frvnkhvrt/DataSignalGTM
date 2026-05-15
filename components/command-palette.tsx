@@ -188,20 +188,20 @@ export function CommandPalette() {
   const transition = useMutation({
     mutationFn: ({
       action,
-      accountName,
+      signalId,
     }: {
       action: "approve" | "reject";
-      accountName: string;
+      signalId: string;
     }) =>
       action === "approve"
-        ? approveSignal(org.id, accountName)
-        : rejectSignal(org.id, accountName),
-    onSuccess: (_data, variables) => {
+        ? approveSignal(org.id, signalId)
+        : rejectSignal(org.id, signalId),
+    onSuccess: ({ accountName }, variables) => {
       invalidate();
-      remember(`${variables.action === "approve" ? "Approve" : "Reject"} ${variables.accountName}`);
+      remember(`${variables.action === "approve" ? "Approve" : "Reject"} ${accountName}`);
       toast.success(
         variables.action === "approve" ? "Signal approved" : "Signal rejected",
-        { description: variables.accountName }
+        { description: accountName }
       );
       setOpen(false);
     },
@@ -292,19 +292,17 @@ export function CommandPalette() {
                           showDemoLimitation("approve_signal_recent");
                           return;
                         }
-                        transition.mutate({
-                          action: "approve",
-                          accountName: label.replace("Approve ", ""),
-                        });
+                        const recentName = label.replace("Approve ", "");
+                        const sig = signalsByAccount.get(recentName);
+                        if (sig) transition.mutate({ action: "approve", signalId: sig.id });
                       } else if (label.startsWith("Reject ")) {
                         if (isDemo) {
                           showDemoLimitation("reject_signal_recent");
                           return;
                         }
-                        transition.mutate({
-                          action: "reject",
-                          accountName: label.replace("Reject ", ""),
-                        });
+                        const recentName = label.replace("Reject ", "");
+                        const sig = signalsByAccount.get(recentName);
+                        if (sig) transition.mutate({ action: "reject", signalId: sig.id });
                       }
                     }}
                     className={cn(
@@ -409,7 +407,7 @@ export function CommandPalette() {
                         }
                         transition.mutate({
                           action: "approve",
-                          accountName: name,
+                          signalId: signal.id,
                         });
                       }}
                       className={cn(
@@ -433,7 +431,7 @@ export function CommandPalette() {
                         }
                         transition.mutate({
                           action: "reject",
-                          accountName: name,
+                          signalId: signal.id,
                         });
                       }}
                       className={cn(

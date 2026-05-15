@@ -27,6 +27,11 @@ import { DataIssuesPanel } from "@/components/panels/data-issues-panel";
 import { ReceiptPanel } from "@/components/panels/receipt-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
+} from "@/components/ui/button-group";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -38,8 +43,13 @@ import {
   transitionTableContentFade,
   transitionTableSkeletonFade,
 } from "@/components/ui/motion";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/ui/toggle-group";
 import { isRecentlyUpdated } from "@/lib/realtime-glow";
-import { SortButton, tableCheckboxClassName } from "@/components/tables/table-primitives";
+import { SortButton } from "@/components/tables/table-primitives";
+import { Checkbox } from "@/components/ui/checkbox";
 import { TableColumnsMenu } from "@/components/tables/table-columns-menu";
 import {
   Table,
@@ -132,29 +142,34 @@ export function AccountsTable({
         enableHiding: false,
         enableSorting: false,
         header: ({ table }) => (
-          <input
-            type="checkbox"
+          <Checkbox
             aria-label="Select all visible accounts"
-            checked={table.getIsAllPageRowsSelected()}
-            onChange={table.getToggleAllPageRowsSelectedHandler()}
-            className={tableCheckboxClassName}
+            checked={
+              table.getIsAllPageRowsSelected()
+                ? true
+                : table.getIsSomePageRowsSelected()
+                  ? "indeterminate"
+                  : false
+            }
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           />
         ),
         cell: ({ row }) => (
-          <input
-            type="checkbox"
+          <Checkbox
             aria-label={`Select ${row.original.name}`}
             checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
             onClick={(event) => event.stopPropagation()}
-            onChange={row.getToggleSelectedHandler()}
-            className={tableCheckboxClassName}
           />
         ),
       },
       {
         accessorKey: "name",
         header: ({ column }) => (
-          <SortButton onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          <SortButton
+            sorted={column.getIsSorted()}
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
             Account
           </SortButton>
         ),
@@ -204,7 +219,10 @@ export function AccountsTable({
       {
         accessorKey: "data_quality_score",
         header: ({ column }) => (
-          <SortButton onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          <SortButton
+            sorted={column.getIsSorted()}
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
             DQ
           </SortButton>
         ),
@@ -243,7 +261,10 @@ export function AccountsTable({
       {
         accessorKey: "icp_fit_score",
         header: ({ column }) => (
-          <SortButton onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          <SortButton
+            sorted={column.getIsSorted()}
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
             ICP
           </SortButton>
         ),
@@ -346,7 +367,7 @@ export function AccountsTable({
             <div className="ds-refetch-stripe" />
           </div>
         )}
-        <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row">
+        <ButtonGroup className="min-h-9 w-full min-w-0 flex-1 gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:w-auto sm:max-w-xl">
           <label htmlFor="account-search" className="sr-only">
             Search accounts
           </label>
@@ -357,7 +378,7 @@ export function AccountsTable({
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
             placeholder="Search accounts..."
-            className="sm:max-w-xs"
+            className="h-9 min-h-9 border-0 bg-transparent shadow-none placeholder:text-muted-foreground/80 focus-visible:ring-0 focus-visible:ring-offset-0 sm:max-w-[14rem]"
           />
           <Select
             value={
@@ -369,7 +390,7 @@ export function AccountsTable({
           >
             <SelectTrigger
               aria-label="Filter account health"
-              className="w-full min-w-0 sm:max-w-[200px]"
+              className="h-9 min-h-9 w-full min-w-[9.5rem] shrink-0 rounded-none border-0 border-l border-border/55 bg-transparent shadow-none focus:ring-0 focus:ring-offset-0 data-[state=open]:border-border/55 sm:min-w-[11rem] sm:max-w-[200px]"
             >
               <SelectValue placeholder="Health" />
             </SelectTrigger>
@@ -380,34 +401,43 @@ export function AccountsTable({
               <SelectItem value="critical">Critical</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </ButtonGroup>
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
-          <div className="inline-flex rounded-lg border border-border/80 bg-background/45 p-1 ds-inset-top-soft shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none">
-            {(["comfortable", "compact"] as const).map((value) => (
-              <Button
-                key={value}
-                type="button"
-                variant={density === value ? "secondary" : "ghost"}
-                size="xs"
-                aria-pressed={density === value}
-                onClick={() => {
-                  setDensity(value);
-                  table.setPageSize(value === "compact" ? 14 : 10);
-                }}
-                className={
-                  density === value
-                    ? "bg-foreground text-background hover:bg-foreground/90"
-                    : ""
-                }
-              >
-                {value === "comfortable" ? "Comfort" : "Compact"}
-              </Button>
-            ))}
-          </div>
-          <span className="rounded-full border border-border/80 bg-background/45 px-2 py-1 text-xs tabular-nums text-muted-foreground transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] ds-inset-top-mid">
-            {selectedCount} selected
-          </span>
-          <TableColumnsMenu table={table} />
+          <ToggleGroup
+            type="single"
+            value={density}
+            onValueChange={(value) => {
+              if (!value) return;
+              const next = value as Density;
+              setDensity(next);
+              table.setPageSize(next === "compact" ? 14 : 10);
+            }}
+            size="sm"
+            spacing={0}
+            className="rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none"
+          >
+            <ToggleGroupItem
+              value="comfortable"
+              aria-label="Comfortable density"
+              className="text-xs text-muted-foreground data-[state=on]:bg-foreground data-[state=on]:text-background hover:data-[state=on]:bg-foreground/90"
+            >
+              Comfort
+            </ToggleGroupItem>
+            <ToggleGroupItem
+              value="compact"
+              aria-label="Compact density"
+              className="text-xs text-muted-foreground data-[state=on]:bg-foreground data-[state=on]:text-background hover:data-[state=on]:bg-foreground/90"
+            >
+              Compact
+            </ToggleGroupItem>
+          </ToggleGroup>
+          <ButtonGroup className="min-w-0 gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none">
+            <ButtonGroupText className="shrink-0 rounded-none border-0 bg-transparent px-2 py-1.5 text-[11px] tabular-nums text-muted-foreground shadow-none">
+              {selectedCount} selected
+            </ButtonGroupText>
+            <ButtonGroupSeparator className="bg-border/55" />
+            <TableColumnsMenu table={table} segmentInGroup />
+          </ButtonGroup>
         </div>
       </Card>
 
@@ -472,12 +502,11 @@ export function AccountsTable({
                       <MotionListItem
                         key={row.id}
                         as="tr"
-                        className={[
+                        className={cn(
                           "ds-row hover:bg-surface-elevated/70",
-                          "data-[selected=true]:bg-gradient-to-r data-[selected=true]:from-primary/12 data-[selected=true]:to-primary/4",
-                          "data-[selected=true]:shadow-[inset_2px_0_0_var(--color-primary)]",
-                          isRecentlyUpdated("accounts", row.original.id) ? "ds-row-updated" : "",
-                        ].join(" ")}
+                          isRecentlyUpdated("accounts", row.original.id) &&
+                            "ds-row-updated"
+                        )}
                         data-selected={row.getIsSelected()}
                       >
                         {row.getVisibleCells().map((cell) => {
@@ -550,26 +579,30 @@ export function AccountsTable({
           {table.getPageCount() || 1}
         </span>
         <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-          <Button
-            type="button"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            variant="outline"
-            size="sm"
-          >
-            <ChevronLeft className="h-3.5 w-3.5" />
-            Previous
-          </Button>
-          <Button
-            type="button"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            variant="outline"
-            size="sm"
-          >
-            Next
-            <ChevronRight className="h-3.5 w-3.5" />
-          </Button>
+          <ButtonGroup className="gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]">
+            <Button
+              type="button"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              variant="outline"
+              size="sm"
+              className="rounded-none border-0 shadow-none"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+              Previous
+            </Button>
+            <Button
+              type="button"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              variant="outline"
+              size="sm"
+              className="rounded-none border-0 shadow-none"
+            >
+              Next
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </ButtonGroup>
         </div>
       </div>
 

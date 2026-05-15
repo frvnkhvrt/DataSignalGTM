@@ -17,9 +17,12 @@ import { cn } from "@/lib/utils";
 export function TableColumnsMenu<TData>({
   table,
   className,
+  segmentInGroup,
 }: {
   table: Table<TData>;
   className?: string;
+  /** When true, styles the trigger as the last segment of a `ButtonGroup`. */
+  segmentInGroup?: boolean;
 }) {
   const hideable = table.getAllLeafColumns().filter((column) => column.getCanHide());
 
@@ -32,6 +35,8 @@ export function TableColumnsMenu<TData>({
           size="sm"
           className={cn(
             "h-8 gap-1.5 border-border bg-background/50 px-2.5 text-xs font-medium text-muted-foreground ds-inset-top-soft transition-[background-color,border-color,color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:border-border/90 hover:bg-surface-elevated hover:text-foreground data-[state=open]:border-primary/28 data-[state=open]:bg-surface-elevated/90 data-[state=open]:text-foreground data-[state=open]:shadow-soft",
+            segmentInGroup &&
+              "rounded-none border-0 bg-transparent px-3 shadow-none hover:bg-surface-elevated/70 data-[state=open]:shadow-none",
             className
           )}
         >

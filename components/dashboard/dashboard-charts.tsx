@@ -78,7 +78,7 @@ function ScatterAccountTooltip({
   return (
     <div
       className={cn(
-        "grid min-w-[12rem] max-w-[min(100vw-2rem,16rem)] gap-1.5 rounded-lg border border-border/50 bg-background/95 px-2.5 py-1.5 text-xs shadow-xl ring-1 ring-border/40 backdrop-blur-xl"
+        "ds-floating-surface grid min-w-[12rem] max-w-[min(100vw-2rem,16rem)] gap-1.5 rounded-lg px-2.5 py-1.5 text-xs"
       )}
     >
       <div className="truncate font-medium text-foreground" title={data.name}>
@@ -245,7 +245,7 @@ export function DashboardCharts({
                 <ChartTooltip
                   content={
                     <ChartTooltipContent
-                      className="min-w-36 border-border/50 bg-background/95 shadow-elevated ring-1 ring-border/35 backdrop-blur-xl"
+                      className="min-w-36"
                       labelFormatter={(value) =>
                         typeof value === "string" ? value : "Trend point"
                       }
@@ -311,7 +311,7 @@ export function DashboardCharts({
                 <ChartTooltip
                   content={
                     <ChartTooltipContent
-                      className="min-w-32 border-border/50 bg-background/95 shadow-elevated ring-1 ring-border/35 backdrop-blur-xl"
+                      className="min-w-32"
                       labelFormatter={(value) => `Velocity ${value}`}
                       indicator="dot"
                     />

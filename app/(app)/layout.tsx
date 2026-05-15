@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { RealtimeSync } from "@/components/auth/realtime-sync";
 import { CommandPalette } from "@/components/command-palette";
+import { ErrorBoundary } from "@/components/error-boundary";
 import { OnboardingGuard } from "@/components/onboarding-guard";
 import { DemoBanner } from "@/components/layout/demo-banner";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -41,7 +42,7 @@ export default async function AppLayout({
             <TopBar />
             <DemoBanner />
             <main id="main-content" tabIndex={-1}>
-              {children}
+              <ErrorBoundary>{children}</ErrorBoundary>
             </main>
           </div>
         </div>
