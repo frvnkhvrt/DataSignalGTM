@@ -44,7 +44,7 @@ When analyzing code or planning changes, respond using this exact template:
 
 ## PROJECT CONTEXT
 - Stack: Next.js 15 (App Router) + React 19 + TypeScript (strict) + Tailwind 4 + shadcn/ui + Supabase (PostgreSQL) + TanStack Query v5 + Motion + Zod + Gemini (AI) + Inngest (background jobs) + Stripe + Sentry + PostHog
-- Architecture pattern: Feature-based / domain-driven with App Router, centralized design system (`components/ui/`), utilities in `lib/`, and multi-tenancy (organizations + RLS)
+- Architecture pattern: **Hybrid** — heavy domains in `features/` (signals, accounts); shared `components/ui/`, `lib/queries/`, `hooks/`, Server Actions in `app/actions/`. See `docs/ARCHITECTURE.md`. Query keys: `lib/query-keys.ts`; invalidation: `hooks/use-invalidate-org.ts`
 - Special conventions:
   - Custom `ds-*` design tokens and utilities (glassmorphism, inner glows, lit-from-above, premium transitions)
   - Centralized Motion vocabulary (`components/ui/motion.tsx`) with named springs, staggers, and reduced-motion support

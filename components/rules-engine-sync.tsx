@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { invalidateSignalsAndAccounts } from "@/lib/invalidate-org-gtm";
 import { useFlags } from "@/lib/use-flags";
 
 export function RulesEngineSync({ orgId }: { orgId: string }) {
@@ -19,8 +20,7 @@ export function RulesEngineSync({ orgId }: { orgId: string }) {
         if (!response.ok || cancelled) return;
         const result = (await response.json()) as { held: number };
         if (result.held > 0) {
-          qc.invalidateQueries({ queryKey: ["org", orgId, "signals"] });
-          qc.invalidateQueries({ queryKey: ["org", orgId, "accounts"] });
+          invalidateSignalsAndAccounts(qc, orgId);
         }
       } catch {
         // Rules are advisory and should never block app navigation.

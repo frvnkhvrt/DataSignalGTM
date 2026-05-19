@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, ExternalLink, Sparkles, Zap } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase/client";
 import { useCurrentOrg } from "@/lib/auth-context";
+import { orgTierQuery, subscriptionQuery } from "@/lib/queries/billing";
 import { PLANS, type PlanTier } from "@/lib/stripe";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -15,35 +15,6 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
 import { QueryError } from "@/components/ui/query-error";
 import { Spinner } from "@/components/ui/spinner";
-
-function useCurrentSubscription(orgId: string) {
-  return useQuery({
-    queryKey: ["org", orgId, "subscription"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("subscriptions")
-        .select("*")
-        .eq("org_id", orgId)
-        .eq("status", "active")
-        .maybeSingle();
-      return data ?? null;
-    },
-  });
-}
-
-function useOrgTier(orgId: string) {
-  return useQuery({
-    queryKey: ["org", orgId, "tier"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("organizations")
-        .select("subscription_tier")
-        .eq("id", orgId)
-        .single();
-      return (data?.subscription_tier ?? "free") as PlanTier;
-    },
-  });
-}
 
 function PlanCard({
   plan,
@@ -167,8 +138,9 @@ function PlanCard({
 
 export default function BillingPage() {
   const org = useCurrentOrg();
-  const { data: tier = "free", isError: tierError, refetch: refetchTier } = useOrgTier(org.id);
-  const { data: subscription } = useCurrentSubscription(org.id);
+  const { data: tier = "free", isError: tierError, refetch: refetchTier } =
+    useQuery(orgTierQuery(org.id));
+  const { data: subscription } = useQuery(subscriptionQuery(org.id));
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
   async function handleUpgrade(planId: string) {

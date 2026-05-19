@@ -19,3 +19,17 @@ export function canTransition(from: SignalStatus, to: SignalStatus): boolean {
 export function isTerminal(status: SignalStatus): boolean {
   return (TERMINAL_STATUSES as readonly string[]).includes(status);
 }
+
+/** Map DB `signals.status` (nullable string) to the domain lifecycle enum. */
+export function toSignalStatus(db: string | null | undefined): SignalStatus {
+  const value = db ?? "pending";
+  if (
+    value === "pending" ||
+    value === "held" ||
+    value === "approved" ||
+    value === "rejected"
+  ) {
+    return value;
+  }
+  return "pending";
+}

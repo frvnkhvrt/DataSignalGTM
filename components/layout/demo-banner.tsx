@@ -1,6 +1,6 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
+import { useInvalidateOrgGtm } from "@/hooks/use-invalidate-org";
 import { Eye, LogOut, RotateCcw, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -16,7 +16,7 @@ import { transitionDemoBanner } from "@/components/ui/motion";
 export function DemoBanner() {
   const { isDemo, org } = useAuthContext();
   const router = useRouter();
-  const queryClient = useQueryClient();
+  const { invalidateOrgGtm } = useInvalidateOrgGtm(org.id);
   const [isExitPending, startExitTransition] = useTransition();
   const [isResetPending, startResetTransition] = useTransition();
   const reducedMotion = useReducedMotion();
@@ -44,7 +44,7 @@ export function DemoBanner() {
         return;
       }
 
-      await queryClient.invalidateQueries({ queryKey: ["org", org.id] });
+      invalidateOrgGtm();
       toast.success(body?.message ?? "Demo data reset successfully.");
       router.refresh();
     });

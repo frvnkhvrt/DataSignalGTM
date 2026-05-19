@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Activity, CheckCircle2, Clock, XCircle } from "lucide-react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase/client";
 import { useCurrentOrg } from "@/lib/auth-context";
+import { aiUsageQuery } from "@/lib/queries/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -14,32 +14,6 @@ import { PageHeader } from "@/components/ui/page-header";
 import { TableSkeleton } from "@/components/ui/skeleton";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
 import { QueryError } from "@/components/ui/query-error";
-
-type UsageRow = {
-  id: string;
-  model: string;
-  success: boolean;
-  duration_ms: number | null;
-  error_message: string | null;
-  created_at: string;
-};
-
-function usageQuery(orgId: string, days: number) {
-  const since = new Date(Date.now() - days * 86_400_000).toISOString();
-  return {
-    queryKey: ["org", orgId, "ai-usage", days],
-    queryFn: async (): Promise<UsageRow[]> => {
-      const { data, error } = await supabase
-        .from("ai_usage")
-        .select("id,model,success,duration_ms,error_message,created_at")
-        .eq("org_id", orgId)
-        .gte("created_at", since)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as UsageRow[];
-    },
-  };
-}
 
 // Rough Gemini Flash Lite pricing (May 2026): ~$0.075 per 1M input tokens.
 // We estimate ~2 000 tokens per playbook.
@@ -62,7 +36,7 @@ export default function UsagePage() {
     isFetching,
     isError,
     refetch,
-  } = useQuery(usageQuery(org.id, window));
+  } = useQuery(aiUsageQuery(org.id, window));
 
   const total = rows.length;
   const succeeded = rows.filter((r) => r.success).length;

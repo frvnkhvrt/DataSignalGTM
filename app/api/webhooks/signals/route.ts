@@ -52,10 +52,16 @@ type SignalInput = z.infer<typeof signalSchema>;
 function isAuthorised(request: NextRequest): boolean {
   const secret = process.env.SIGNAL_WEBHOOK_SECRET;
   if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      logger.error("signal-webhook-no-secret", {
+        note: "SIGNAL_WEBHOOK_SECRET must be set in production",
+      });
+      return false;
+    }
     logger.warn("signal-webhook-no-secret", {
-      note: "SIGNAL_WEBHOOK_SECRET is not set — webhook is open to all callers",
+      note: "SIGNAL_WEBHOOK_SECRET is not set — webhook accepts all callers in development only",
     });
-    return true; // Allow in dev when secret is not configured.
+    return true;
   }
 
   const authHeader = request.headers.get("authorization");

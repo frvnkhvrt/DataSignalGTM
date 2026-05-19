@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { RealtimeSync } from "@/components/auth/realtime-sync";
-import { CommandPalette } from "@/components/command-palette";
+import { CommandPalette } from "@/components/app/command-palette";
 import { ErrorBoundary } from "@/components/error-boundary";
-import { OnboardingGuard } from "@/components/onboarding-guard";
+import { OnboardingGuard } from "@/components/onboarding/onboarding-guard";
 import { DemoBanner } from "@/components/layout/demo-banner";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/layout/top-bar";

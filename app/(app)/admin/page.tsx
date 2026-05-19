@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { useInvalidateOrgGtm } from "@/hooks/use-invalidate-org";
+import { useCurrentOrg } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { AlertTriangle, RotateCcw, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,13 +13,14 @@ import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function AdminPage() {
+  const org = useCurrentOrg();
+  const { invalidateOrgGtm } = useInvalidateOrgGtm(org.id);
   const [resetKey, setResetKey] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
-  const qc = useQueryClient();
 
   const reset = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/demo-reset", {
+      const res = await fetch("/api/demo/reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key: resetKey }),
@@ -30,7 +33,7 @@ export default function AdminPage() {
       toast.success("Demo data reset successfully");
       setShowConfirm(false);
       setResetKey("");
-      qc.invalidateQueries();
+      invalidateOrgGtm();
     },
     onError: (e) =>
       toast.error(e instanceof Error ? e.message : "Reset failed"),

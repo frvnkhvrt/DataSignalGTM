@@ -6,7 +6,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useSignalMutations } from "@/hooks/use-signal-mutations";
 import { toast } from "sonner";
 import {
   ShieldCheck,
@@ -19,15 +20,7 @@ import {
   Sparkles,
   Copy,
 } from "lucide-react";
-import {
-  approveSignal,
-  rejectSignal,
-  isTransitionError,
-  isApproveRequiresPlaybookError,
-  playbookForAccountQuery,
-  generatePlaybookForSignal,
-  type PlaybookStep,
-} from "@/lib/gtm-queries";
+import { playbookForAccountQuery, type PlaybookStep } from "@/lib/gtm-queries";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 import { Button } from "@/components/ui/button";
@@ -67,63 +60,11 @@ export function ReceiptPanel({
   onClose: () => void;
 }) {
   const org = useCurrentOrg();
-  const qc = useQueryClient();
+  const { approve, reject, generate, handleSignalActionError } =
+    useSignalMutations();
   const { data, isLoading } = useQuery({
     ...playbookForAccountQuery(org.id, account?.name ?? ""),
     enabled: !!account,
-  });
-
-  const approve = useMutation({
-    mutationFn: () => {
-      if (!data?.id) throw new Error("Signal data not loaded yet");
-      return approveSignal(org.id, data.id);
-    },
-    onSuccess: ({ accountName }) => {
-      qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
-      qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
-      toast.success("Signal approved", {
-        description: accountName,
-      });
-    },
-    onError: (e) => {
-      if (isApproveRequiresPlaybookError(e)) {
-        toast.error(e.message);
-      } else if (isTransitionError(e)) {
-        toast.info(e.message);
-      } else {
-        toast.error(e instanceof Error ? e.message : "Approve failed");
-      }
-    },
-  });
-
-  const reject = useMutation({
-    mutationFn: () => {
-      if (!data?.id) throw new Error("Signal data not loaded yet");
-      return rejectSignal(org.id, data.id);
-    },
-    onSuccess: ({ accountName }) => {
-      qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
-      qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
-      toast.success("Signal rejected", {
-        description: accountName,
-      });
-    },
-    onError: (e) =>
-      isTransitionError(e)
-        ? toast.info(e.message)
-        : toast.error(e instanceof Error ? e.message : "Reject failed"),
-  });
-
-  const generateMut = useMutation({
-    mutationFn: (signalId: string) => generatePlaybookForSignal(org.id, signalId),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
-      toast.success("Playbook generation queued", {
-        description: "The playbook panel will update when it is ready.",
-      });
-    },
-    onError: (e) =>
-      toast.error(e instanceof Error ? e.message : "Generation failed"),
   });
 
   const pb = data?.playbook ?? null;
@@ -136,19 +77,31 @@ export function ReceiptPanel({
   const canReject = canTransition(status, "rejected");
 
   function tryApprove() {
+    if (!data?.id) return;
     if (isTerminal(status)) {
       toast.info(`Signal for ${account?.name} is already ${status}.`);
       return;
     }
-    approve.mutate();
+    approve.mutate(data.id, {
+      onSuccess: ({ accountName }) => {
+        toast.success("Signal approved", { description: accountName });
+      },
+      onError: handleSignalActionError,
+    });
   }
 
   function tryReject() {
+    if (!data?.id) return;
     if (isTerminal(status)) {
       toast.info(`Signal for ${account?.name} is already ${status}.`);
       return;
     }
-    reject.mutate();
+    reject.mutate(data.id, {
+      onSuccess: ({ accountName }) => {
+        toast.success("Signal rejected", { description: accountName });
+      },
+      onError: handleSignalActionError,
+    });
   }
 
   return (
@@ -258,11 +211,26 @@ export function ReceiptPanel({
                   <Button
                     type="button"
                     variant="success"
-                    disabled={generateMut.isPending || isGenerating}
-                    onClick={() => generateMut.mutate(data.id)}
+                    disabled={generate.isPending || isGenerating}
+                    onClick={() =>
+                      generate.mutate(data.id, {
+                        onSuccess: () => {
+                          toast.success("Playbook generation queued", {
+                            description:
+                              "The playbook panel will update when it is ready.",
+                          });
+                        },
+                        onError: (e) =>
+                          toast.error(
+                            e instanceof Error
+                              ? e.message
+                              : "Generation failed"
+                          ),
+                      })
+                    }
                     className="w-full"
                   >
-                    {generateMut.isPending || isGenerating ? (
+                    {generate.isPending || isGenerating ? (
                       <Spinner />
                     ) : (
                       <Sparkles className="h-4 w-4" />

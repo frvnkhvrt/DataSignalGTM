@@ -15,7 +15,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
-  AlertTriangle,
   Building2,
   ChevronLeft,
   ChevronRight,
@@ -26,6 +25,8 @@ import { cn } from "@/lib/utils";
 import { DataIssuesPanel } from "@/components/panels/data-issues-panel";
 import { ReceiptPanel } from "@/components/panels/receipt-panel";
 import { Badge } from "@/components/ui/badge";
+import { DqStatusChip } from "@/components/ui/dq-status-chip";
+import type { TableDensity } from "@/components/tables/table-chrome";
 import { Button } from "@/components/ui/button";
 import {
   ButtonGroup,
@@ -63,28 +64,15 @@ import {
   dqTone,
   type AccountRow,
   type DataIssueCount,
-  type Tone,
 } from "@/lib/gtm-queries";
 
 type AccountFilter = "all" | "healthy" | "held" | "critical";
-type Density = "comfortable" | "compact";
 
 function accountBucket(account: AccountRow): AccountFilter {
   const score = account.data_quality_score ?? 0;
   if (score >= 90) return "healthy";
   if (score >= 75) return "held";
   return "critical";
-}
-
-function StatusChip({ tone, label }: { tone: Tone; label: string }) {
-  const variant = tone === "good" ? "success" : tone === "warn" ? "warning" : "destructive";
-  const Icon = tone === "good" ? ShieldCheck : AlertTriangle;
-  return (
-    <Badge variant={variant} shape="square" className="uppercase">
-      <Icon className="h-3 w-3 shrink-0" />
-      {label}
-    </Badge>
-  );
 }
 
 export function AccountsTable({
@@ -111,7 +99,7 @@ export function AccountsTable({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [density, setDensity] = useState<Density>("comfortable");
+  const [density, setDensity] = useState<TableDensity>("comfortable");
 
   const issueMap = useMemo(() => {
     const map = new Map<string, number>();
@@ -284,7 +272,7 @@ export function AccountsTable({
           const gaps = issueMap.get(row.original.id) ?? 0;
           return (
             <div className="flex items-center gap-2">
-              <StatusChip tone={tone} label={dqStatusLabel(score)} />
+              <DqStatusChip tone={tone} label={dqStatusLabel(score)} />
               {gaps > 0 && (
                 <Badge variant="warning" className="px-1.5 py-0 text-[10px] tabular-nums">
                   {gaps}
@@ -408,7 +396,7 @@ export function AccountsTable({
             value={density}
             onValueChange={(value) => {
               if (!value) return;
-              const next = value as Density;
+              const next = value as TableDensity;
               setDensity(next);
               table.setPageSize(next === "compact" ? 14 : 10);
             }}

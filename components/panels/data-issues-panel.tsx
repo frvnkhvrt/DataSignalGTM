@@ -24,6 +24,8 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { useCurrentOrg } from "@/lib/auth-context";
+import { useInvalidateOrgGtm } from "@/hooks/use-invalidate-org";
+import { orgQueryKeys } from "@/lib/query-keys";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Badge } from "@/components/ui/badge";
@@ -36,14 +38,17 @@ import type {
   DataIssueRow,
 } from "@/lib/gtm-queries";
 import {
+  dismissGapAction,
+  resolveAllGapsAction,
+  resolveGapAction,
+} from "@/app/actions/data-issues";
+import { unwrapActionResult } from "@/lib/actions/result";
+import {
   accountsByDqQuery,
   dqStatusLabel,
   dqTone,
   dataIssueCountsQuery,
   dataIssuesForAccountQuery,
-  resolveGap,
-  dismissGap,
-  resolveAllGaps,
 } from "@/lib/gtm-queries";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
 
@@ -87,9 +92,11 @@ export function DataIssuesPanel({
   onClose: () => void;
 }) {
   const org = useCurrentOrg();
+  const keys = orgQueryKeys(org.id);
   const accountsQuery = accountsByDqQuery(org.id);
   const countsQuery = dataIssueCountsQuery(org.id);
   const qc = useQueryClient();
+  const { invalidateOrgGtm: invalidateGtm } = useInvalidateOrgGtm(org.id);
   const { data: cachedAccounts } = useQuery(accountsQuery);
   const liveAccount = account?.id
     ? (cachedAccounts?.find((a) => a.id === account.id) ?? account)
@@ -129,8 +136,7 @@ export function DataIssuesPanel({
   const lowCount = sorted.filter((i) => i.severity === "low").length;
 
   const invalidateAll = () => {
-    qc.invalidateQueries({ queryKey: ["org", org.id, "data-issues"] });
-    qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
+    invalidateGtm(["data-issues", "accounts"]);
   };
 
   type MutCtx = {
@@ -142,7 +148,7 @@ export function DataIssuesPanel({
 
   const snapshotForOptimisticUpdate = async (queryKey: QueryKey) => {
     await qc.cancelQueries({ queryKey });
-    await qc.cancelQueries({ queryKey: ["org", org.id, "accounts"] });
+    await qc.cancelQueries({ queryKey: keys.accounts.all });
     await qc.cancelQueries({ queryKey: countsQuery.queryKey });
 
     return {
@@ -150,7 +156,7 @@ export function DataIssuesPanel({
       prevIssues: qc.getQueryData<DataIssueRow[]>(queryKey),
       prevCounts: qc.getQueryData<DataIssueCount[]>(countsQuery.queryKey),
       accountSnapshots: qc.getQueriesData<AccountRow[]>({
-        queryKey: ["org", org.id, "accounts"],
+        queryKey: keys.accounts.all,
       }),
     };
   };
@@ -165,7 +171,7 @@ export function DataIssuesPanel({
   };
 
   const updateAccountScore = (accountId: string, score: number | null) => {
-    qc.setQueriesData<AccountRow[]>({ queryKey: ["org", org.id, "accounts"] }, (old) =>
+    qc.setQueriesData<AccountRow[]>({ queryKey: keys.accounts.all }, (old) =>
       old?.map((a) =>
         a.id === accountId ? { ...a, data_quality_score: score } : a
       )
@@ -173,7 +179,7 @@ export function DataIssuesPanel({
   };
 
   const adjustAccountScore = (accountId: string, delta: number) => {
-    qc.setQueriesData<AccountRow[]>({ queryKey: ["org", org.id, "accounts"] }, (old) =>
+    qc.setQueriesData<AccountRow[]>({ queryKey: keys.accounts.all }, (old) =>
       old?.map((a) => {
         if (a.id !== accountId) return a;
         const next = Math.max(
@@ -210,9 +216,10 @@ export function DataIssuesPanel({
   };
 
   const resolveMut = useMutation({
-    mutationFn: ({ issue }: { issue: DataIssueRow }) => resolveGap(issue.id),
+    mutationFn: async ({ issue }: { issue: DataIssueRow }) =>
+      unwrapActionResult(await resolveGapAction(issue.id)),
     onMutate: async ({ issue }) => {
-      const queryKey = ["org", org.id, "data-issues", account?.id ?? ""];
+      const queryKey = keys.dataIssues.forAccount(account?.id ?? "");
       const ctx = await snapshotForOptimisticUpdate(queryKey);
       qc.setQueryData<DataIssueRow[]>(queryKey, (old) =>
         old ? old.filter((i) => i.id !== issue.id) : old
@@ -236,9 +243,10 @@ export function DataIssuesPanel({
   });
 
   const dismissMut = useMutation({
-    mutationFn: ({ issue }: { issue: DataIssueRow }) => dismissGap(issue.id),
+    mutationFn: async ({ issue }: { issue: DataIssueRow }) =>
+      unwrapActionResult(await dismissGapAction(issue.id)),
     onMutate: async ({ issue }) => {
-      const queryKey = ["org", org.id, "data-issues", account?.id ?? ""];
+      const queryKey = keys.dataIssues.forAccount(account?.id ?? "");
       const ctx = await snapshotForOptimisticUpdate(queryKey);
       qc.setQueryData<DataIssueRow[]>(queryKey, (old) =>
         old ? old.filter((i) => i.id !== issue.id) : old
@@ -259,12 +267,12 @@ export function DataIssuesPanel({
   });
 
   const resolveAllMut = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       if (!account?.id) throw new Error("Account is required");
-      return resolveAllGaps(account.id);
+      return unwrapActionResult(await resolveAllGapsAction(account.id));
     },
     onMutate: async () => {
-      const queryKey = ["org", org.id, "data-issues", account?.id ?? ""];
+      const queryKey = keys.dataIssues.forAccount(account?.id ?? "");
       const ctx = await snapshotForOptimisticUpdate(queryKey);
       qc.setQueryData<DataIssueRow[]>(queryKey, () => []);
       if (account?.id) {

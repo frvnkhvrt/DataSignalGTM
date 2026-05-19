@@ -3,6 +3,7 @@ import {
   canTransition,
   isTerminal,
   TERMINAL_STATUSES,
+  toSignalStatus,
   VALID_TRANSITIONS,
   type SignalStatus,
 } from "@/types/signal";
@@ -31,5 +32,11 @@ describe("signal status machine", () => {
     for (const status of STATUSES) {
       expect(isTerminal(status)).toBe(TERMINAL_STATUSES.includes(status));
     }
+  });
+
+  it("maps unknown DB status values to pending", () => {
+    expect(toSignalStatus(null)).toBe("pending");
+    expect(toSignalStatus("bogus")).toBe("pending");
+    expect(toSignalStatus("held")).toBe("held");
   });
 });

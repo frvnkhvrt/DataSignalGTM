@@ -14,7 +14,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import {
+  approveSignalAction,
+  rejectSignalAction,
+} from "@/app/actions/signals";
+import { unwrapActionResult } from "@/lib/actions/result";
+import { useSignalMutations } from "@/hooks/use-signal-mutations";
 import {
   CheckCircle2,
   ChevronLeft,
@@ -24,15 +30,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import {
-  approveSignal,
-  generatePlaybookForSignal,
-  isApproveRequiresPlaybookError,
-  isTransitionError,
-  rejectSignal,
-  type SignalRow,
-} from "@/lib/gtm-queries";
-import { useCurrentOrg } from "@/lib/auth-context";
+import { type SignalRow } from "@/lib/gtm-queries";
 import { useFlags } from "@/lib/use-flags";
 import { SourceBadge } from "@/components/source-badge";
 import { ReceiptPanel } from "@/components/panels/receipt-panel";
@@ -64,7 +62,10 @@ import {
   transitionTableSkeletonFade,
 } from "@/components/ui/motion";
 import { isRecentlyUpdated } from "@/lib/realtime-glow";
+import { PlaybookState } from "@/components/tables/playbook-state";
+import { TableLiveRegion, type TableDensity } from "@/components/tables/table-chrome";
 import { SortButton } from "@/components/tables/table-primitives";
+import { runWithConcurrency } from "@/lib/concurrency";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TableColumnsMenu } from "@/components/tables/table-columns-menu";
 import {
@@ -76,63 +77,9 @@ import {
 } from "@/components/ui/table";
 
 type BulkAction = "approve" | "reject";
-type Density = "comfortable" | "compact";
-
-async function runWithConcurrency<T, R>(
-  items: readonly T[],
-  worker: (item: T) => Promise<R>,
-  concurrency = 5
-): Promise<{ ok: R[]; failed: { item: T; error: unknown }[] }> {
-  const ok: R[] = [];
-  const failed: { item: T; error: unknown }[] = [];
-  let cursor = 0;
-  const runners = Array.from(
-    { length: Math.min(concurrency, items.length) },
-    async () => {
-      while (cursor < items.length) {
-        const item = items[cursor++];
-        try {
-          ok.push(await worker(item));
-        } catch (error) {
-          failed.push({ item, error });
-        }
-      }
-    }
-  );
-  await Promise.all(runners);
-  return { ok, failed };
-}
 
 function signalStatus(value: string | null): SignalStatus {
   return (value ?? "pending") as SignalStatus;
-}
-
-function PlaybookState({ signal }: { signal: SignalRow }) {
-  if (signal.playbook) {
-    return <span className="text-[11px] font-medium text-success">Ready</span>;
-  }
-  if (
-    signal.playbook_status === "queued" ||
-    signal.playbook_status === "generating"
-  ) {
-    return (
-      <span className="inline-flex items-center gap-1 text-[11px] text-primary">
-        <Spinner size="sm" />
-        Generating
-      </span>
-    );
-  }
-  if (signal.playbook_status === "failed") {
-    return (
-      <span
-        className="text-[11px] text-destructive"
-        title={signal.playbook_error ?? "Generation failed"}
-      >
-        Failed
-      </span>
-    );
-  }
-  return <span className="text-[11px] text-muted-foreground">—</span>;
 }
 
 export function SignalsTable({
@@ -144,8 +91,13 @@ export function SignalsTable({
   isLoading: boolean;
   isRefetching?: boolean;
 }) {
-  const org = useCurrentOrg();
-  const qc = useQueryClient();
+  const {
+    approve,
+    reject,
+    generate,
+    handleSignalActionError,
+    invalidateSignalsAndAccounts,
+  } = useSignalMutations();
   const flags = useFlags();
   const [receiptFor, setReceiptFor] = useState<{ name: string } | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -153,55 +105,44 @@ export function SignalsTable({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkAction, setBulkAction] = useState<BulkAction | null>(null);
-  const [density, setDensity] = useState<Density>("comfortable");
+  const [density, setDensity] = useState<TableDensity>("comfortable");
 
-  const invalidateSignals = () => {
-    qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
-    qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
-  };
+  function approveSignal(signalId: string) {
+    approve.mutate(signalId, {
+      onSuccess: ({ accountName }) => {
+        toast.success("Signal approved", {
+          description: accountName,
+          action: {
+            label: "View",
+            onClick: () => setReceiptFor({ name: accountName }),
+          },
+        });
+      },
+      onError: handleSignalActionError,
+    });
+  }
 
-  const approve = useMutation({
-    mutationFn: (signalId: string) => approveSignal(org.id, signalId),
-    onSuccess: ({ accountName }) => {
-      invalidateSignals();
-      toast.success("Signal approved", {
-        description: accountName,
-        action: {
-          label: "View",
-          onClick: () => setReceiptFor({ name: accountName }),
-        },
-      });
-    },
-    onError: (error) => {
-      if (isApproveRequiresPlaybookError(error)) toast.error(error.message);
-      else if (isTransitionError(error)) toast.info(error.message);
-      else toast.error(error instanceof Error ? error.message : "Approve failed");
-    },
-  });
+  function rejectSignal(signalId: string) {
+    reject.mutate(signalId, {
+      onSuccess: ({ accountName }) => {
+        toast.success("Signal rejected", { description: accountName });
+      },
+      onError: handleSignalActionError,
+    });
+  }
 
-  const reject = useMutation({
-    mutationFn: (signalId: string) => rejectSignal(org.id, signalId),
-    onSuccess: ({ accountName }) => {
-      invalidateSignals();
-      toast.success("Signal rejected", { description: accountName });
-    },
-    onError: (error) =>
-      isTransitionError(error)
-        ? toast.info(error.message)
-        : toast.error(error instanceof Error ? error.message : "Reject failed"),
-  });
-
-  const generate = useMutation({
-    mutationFn: (signalId: string) => generatePlaybookForSignal(org.id, signalId),
-    onSuccess: () => {
-      invalidateSignals();
-      toast.success("Playbook generation queued", {
-        description: "We will update the table when the playbook is ready.",
-      });
-    },
-    onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Generation failed"),
-  });
+  function generatePlaybook(signalId: string) {
+    generate.mutate(signalId, {
+      onSuccess: () => {
+        invalidateSignalsAndAccounts();
+        toast.success("Playbook generation queued", {
+          description: "We will update the table when the playbook is ready.",
+        });
+      },
+      onError: (error) =>
+        toast.error(error instanceof Error ? error.message : "Generation failed"),
+    });
+  }
 
   const bulk = useMutation({
     mutationFn: async ({
@@ -211,10 +152,10 @@ export function SignalsTable({
       action: BulkAction;
       signalIds: string[];
     }) => {
-      const fn = action === "approve" ? approveSignal : rejectSignal;
+      const fn = action === "approve" ? approveSignalAction : rejectSignalAction;
       const { ok, failed } = await runWithConcurrency(
         signalIds,
-        (id) => fn(org.id, id),
+        async (id) => unwrapActionResult(await fn(id)),
         5
       );
       return { action, ok: ok.length, failed: failed.length };
@@ -222,7 +163,7 @@ export function SignalsTable({
     onSuccess: ({ action, ok, failed }) => {
       setRowSelection({});
       setBulkAction(null);
-      invalidateSignals();
+      invalidateSignalsAndAccounts();
       const verb = action === "approve" ? "Approved" : "Rejected";
       if (failed === 0) {
         toast.success(`${verb} ${ok} signal(s)`, {
@@ -242,6 +183,7 @@ export function SignalsTable({
     },
   });
 
+  // Column defs reference stable mutation objects; action handlers are intentionally omitted from deps.
   const columns = useMemo<ColumnDef<SignalRow>[]>(
     () => [
       {
@@ -364,7 +306,7 @@ export function SignalsTable({
                 <DemoLimitedAction action="generate_playbook" surface="signals_table">
                   <Button
                     type="button"
-                    onClick={() => generate.mutate(signal.id)}
+                    onClick={() => generatePlaybook(signal.id)}
                     disabled={
                       busyPlaybook ||
                       (generate.isPending && generate.variables === signal.id)
@@ -387,7 +329,7 @@ export function SignalsTable({
                 <DemoLimitedAction action="approve_signal" surface="signals_table">
                   <Button
                     type="button"
-                    onClick={() => approve.mutate(signal.id)}
+                    onClick={() => approveSignal(signal.id)}
                     disabled={approve.isPending && approve.variables === signal.id}
                     aria-label={`Approve signal for ${name || "signal"}`}
                     size="sm"
@@ -401,7 +343,7 @@ export function SignalsTable({
                 <DemoLimitedAction action="reject_signal" surface="signals_table">
                   <Button
                     type="button"
-                    onClick={() => reject.mutate(signal.id)}
+                    onClick={() => rejectSignal(signal.id)}
                     disabled={reject.isPending && reject.variables === signal.id}
                     aria-label={`Reject signal for ${name || "signal"}`}
                     variant="destructive"
@@ -417,6 +359,7 @@ export function SignalsTable({
         },
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handlers close over latest mutate fns
     [approve, generate, reject]
   );
 
@@ -458,11 +401,13 @@ export function SignalsTable({
 
   return (
     <div className="min-w-0 space-y-4">
-      <div role="status" aria-live="polite" className="sr-only">
-        {isRefetching
-          ? "Refreshing signals."
-          : `${visibleRowCount} signals shown. ${selectedSignals.length} selected.`}
-      </div>
+      <TableLiveRegion
+        message={
+          isRefetching
+            ? "Refreshing signals."
+            : `${visibleRowCount} signals shown. ${selectedSignals.length} selected.`
+        }
+      />
       <Card className="relative flex min-w-0 flex-col gap-3 overflow-hidden bg-card/80 p-3 ds-card-inner-glow md:flex-row md:items-center md:justify-between md:gap-4">
         {isRefetching && (
           <div className="absolute inset-x-0 top-0 h-px overflow-hidden">
@@ -507,7 +452,7 @@ export function SignalsTable({
             value={density}
             onValueChange={(value) => {
               if (!value) return;
-              const next = value as Density;
+              const next = value as TableDensity;
               setDensity(next);
               table.setPageSize(next === "compact" ? 12 : 8);
             }}

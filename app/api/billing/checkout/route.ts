@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  billingCheckoutRequestSchema,
+  billingCheckoutResponseSchema,
+} from "@/lib/api-contracts";
 import { getStripe, getAppUrl } from "@/lib/stripe";
 import { createAdminClient, getAuthContext } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
-import { trackServer } from "@/lib/analytics.server";
 
 export async function POST(request: NextRequest) {
   const auth = await getAuthContext();
@@ -17,14 +20,26 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let priceId: string;
+  let body: unknown;
   try {
-    const body = (await request.json()) as { priceId?: string };
-    priceId =
-      body.priceId ?? process.env.STRIPE_PRO_PRICE_ID ?? "";
+    body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON." }, { status: 400 });
   }
+
+  const parsed = billingCheckoutRequestSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      {
+        error: "Invalid request body.",
+        details: parsed.error.flatten().fieldErrors,
+      },
+      { status: 400 }
+    );
+  }
+
+  const priceId =
+    parsed.data.priceId ?? process.env.STRIPE_PRO_PRICE_ID ?? "";
 
   if (!priceId) {
     return NextResponse.json(
@@ -72,12 +87,16 @@ export async function POST(request: NextRequest) {
       allow_promotion_codes: true,
     });
 
-    await trackServer(
-      { event: "signal_approved", properties: { org_id: auth.org.id, account_name: "billing_checkout_started" } },
-      auth.user.id
-    );
+    const response = { url: session.url ?? "" };
+    const validated = billingCheckoutResponseSchema.safeParse(response);
+    if (!validated.success) {
+      return NextResponse.json(
+        { error: "Checkout session missing redirect URL." },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json(validated.data satisfies { url: string });
   } catch (err) {
     logger.error("stripe-checkout-error", err);
     return NextResponse.json(

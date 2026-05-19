@@ -3,7 +3,8 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useSignalMutations } from "@/hooks/use-signal-mutations";
 import {
   BarChart3,
   BookOpen,
@@ -20,13 +21,7 @@ import {
 import { toast } from "sonner";
 import { useCurrentOrg } from "@/lib/auth-context";
 import { useFlags } from "@/lib/use-flags";
-import {
-  accountsByDqQuery,
-  approveSignal,
-  generatePlaybookForSignal,
-  rejectSignal,
-  signalsRecentQuery,
-} from "@/lib/gtm-queries";
+import { accountsByDqQuery, signalsRecentQuery } from "@/lib/gtm-queries";
 import { useDemoLimitation } from "@/components/demo/demo-limited-action";
 import { canTransition } from "@/types/signal";
 import type { SignalStatus } from "@/types/signal";
@@ -118,7 +113,8 @@ export function CommandPalette() {
   const router = useRouter();
   const org = useCurrentOrg();
   const flags = useFlags();
-  const qc = useQueryClient();
+  const { approve, reject, generate, handleSignalActionError } =
+    useSignalMutations();
   const { isDemo, showDemoLimitation } = useDemoLimitation("command_palette");
   const paletteReducedMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
@@ -132,8 +128,14 @@ export function CommandPalette() {
       return [];
     }
   });
-  const { data: accounts = [] } = useQuery(accountsByDqQuery(org.id));
-  const { data: signals = [] } = useQuery(signalsRecentQuery(org.id));
+  const { data: accounts = [] } = useQuery({
+    ...accountsByDqQuery(org.id),
+    enabled: open,
+  });
+  const { data: signals = [] } = useQuery({
+    ...signalsRecentQuery(org.id),
+    enabled: open,
+  });
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -172,47 +174,33 @@ export function CommandPalette() {
     );
   }
 
-  const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
-    qc.invalidateQueries({ queryKey: ["org", org.id, "accounts"] });
-  };
+  function runGenerate(signalId: string) {
+    generate.mutate(signalId, {
+      onSuccess: () => {
+        toast.success("Playbook generation queued", {
+          description: "We will notify you when the generated playbook is ready.",
+        });
+        setOpen(false);
+      },
+      onError: (error) =>
+        toast.error(error instanceof Error ? error.message : "Generation failed"),
+    });
+  }
 
-  const generate = useMutation({
-    mutationFn: (signalId: string) => generatePlaybookForSignal(org.id, signalId),
-    onSuccess: () => {
-      invalidate();
-      toast.success("Playbook generation queued", {
-        description: "We will notify you when the generated playbook is ready.",
-      });
-      setOpen(false);
-    },
-    onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Generation failed"),
-  });
-
-  const transition = useMutation({
-    mutationFn: ({
-      action,
-      signalId,
-    }: {
-      action: "approve" | "reject";
-      signalId: string;
-    }) =>
-      action === "approve"
-        ? approveSignal(org.id, signalId)
-        : rejectSignal(org.id, signalId),
-    onSuccess: ({ accountName }, variables) => {
-      invalidate();
-      remember(`${variables.action === "approve" ? "Approve" : "Reject"} ${accountName}`);
-      toast.success(
-        variables.action === "approve" ? "Signal approved" : "Signal rejected",
-        { description: accountName }
-      );
-      setOpen(false);
-    },
-    onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Action failed"),
-  });
+  function runTransition(action: "approve" | "reject", signalId: string) {
+    const mutation = action === "approve" ? approve : reject;
+    mutation.mutate(signalId, {
+      onSuccess: ({ accountName }) => {
+        remember(`${action === "approve" ? "Approve" : "Reject"} ${accountName}`);
+        toast.success(
+          action === "approve" ? "Signal approved" : "Signal rejected",
+          { description: accountName }
+        );
+        setOpen(false);
+      },
+      onError: handleSignalActionError,
+    });
+  }
 
   const signalsByAccount = useMemo(() => {
     const map = new Map<string, (typeof signals)[number]>();
@@ -298,7 +286,7 @@ export function CommandPalette() {
                         }
                         const accountName = label.replace("Generate ", "");
                         const signal = signalsByAccount.get(accountName);
-                        if (signal) generate.mutate(signal.id);
+                        if (signal) runGenerate(signal.id);
                       } else if (label.startsWith("Approve ")) {
                         if (isDemo) {
                           showDemoLimitation("approve_signal_recent");
@@ -306,7 +294,7 @@ export function CommandPalette() {
                         }
                         const recentName = label.replace("Approve ", "");
                         const sig = signalsByAccount.get(recentName);
-                        if (sig) transition.mutate({ action: "approve", signalId: sig.id });
+                        if (sig) runTransition("approve", sig.id);
                       } else if (label.startsWith("Reject ")) {
                         if (isDemo) {
                           showDemoLimitation("reject_signal_recent");
@@ -314,7 +302,7 @@ export function CommandPalette() {
                         }
                         const recentName = label.replace("Reject ", "");
                         const sig = signalsByAccount.get(recentName);
-                        if (sig) transition.mutate({ action: "reject", signalId: sig.id });
+                        if (sig) runTransition("reject", sig.id);
                       }
                     }}
                     className={cn(
@@ -368,7 +356,7 @@ export function CommandPalette() {
                         return;
                       }
                       remember(`Generate ${account.name}`);
-                      generate.mutate(signal.id);
+                      runGenerate(signal.id);
                     } else {
                       navigate("Go to Accounts", "/accounts");
                     }
@@ -416,10 +404,7 @@ export function CommandPalette() {
                           showDemoLimitation("approve_signal");
                           return;
                         }
-                        transition.mutate({
-                          action: "approve",
-                          signalId: signal.id,
-                        });
+                        runTransition("approve", signal.id);
                       }}
                       variant="success"
                       className={cn(
@@ -441,10 +426,7 @@ export function CommandPalette() {
                           showDemoLimitation("reject_signal");
                           return;
                         }
-                        transition.mutate({
-                          action: "reject",
-                          signalId: signal.id,
-                        });
+                        runTransition("reject", signal.id);
                       }}
                       variant="destructive"
                       className={cn(

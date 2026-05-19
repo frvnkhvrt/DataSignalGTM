@@ -1,12 +1,12 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInvalidateOrgGtm } from "@/hooks/use-invalidate-org";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useCurrentOrg } from "@/lib/auth-context";
-import { signalsRecentQuery } from "@/lib/gtm-queries";
 import { DemoLimitedAction } from "@/components/demo/demo-limited-action";
-import { SignalsTable } from "@/components/tables/signals-table";
+import { SignalsTable, signalsRecentQuery } from "@/features/signals";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { PageHeader } from "@/components/ui/page-header";
@@ -14,7 +14,7 @@ import { QueryError } from "@/components/ui/query-error";
 
 export default function SignalsPage() {
   const org = useCurrentOrg();
-  const qc = useQueryClient();
+  const { invalidateOrgGtm } = useInvalidateOrgGtm(org.id);
   const {
     data: signals = [],
     isLoading,
@@ -46,7 +46,7 @@ export default function SignalsPage() {
           ? `Queued ${queued} playbook job(s)`
           : "No playbooks needed backfill"
       );
-      qc.invalidateQueries({ queryKey: ["org", org.id, "signals"] });
+      invalidateOrgGtm("signals");
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "Backfill failed");

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import type { QueuePlaybookResponse } from "@/lib/api-contracts";
 import { PLAYBOOK_GENERATE_EVENT, inngest } from "@/lib/inngest/client";
 import { createAdminClient, getAuthContext } from "@/lib/supabase/server";
 
@@ -10,7 +11,7 @@ const requestSchema = z.object({
 });
 
 export type GeneratePlaybookRequest = z.infer<typeof requestSchema>;
-export type GeneratePlaybookResponse = { queued: true; signal_id: string };
+export type GeneratePlaybookResponse = QueuePlaybookResponse;
 
 export async function POST(request: NextRequest) {
   const auth = await getAuthContext();

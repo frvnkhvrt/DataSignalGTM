@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { billingPortalResponseSchema } from "@/lib/api-contracts";
 import { getStripe, getAppUrl } from "@/lib/stripe";
 import { createAdminClient, getAuthContext } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
@@ -39,7 +40,15 @@ export async function POST() {
       return_url: `${appUrl}/settings/billing`,
     });
 
-    return NextResponse.json({ url: session.url });
+    const response = { url: session.url ?? "" };
+    const validated = billingPortalResponseSchema.safeParse(response);
+    if (!validated.success) {
+      return NextResponse.json(
+        { error: "Portal session missing redirect URL." },
+        { status: 500 }
+      );
+    }
+    return NextResponse.json(validated.data);
   } catch (err) {
     logger.error("stripe-portal-error", err);
     return NextResponse.json(

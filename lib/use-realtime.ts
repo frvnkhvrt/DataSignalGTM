@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { invalidateOrgGtm } from "@/lib/invalidate-org-gtm";
 import { supabase } from "@/lib/supabase/client";
 import { markRecentlyUpdated } from "@/lib/realtime-glow";
 
@@ -30,7 +31,7 @@ export function useRealtimeSync(orgId: string) {
           filter: `org_id=eq.${orgId}`,
         },
         (payload) => {
-          queryClient.invalidateQueries({ queryKey: ["org", orgId, "signals"] });
+          invalidateOrgGtm(queryClient, orgId, "signals");
           // Mark the updated/inserted record for the row glow
           const id = (payload.new as { id?: string } | null)?.id
             ?? (payload.old as { id?: string } | null)?.id;
@@ -46,7 +47,7 @@ export function useRealtimeSync(orgId: string) {
           filter: `org_id=eq.${orgId}`,
         },
         (payload) => {
-          queryClient.invalidateQueries({ queryKey: ["org", orgId, "accounts"] });
+          invalidateOrgGtm(queryClient, orgId, "accounts");
           const id = (payload.new as { id?: string } | null)?.id
             ?? (payload.old as { id?: string } | null)?.id;
           if (id) markRecentlyUpdated("accounts", id);
@@ -61,9 +62,7 @@ export function useRealtimeSync(orgId: string) {
           filter: `org_id=eq.${orgId}`,
         },
         (payload) => {
-          queryClient.invalidateQueries({
-            queryKey: ["org", orgId, "data-issues"],
-          });
+          invalidateOrgGtm(queryClient, orgId, "data-issues");
           const id = (payload.new as { id?: string } | null)?.id
             ?? (payload.old as { id?: string } | null)?.id;
           if (id) markRecentlyUpdated("data_issues", id);

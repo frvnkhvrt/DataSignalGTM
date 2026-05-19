@@ -3,12 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, CircleAlert, ShieldCheck, Wrench } from "lucide-react";
 import { useCurrentOrg } from "@/lib/auth-context";
+import type { AccountRow } from "@/lib/db-types";
 import {
+  AccountsTable,
   accountsByDqQuery,
   dataIssueCountsQuery,
-  type AccountRow,
-} from "@/lib/gtm-queries";
-import { AccountsTable } from "@/components/tables/accounts-table";
+} from "@/features/accounts";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { Stagger, StaggerItem } from "@/components/ui/motion";
