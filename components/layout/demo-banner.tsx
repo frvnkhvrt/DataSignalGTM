@@ -86,11 +86,13 @@ export function DemoBanner() {
                   Explore accounts, signals, data quality, and playbooks without
                   touching a real environment.
                 </p>
-                <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-warning/85">
-                  <li>Read-only — signal approvals disabled</li>
-                  <li>AI playbook generation disabled</li>
-                  <li>Billing and automations disabled</li>
-                </ul>
+                <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-medium text-warning/85">
+                  <span>Read-only — signal approvals disabled</span>
+                  <span className="opacity-45 select-none" aria-hidden="true">•</span>
+                  <span>AI playbook generation disabled</span>
+                  <span className="opacity-45 select-none" aria-hidden="true">•</span>
+                  <span>Billing and automations disabled</span>
+                </div>
               </div>
             </div>
             <div className="flex shrink-0 flex-wrap items-center gap-2">

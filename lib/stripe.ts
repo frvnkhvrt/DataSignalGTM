@@ -74,7 +74,7 @@ export const PLANS: Plan[] = [
     name: "Enterprise",
     tagline: "Custom scale, dedicated support",
     price: "Custom",
-    priceSub: "contact us",
+    priceSub: "Contact us",
     features: [
       "Everything in Pro",
       "Unlimited organisations",

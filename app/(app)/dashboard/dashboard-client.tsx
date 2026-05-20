@@ -42,7 +42,7 @@ import {
   MotionListItem,
 } from "@/components/ui/motion";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
+import { ButtonGroup, ButtonGroupSeparator } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { useCurrentOrg } from "@/lib/auth-context";
@@ -164,6 +164,7 @@ export default function DashboardClient() {
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Button>
+                  <ButtonGroupSeparator className="bg-border/45" />
                   <Button
                     asChild
                     variant="outline"

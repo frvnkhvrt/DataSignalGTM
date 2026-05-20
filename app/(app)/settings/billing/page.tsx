@@ -102,12 +102,11 @@ function PlanCard({
           )}
         </div>
       ) : plan.id === "enterprise" ? (
-        <a
-          href="mailto:sales@datasignalgtm.com?subject=Enterprise inquiry"
-          className="ds-focus-ring ds-pressable block rounded-lg border border-border px-3 py-2 text-center text-xs font-medium text-foreground hover:bg-surface-elevated"
-        >
-          {plan.cta}
-        </a>
+        <Button asChild variant="outline" size="sm" className="w-full">
+          <a href="mailto:sales@datasignalgtm.com?subject=Enterprise inquiry">
+            {plan.cta}
+          </a>
+        </Button>
       ) : isDowngrade ? (
         <Button
           type="button"
