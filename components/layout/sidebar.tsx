@@ -39,12 +39,123 @@ const navGroups = [
 
 const PILL_LAYOUT_ID = "sidebar-active-pill";
 
+interface SidebarLinkProps {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  collapsed: boolean;
+  active: boolean;
+  reducedMotion: boolean | null;
+  hideOnMobile?: boolean;
+}
+
+function SidebarLink({
+  href,
+  label,
+  icon: Icon,
+  collapsed,
+  active,
+  reducedMotion,
+  hideOnMobile,
+}: SidebarLinkProps) {
+  const router = useRouter();
+  const { ripples, addRipple, clearRipple } = useGlowRipples();
+
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      title={collapsed ? label : undefined}
+      onFocus={() => router.prefetch(href)}
+      onMouseEnter={() => router.prefetch(href)}
+      onClick={addRipple}
+      className={cn(
+        "ds-focus-ring relative flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] transition-[color,background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:flex-row sm:border-l-2 sm:border-t-0 sm:text-sm",
+        hideOnMobile ? "hidden sm:flex" : "flex",
+        collapsed
+          ? "sm:mx-auto sm:size-10 sm:max-w-10 sm:justify-center sm:gap-0 sm:rounded-lg sm:border-l-transparent sm:px-0 sm:py-0"
+          : "sm:justify-start sm:gap-3 sm:px-3 sm:py-2",
+        active
+          ? "border-primary text-foreground sm:border-transparent sm:font-medium"
+          : "border-transparent text-muted-foreground hover:bg-surface-elevated hover:text-foreground sm:hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]"
+      )}
+    >
+      {/* Desktop animated pill — slides between active items via layoutId */}
+      {active && (
+        <motion.span
+          layoutId={PILL_LAYOUT_ID}
+          aria-hidden="true"
+          className={cn(
+            "ds-nav-active-pill pointer-events-none absolute hidden bg-gradient-to-r from-primary/14 to-primary/6 sm:block",
+            collapsed ? "inset-0 rounded-lg" : "inset-0 rounded-md"
+          )}
+          transition={
+            reducedMotion ? { duration: 0.01 } : spring.sidebarPill
+          }
+        />
+      )}
+      <GlowRippleContainer ripples={ripples} onClear={clearRipple} />
+      <motion.div
+        animate={{
+          scale: active ? 1.1 : 1,
+          y: active ? -1.5 : 0,
+          rotate: active
+            ? (Icon === LayoutDashboard
+              ? 12
+              : Icon === Radio
+              ? -10
+              : Icon === Building2
+              ? 8
+              : Icon === BarChart3
+              ? -8
+              : 10)
+            : 0,
+        }}
+        whileHover={{
+          scale: 1.05,
+          y: -0.5,
+          rotate: 0,
+        }}
+        whileTap={{
+          scale: 0.95,
+          y: 0.5,
+          rotate: 0,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 400,
+          damping: 24,
+        }}
+        className="relative z-10 flex items-center justify-center"
+      >
+        <Icon
+          className={cn(
+            "size-4 shrink-0 transition-colors duration-300",
+            active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+          )}
+          strokeWidth={2}
+        />
+      </motion.div>
+      <span
+        className={cn(
+          "relative z-10 transition-[opacity,transform,max-width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] overflow-hidden whitespace-nowrap",
+          collapsed
+            ? "pointer-events-none max-w-0 opacity-0 -translate-x-2"
+            : "max-w-[10rem] opacity-100 translate-x-0"
+        )}
+      >
+        {label}
+      </span>
+    </Link>
+  );
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const reducedMotion = useReducedMotion();
-  const { ripples, addRipple, clearRipple } = useGlowRipples();
   const helpActive = pathname.startsWith("/help");
+  const { ripples: helpRipples, addRipple: addHelpRipple, clearRipple: clearHelpRipple } = useGlowRipples();
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem("datasignalgtm.sidebar.collapsed") === "true";
@@ -144,75 +255,16 @@ export function Sidebar() {
                     ? pathname === "/dashboard"
                     : pathname.startsWith(href);
                 return (
-                  <Link
+                  <SidebarLink
                     key={href}
                     href={href}
-                    aria-current={active ? "page" : undefined}
-                    title={collapsed ? label : undefined}
-                    onFocus={() => router.prefetch(href)}
-                    onMouseEnter={() => router.prefetch(href)}
-                    onClick={addRipple}
-                    className={cn(
-                      "ds-focus-ring relative flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] transition-[color,background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:flex-row sm:border-l-2 sm:border-t-0 sm:text-sm",
-                      hideOnMobile ? "hidden sm:flex" : "flex",
-                      collapsed
-                        ? "sm:mx-auto sm:size-10 sm:max-w-10 sm:justify-center sm:gap-0 sm:rounded-lg sm:border-l-transparent sm:px-0 sm:py-0"
-                        : "sm:justify-start sm:gap-3 sm:px-3 sm:py-2",
-                      active
-                        ? "border-primary text-foreground sm:border-transparent sm:font-medium"
-                        : "border-transparent text-muted-foreground hover:bg-surface-elevated hover:text-foreground sm:hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]"
-                    )}
-                  >
-                    {/* Desktop animated pill — slides between active items via layoutId */}
-                    {active && (
-                      <motion.span
-                        layoutId={PILL_LAYOUT_ID}
-                        aria-hidden="true"
-                        className={cn(
-                          "ds-nav-active-pill pointer-events-none absolute hidden bg-gradient-to-r from-primary/14 to-primary/6 sm:block",
-                          collapsed
-                            ? "inset-0 rounded-lg"
-                            : "inset-0 rounded-md"
-                        )}
-                        transition={
-                          reducedMotion ? { duration: 0.01 } : spring.sidebarPill
-                        }
-                      />
-                    )}
-                    <GlowRippleContainer ripples={ripples} onClear={clearRipple} />
-                    <motion.div
-                      animate={{
-                        scale: active ? 1.05 : 1,
-                        y: active ? -0.5 : 0,
-                      }}
-                      whileHover={{
-                        scale: 1.05,
-                        y: -0.5,
-                      }}
-                      whileTap={{
-                        scale: 0.95,
-                        y: 0.25,
-                      }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 30,
-                      }}
-                      className="relative z-10 flex items-center justify-center"
-                    >
-                      <Icon className="size-4 shrink-0" strokeWidth={2} />
-                    </motion.div>
-                    <span
-                      className={cn(
-                        "relative z-10 transition-[opacity,transform,max-width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] overflow-hidden whitespace-nowrap",
-                        collapsed
-                          ? "pointer-events-none max-w-0 opacity-0 -translate-x-2"
-                          : "max-w-[10rem] opacity-100 translate-x-0"
-                      )}
-                    >
-                      {label}
-                    </span>
-                  </Link>
+                    label={label}
+                    icon={Icon}
+                    collapsed={collapsed}
+                    active={active}
+                    reducedMotion={reducedMotion}
+                    hideOnMobile={hideOnMobile}
+                  />
                 );
               })}
             </div>
@@ -226,7 +278,7 @@ export function Sidebar() {
             title={collapsed ? "Help" : undefined}
             onFocus={() => router.prefetch("/help")}
             onMouseEnter={() => router.prefetch("/help")}
-            onClick={addRipple}
+            onClick={addHelpRipple}
             className={cn(
               "ds-focus-ring relative flex items-center gap-3 overflow-hidden rounded-md border-l-2 border-transparent py-2 text-sm text-muted-foreground transition-[color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated hover:text-foreground sm:hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]",
               helpActive && "text-foreground sm:font-medium",
@@ -246,28 +298,37 @@ export function Sidebar() {
                 transition={reducedMotion ? { duration: 0.01 } : spring.sidebarPill}
               />
             )}
-            <GlowRippleContainer ripples={ripples} onClear={clearRipple} />
+            <GlowRippleContainer ripples={helpRipples} onClear={clearHelpRipple} />
             <motion.div
               animate={{
-                scale: helpActive ? 1.05 : 1,
-                y: helpActive ? -0.5 : 0,
+                scale: helpActive ? 1.1 : 1,
+                y: helpActive ? -1.5 : 0,
+                rotate: helpActive ? 12 : 0,
               }}
               whileHover={{
                 scale: 1.05,
                 y: -0.5,
+                rotate: 0,
               }}
               whileTap={{
                 scale: 0.95,
-                y: 0.25,
+                y: 0.5,
+                rotate: 0,
               }}
               transition={{
                 type: "spring",
                 stiffness: 400,
-                damping: 30,
+                damping: 24,
               }}
               className="relative z-10 flex items-center justify-center"
             >
-              <BookOpen className="size-4 shrink-0" strokeWidth={2} />
+              <BookOpen
+                className={cn(
+                  "size-4 shrink-0 transition-colors duration-300",
+                  helpActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                )}
+                strokeWidth={2}
+              />
             </motion.div>
             <span
               className={cn(
