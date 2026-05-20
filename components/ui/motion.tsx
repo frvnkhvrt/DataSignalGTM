@@ -713,7 +713,7 @@ export function GlowRippleContainer({ ripples, onClear }: { ripples: Ripple[]; o
         {ripples.map((ripple) => (
           <motion.span
             key={ripple.id}
-            className="absolute rounded-full border border-primary/40 bg-primary/5 shadow-[0_0_12px_var(--color-primary)] pointer-events-none"
+            className="absolute rounded-full border border-primary/20 bg-primary/[0.02] pointer-events-none"
             style={{
               left: ripple.x,
               top: ripple.y,
@@ -721,10 +721,10 @@ export function GlowRippleContainer({ ripples, onClear }: { ripples: Ripple[]; o
               width: 8,
               height: 8,
             }}
-            initial={{ scale: 0, opacity: 0.8 }}
-            animate={{ scale: 22, opacity: 0 }}
+            initial={{ scale: 0, opacity: 0.6 }}
+            animate={{ scale: 16, opacity: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             onAnimationComplete={() => onClear(ripple.id)}
           />
         ))}

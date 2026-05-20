@@ -16,7 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { spring, Magnetic, GlowRippleContainer, useGlowRipples } from "@/components/ui/motion";
+import { spring, GlowRippleContainer, useGlowRipples } from "@/components/ui/motion";
 import { cn } from "@/lib/utils";
 
 const navGroups = [
@@ -180,37 +180,28 @@ export function Sidebar() {
                       />
                     )}
                     <GlowRippleContainer ripples={ripples} onClear={clearRipple} />
-                    <Magnetic scale={0.35}>
-                      <motion.div
-                        animate={
-                          active
-                            ? {
-                                scale: [1, 1.25, 0.95, 1.05, 1],
-                                rotate:
-                                  Icon === LayoutDashboard
-                                    ? [0, 8, -6, 3, 0]
-                                    : Icon === Radio
-                                    ? [0, 0, 0, 0, 0]
-                                    : Icon === Building2
-                                    ? [0, 6, -5, 0, 0]
-                                    : Icon === BarChart3
-                                    ? [0, -8, 8, 0, 0]
-                                    : [0, 10, -10, 5, 0],
-                                y: Icon === Radio ? [0, -3, 2, -1, 0] : 0,
-                              }
-                            : { scale: 1, rotate: 0, y: 0 }
-                        }
-                        transition={{
-                          type: "spring",
-                          stiffness: 400,
-                          damping: 18,
-                          mass: 0.8,
-                        }}
-                        className="relative z-10 flex items-center justify-center"
-                      >
-                        <Icon className="size-4 shrink-0" strokeWidth={2} />
-                      </motion.div>
-                    </Magnetic>
+                    <motion.div
+                      animate={{
+                        scale: active ? 1.05 : 1,
+                        y: active ? -0.5 : 0,
+                      }}
+                      whileHover={{
+                        scale: 1.05,
+                        y: -0.5,
+                      }}
+                      whileTap={{
+                        scale: 0.95,
+                        y: 0.25,
+                      }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 30,
+                      }}
+                      className="relative z-10 flex items-center justify-center"
+                    >
+                      <Icon className="size-4 shrink-0" strokeWidth={2} />
+                    </motion.div>
                     <span
                       className={cn(
                         "relative z-10 transition-[opacity,transform,max-width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] overflow-hidden whitespace-nowrap",
@@ -256,27 +247,28 @@ export function Sidebar() {
               />
             )}
             <GlowRippleContainer ripples={ripples} onClear={clearRipple} />
-            <Magnetic scale={0.35}>
-              <motion.div
-                animate={
-                  helpActive
-                    ? {
-                        scale: [1, 1.25, 0.95, 1.05, 1],
-                        rotate: [0, -10, 8, -4, 0],
-                      }
-                    : { scale: 1, rotate: 0 }
-                }
-                transition={{
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 18,
-                  mass: 0.8,
-                }}
-                className="relative z-10 flex items-center justify-center"
-              >
-                <BookOpen className="size-4 shrink-0" strokeWidth={2} />
-              </motion.div>
-            </Magnetic>
+            <motion.div
+              animate={{
+                scale: helpActive ? 1.05 : 1,
+                y: helpActive ? -0.5 : 0,
+              }}
+              whileHover={{
+                scale: 1.05,
+                y: -0.5,
+              }}
+              whileTap={{
+                scale: 0.95,
+                y: 0.25,
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 400,
+                damping: 30,
+              }}
+              className="relative z-10 flex items-center justify-center"
+            >
+              <BookOpen className="size-4 shrink-0" strokeWidth={2} />
+            </motion.div>
             <span
               className={cn(
                 "relative z-10 transition-[opacity,transform,max-width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] overflow-hidden whitespace-nowrap",
