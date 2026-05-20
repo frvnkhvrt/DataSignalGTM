@@ -144,13 +144,13 @@ export default function DashboardClient() {
                   Executive overview
                 </Badge>
                 <motion.h1
-                  layoutId="page-header-title"
+                  layoutId="dashboard-page-header-title"
                   className="ds-heading text-3xl font-semibold text-foreground sm:text-4xl"
                 >
                   Your GTM signal layer, at a glance
                 </motion.h1>
                 <motion.p
-                  layoutId="page-header-description"
+                  layoutId="dashboard-page-header-description"
                   className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground"
                 >
                   Start with signal volume, data health, and playbook readiness. Drill

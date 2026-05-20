@@ -350,7 +350,7 @@ export function AccountsTable({
           ? "Refreshing accounts."
           : `${visibleRowCount} accounts shown. ${selectedCount} selected.`}
       </div>
-      <DynamicGlassCard layoutId="gtm-table-toolbar-card" className="relative flex min-w-0 flex-col gap-3 overflow-hidden p-3 md:flex-row md:items-center md:justify-between md:gap-4">
+      <DynamicGlassCard layoutId="accounts-table-toolbar-card" className="relative flex min-w-0 flex-col gap-3 overflow-hidden p-3 md:flex-row md:items-center md:justify-between md:gap-4">
         {isRefetching && (
           <div className="absolute inset-x-0 top-0 h-px overflow-hidden">
             <div className="ds-refetch-stripe" />
@@ -409,7 +409,7 @@ export function AccountsTable({
         </div>
       </DynamicGlassCard>
 
-      <DynamicGlassCard layoutId="gtm-table-content-card" className="min-w-0 p-0" aria-busy={isLoading || isRefetching}>
+      <DynamicGlassCard layoutId="accounts-table-content-card" className="min-w-0 p-0" aria-busy={isLoading || isRefetching}>
         <div className="min-w-0 rounded-xl overflow-x-auto overscroll-x-contain overscroll-y-contain touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-gutter:stable] max-lg:max-h-[min(70vh,28rem)] max-lg:overflow-y-auto">
           <Table className="min-w-[min(100%,48rem)]">
             <TableHeader className="sticky top-0 z-20 isolate border-b border-border/70 bg-background/[0.97] shadow-[0_6px_16px_-8px_rgb(0_0_0/0.28)] ring-1 ring-border/15 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 dark:supports-[backdrop-filter]:bg-background/70">

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,9 @@ export function PageHeader({
   actions?: React.ReactNode;
   className?: string;
 }) {
+  const pathname = usePathname();
+  const routeKey = pathname ? pathname.replace(/\//g, "-") : "shared";
+
   return (
     <div
       className={cn(
@@ -30,14 +34,14 @@ export function PageHeader({
       <div className="min-w-0">
         {eyebrow && <p className="ds-eyebrow mb-2 text-primary">{eyebrow}</p>}
         <motion.h1
-          layoutId="page-header-title"
+          layoutId={`${routeKey}-page-header-title`}
           className="ds-heading text-2xl font-semibold text-foreground sm:text-3xl"
         >
           {title}
         </motion.h1>
         {description && (
           <motion.p
-            layoutId="page-header-description"
+            layoutId={`${routeKey}-page-header-description`}
             className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground"
           >
             {description}
