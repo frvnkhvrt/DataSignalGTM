@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const sections = [
   { href: "/help", label: "Getting Started", eyebrow: "Start" },
   { href: "/help/signals", label: "Signals & Playbooks", eyebrow: "Workflow" },
-  { href: "/help/webhook", label: "Webhook Integration", eyebrow: "Integrate" },
+  { href: "/help/webhook", label: "Webhook Integration", eyebrow: "Setup" },
   { href: "/help/pricing", label: "Pricing & Limits", eyebrow: "Plan" },
   { href: "/help/faq", label: "FAQ", eyebrow: "Support" },
 ];
@@ -48,7 +48,7 @@ export function HelpNav({
             <span
               className={cn(
                 "ds-eyebrow shrink-0 ds-transition-muted",
-                variant === "sidebar" && "w-24",
+                variant === "sidebar" && "w-20",
                 variant === "rail" && "w-auto pr-0 text-[10px]",
                 isActive ? "text-primary/70" : "text-muted-foreground/60 group-hover:text-muted-foreground"
               )}

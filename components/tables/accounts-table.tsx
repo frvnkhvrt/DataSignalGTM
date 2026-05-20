@@ -410,7 +410,7 @@ export function AccountsTable({
       </Card>
 
       <Card className="min-w-0 bg-card/80 p-0 ds-card-inner-glow" aria-busy={isLoading || isRefetching}>
-        <div className="min-w-0 rounded-b-xl overflow-x-auto overscroll-x-contain overscroll-y-contain touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-gutter:stable] max-lg:max-h-[min(70vh,28rem)] max-lg:overflow-y-auto">
+        <div className="min-w-0 rounded-xl overflow-x-auto overscroll-x-contain overscroll-y-contain touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-gutter:stable] max-lg:max-h-[min(70vh,28rem)] max-lg:overflow-y-auto">
           <Table className="min-w-[min(100%,48rem)]">
             <TableHeader className="sticky top-0 z-20 isolate border-b border-border/70 bg-background/[0.97] shadow-[0_6px_16px_-8px_rgb(0_0_0/0.28)] ring-1 ring-border/15 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 dark:supports-[backdrop-filter]:bg-background/70">
               {table.getHeaderGroups().map((headerGroup) => (

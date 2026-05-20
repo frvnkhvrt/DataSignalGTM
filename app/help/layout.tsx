@@ -13,7 +13,7 @@ export default function HelpLayout({
       <nav className="sticky top-0 z-40 border-b border-border/70 bg-background/88 backdrop-blur-xl ds-chrome-divider ds-inset-top-soft">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-4 sm:px-6">
           <Link
-            href="/"
+            href="/dashboard"
             className="ds-focus-ring ds-transition-muted flex shrink-0 items-center gap-1.5 rounded-md px-1 py-0.5 text-xs text-muted-foreground hover:text-foreground motion-reduce:transition-none"
           >
             <ArrowLeft className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
