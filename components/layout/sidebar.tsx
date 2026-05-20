@@ -65,12 +65,11 @@ function SidebarLink({
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      title={collapsed ? label : undefined}
       onFocus={() => router.prefetch(href)}
       onMouseEnter={() => router.prefetch(href)}
       onClick={addRipple}
       className={cn(
-        "ds-focus-ring relative flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] transition-[color,background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:flex-row sm:border-l-2 sm:border-t-0 sm:text-sm",
+        "ds-focus-ring group relative flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] transition-[color,background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:flex-row sm:border-l-2 sm:border-t-0 sm:text-sm",
         hideOnMobile ? "hidden sm:flex" : "flex",
         collapsed
           ? "sm:mx-auto sm:size-10 sm:max-w-10 sm:justify-center sm:gap-0 sm:rounded-lg sm:border-l-transparent sm:px-0 sm:py-0"
@@ -94,7 +93,20 @@ function SidebarLink({
           }
         />
       )}
+
+      {/* Vertical tactile active indicator line */}
+      {active && (
+        <motion.div
+          layoutId="sidebar-active-line"
+          className="absolute left-0 top-[25%] h-1/2 w-[3px] rounded-r-full bg-primary sm:block hidden"
+          transition={
+            reducedMotion ? { duration: 0.01 } : spring.sidebarPill
+          }
+        />
+      )}
+
       <GlowRippleContainer ripples={ripples} onClear={clearRipple} />
+      
       <motion.div
         animate={{
           scale: active ? 1.1 : 1,
@@ -136,6 +148,7 @@ function SidebarLink({
           strokeWidth={2}
         />
       </motion.div>
+      
       <span
         className={cn(
           "relative z-10 transition-[opacity,transform,max-width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] overflow-hidden whitespace-nowrap",
@@ -146,6 +159,13 @@ function SidebarLink({
       >
         {label}
       </span>
+
+      {/* Premium Collapsed Tooltip */}
+      {collapsed && (
+        <div className="pointer-events-none absolute left-full z-50 ml-2 translate-x-[-8px] rounded-md border border-border/60 bg-popover/95 px-2.5 py-1.5 text-[11px] font-medium text-popover-foreground opacity-0 shadow-md backdrop-blur-md transition-all duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] group-hover:pointer-events-auto group-hover:translate-x-0 group-hover:opacity-100 hidden sm:block">
+          {label}
+        </div>
+      )}
     </Link>
   );
 }
@@ -164,7 +184,7 @@ export function Sidebar() {
   useEffect(() => {
     document.documentElement.style.setProperty(
       "--sidebar-width",
-      collapsed ? "5.5rem" : "15rem"
+      collapsed ? "4.5rem" : "15rem"
     );
     window.localStorage.setItem(
       "datasignalgtm.sidebar.collapsed",
@@ -175,26 +195,66 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed inset-x-0 bottom-0 z-20 flex h-16 border-t border-border bg-background/88 backdrop-blur-xl sm:inset-x-auto sm:inset-y-0 sm:left-0 sm:h-auto sm:w-[var(--sidebar-width)] sm:flex-col sm:border-r-0 sm:border-t-0 sm:[box-shadow:1px_0_0_var(--color-border)]",
+        "group/sidebar fixed inset-x-0 bottom-0 z-20 flex h-16 border-t border-border bg-background/88 backdrop-blur-xl sm:inset-x-auto sm:inset-y-0 sm:left-0 sm:h-auto sm:w-[var(--sidebar-width)] sm:flex-col sm:border-r-0 sm:border-t-0 sm:[box-shadow:1px_0_0_var(--color-border)]",
         "transition-[width,background-color,box-shadow] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)]",
         collapsed && "sm:bg-background/92 sm:[box-shadow:1px_0_0_var(--color-border),inset_0_1px_0_0_rgb(255_255_255/0.02)]"
       )}
     >
+      {/* Floating pull-tab toggle on the right border line */}
+      <Button
+        type="button"
+        variant="ghost"
+        className={cn(
+          "absolute top-1/2 -right-3 z-30 hidden size-6 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-background/95 shadow-md backdrop-blur-md transition-all duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] sm:flex",
+          "opacity-0 scale-90 translate-x-[-4px] pointer-events-none group-hover/sidebar:opacity-100 group-hover/sidebar:scale-100 group-hover/sidebar:translate-x-0 group-hover/sidebar:pointer-events-auto",
+          "hover:border-primary/30 hover:bg-surface-elevated hover:text-primary hover:shadow-[0_0_8px_rgba(var(--color-primary-rgb),0.15)] active:scale-95"
+        )}
+        onClick={() => setCollapsed((v) => !v)}
+        aria-expanded={!collapsed}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {collapsed ? (
+          <ChevronRight className="size-3 text-muted-foreground" strokeWidth={2.5} />
+        ) : (
+          <ChevronLeft className="size-3 text-muted-foreground" strokeWidth={2.5} />
+        )}
+      </Button>
+
+      {/* Header section with breathing ambient glow */}
       <div
         className={cn(
-          "hidden sm:flex ds-chrome-divider",
+          "hidden sm:flex ds-chrome-divider items-center",
           collapsed
-            ? "flex-col items-center gap-2 px-2.5 pb-2.5 pt-2.5"
-            : "h-14 flex-row items-center gap-3 px-4"
+            ? "justify-center h-14"
+            : "h-14 flex-row gap-3 px-4"
         )}
       >
-        <div
-          className={cn(
-            "flex shrink-0 items-center justify-center border border-primary/22 bg-primary/10 ds-shadow-brand-well ds-inset-top-soft transition-[border-color,box-shadow,transform] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-primary/32 hover:bg-primary/11",
-            "size-8 rounded-lg"
+        <div className="relative">
+          {/* Breathing ambient glow (only pulses when collapsed to feel alive) */}
+          {collapsed && (
+            <motion.div
+              layoutId="logo-ambient-glow"
+              className="absolute -inset-1.5 -z-10 rounded-xl bg-primary/25 blur-md"
+              animate={{
+                opacity: [0.4, 0.75, 0.4],
+                scale: [0.93, 1.07, 0.93],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
           )}
-        >
-          <Activity className="size-4 text-primary" strokeWidth={2.25} />
+          <div
+            className={cn(
+              "flex shrink-0 items-center justify-center border border-primary/22 bg-primary/10 ds-shadow-brand-well ds-inset-top-soft transition-[border-color,box-shadow,transform] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] hover:border-primary/32 hover:bg-primary/11",
+              "size-8 rounded-lg"
+            )}
+          >
+            <Activity className="size-4 text-primary" strokeWidth={2.25} />
+          </div>
         </div>
         <span
           className={cn(
@@ -206,26 +266,6 @@ export function Sidebar() {
         >
           DataSignalGTM
         </span>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={cn(
-            "hidden shrink-0 text-muted-foreground transition-[background-color,color,transform,box-shadow,border-color] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:inline-flex",
-            "ds-focus-ring border border-transparent hover:border-border/55 hover:bg-surface-elevated hover:text-foreground hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] active:scale-[0.97] motion-reduce:active:scale-100",
-            collapsed ? "size-8 rounded-lg" : "ml-auto size-8 rounded-lg"
-          )}
-          onClick={() => setCollapsed((v) => !v)}
-          aria-expanded={!collapsed}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed ? (
-            <ChevronRight className="size-4" strokeWidth={2.25} />
-          ) : (
-            <ChevronLeft className="size-4" strokeWidth={2.25} />
-          )}
-        </Button>
       </div>
 
       <nav
@@ -275,12 +315,11 @@ export function Sidebar() {
           <Link
             href="/help"
             aria-current={helpActive ? "page" : undefined}
-            title={collapsed ? "Help" : undefined}
             onFocus={() => router.prefetch("/help")}
             onMouseEnter={() => router.prefetch("/help")}
             onClick={addHelpRipple}
             className={cn(
-              "ds-focus-ring relative flex items-center gap-3 overflow-hidden rounded-md border-l-2 border-transparent py-2 text-sm text-muted-foreground transition-[color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated hover:text-foreground sm:hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]",
+              "ds-focus-ring group relative flex items-center gap-3 overflow-hidden rounded-md border-l-2 border-transparent py-2 text-sm text-muted-foreground transition-[color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated hover:text-foreground sm:hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]",
               helpActive && "text-foreground sm:font-medium",
               collapsed
                 ? "justify-center px-2 sm:mx-auto sm:size-10 sm:max-w-10 sm:justify-center sm:gap-0 sm:rounded-lg sm:px-0"
@@ -298,7 +337,20 @@ export function Sidebar() {
                 transition={reducedMotion ? { duration: 0.01 } : spring.sidebarPill}
               />
             )}
+
+            {/* Vertical tactile active indicator line */}
+            {helpActive && (
+              <motion.div
+                layoutId="sidebar-active-line"
+                className="absolute left-0 top-[25%] h-1/2 w-[3px] rounded-r-full bg-primary sm:block hidden"
+                transition={
+                  reducedMotion ? { duration: 0.01 } : spring.sidebarPill
+                }
+              />
+            )}
+
             <GlowRippleContainer ripples={helpRipples} onClear={clearHelpRipple} />
+            
             <motion.div
               animate={{
                 scale: helpActive ? 1.1 : 1,
@@ -330,6 +382,7 @@ export function Sidebar() {
                 strokeWidth={2}
               />
             </motion.div>
+            
             <span
               className={cn(
                 "relative z-10 transition-[opacity,transform,max-width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] overflow-hidden whitespace-nowrap",
@@ -340,6 +393,13 @@ export function Sidebar() {
             >
               Help
             </span>
+
+            {/* Premium Collapsed Tooltip */}
+            {collapsed && (
+              <div className="pointer-events-none absolute left-full z-50 ml-2 translate-x-[-8px] rounded-md border border-border/60 bg-popover/95 px-2.5 py-1.5 text-[11px] font-medium text-popover-foreground opacity-0 shadow-md backdrop-blur-md transition-all duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] group-hover:pointer-events-auto group-hover:translate-x-0 group-hover:opacity-100 hidden sm:block">
+                Help
+              </div>
+            )}
           </Link>
         </div>
       </nav>
