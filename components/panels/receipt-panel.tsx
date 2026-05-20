@@ -108,7 +108,7 @@ export function ReceiptPanel({
     <Sheet open={!!account} onOpenChange={(o) => !o && onClose()}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-lg bg-card border-l border-border text-card-foreground p-0 overflow-y-auto ds-card-inner-glow"
+        className="w-full sm:max-w-lg bg-card border-l border-border text-card-foreground p-0 overflow-y-auto"
       >
         <SheetHeader className="px-6 py-4 border-b border-border">
           <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">

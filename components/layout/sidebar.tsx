@@ -86,8 +86,10 @@ export function Sidebar() {
         </div>
         <span
           className={cn(
-            "font-display text-sm font-semibold tracking-[-0.02em] text-foreground transition-opacity duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)]",
-            collapsed ? "sr-only" : "min-w-0 flex-1 truncate opacity-100"
+            "font-display text-sm font-semibold tracking-[-0.02em] text-foreground transition-[opacity,transform,max-width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] overflow-hidden whitespace-nowrap",
+            collapsed
+              ? "pointer-events-none max-w-0 opacity-0 -translate-x-2"
+              : "max-w-[10rem] opacity-100 translate-x-0"
           )}
         >
           DataSignalGTM
@@ -124,8 +126,10 @@ export function Sidebar() {
           <div key={group.label} className="contents sm:block">
             <div
               className={cn(
-                "hidden px-2 pb-1.5 pt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/60 sm:block",
-                collapsed && "sr-only"
+                "hidden px-2 ds-eyebrow text-muted-foreground/60 sm:block transition-[opacity,max-height,padding] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] overflow-hidden whitespace-nowrap",
+                collapsed
+                  ? "pointer-events-none max-h-0 opacity-0 pb-0 pt-0"
+                  : "max-h-8 opacity-100 pb-1.5 pt-0.5"
               )}
             >
               {group.label}
@@ -163,7 +167,7 @@ export function Sidebar() {
                         layoutId={PILL_LAYOUT_ID}
                         aria-hidden="true"
                         className={cn(
-                          "ds-nav-active-pill pointer-events-none absolute hidden border-l-2 border-primary bg-gradient-to-r from-primary/14 to-primary/6 sm:block",
+                          "ds-nav-active-pill pointer-events-none absolute hidden bg-gradient-to-r from-primary/14 to-primary/6 sm:block",
                           collapsed
                             ? "inset-0 rounded-lg"
                             : "inset-0 rounded-md"
@@ -174,7 +178,14 @@ export function Sidebar() {
                       />
                     )}
                     <Icon className="relative z-10 size-4 shrink-0" strokeWidth={2} />
-                    <span className={cn("relative z-10", collapsed && "sm:sr-only")}>
+                    <span
+                      className={cn(
+                        "relative z-10 transition-[opacity,transform,max-width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] overflow-hidden whitespace-nowrap",
+                        collapsed
+                          ? "pointer-events-none max-w-0 opacity-0 -translate-x-2"
+                          : "max-w-[10rem] opacity-100 translate-x-0"
+                      )}
+                    >
                       {label}
                     </span>
                   </Link>
@@ -204,14 +215,21 @@ export function Sidebar() {
                 layoutId={PILL_LAYOUT_ID}
                 aria-hidden="true"
                 className={cn(
-                  "ds-nav-active-pill pointer-events-none absolute hidden border-l-2 border-primary bg-gradient-to-r from-primary/14 to-primary/6 sm:block",
+                  "ds-nav-active-pill pointer-events-none absolute hidden bg-gradient-to-r from-primary/14 to-primary/6 sm:block",
                   collapsed ? "inset-0 rounded-lg" : "inset-0 rounded-md"
                 )}
                 transition={reducedMotion ? { duration: 0.01 } : spring.sidebarPill}
               />
             )}
             <BookOpen className="relative z-10 size-4 shrink-0" strokeWidth={2} />
-            <span className={cn("relative z-10", collapsed && "sm:sr-only")}>
+            <span
+              className={cn(
+                "relative z-10 transition-[opacity,transform,max-width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] overflow-hidden whitespace-nowrap",
+                collapsed
+                  ? "pointer-events-none max-w-0 opacity-0 -translate-x-2"
+                  : "max-w-[8rem] opacity-100 translate-x-0"
+              )}
+            >
               Help
             </span>
           </Link>

@@ -218,7 +218,7 @@ export function CommandPalette() {
         open={open}
         align="top"
         showCloseButton={false}
-        className="max-w-2xl overflow-hidden p-0 shadow-none"
+        className="max-w-2xl overflow-hidden p-0"
         onOpenAutoFocus={(event) => {
           event.preventDefault();
           requestAnimationFrame(() => {

@@ -143,7 +143,7 @@ function DialogMotionContent({
                   : "fixed top-1/2 left-1/2 z-[51] grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 outline-none sm:max-w-lg",
                 "rounded-xl border border-border/80 bg-card text-card-foreground",
                 "ring-1 ring-primary/[0.06] ds-dialog-panel-shadow",
-                "[background-image:linear-gradient(to_bottom,color-mix(in_oklch,var(--card)_100%,transparent),var(--card)))]",
+                "[background-image:linear-gradient(to_bottom,color-mix(in_oklch,var(--card)_100%,transparent),var(--card))]",
                 className
               )}
               initial={panel.initial}

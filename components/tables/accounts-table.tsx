@@ -26,7 +26,11 @@ import { DataIssuesPanel } from "@/components/panels/data-issues-panel";
 import { ReceiptPanel } from "@/components/panels/receipt-panel";
 import { Badge } from "@/components/ui/badge";
 import { DqStatusChip } from "@/components/ui/dq-status-chip";
-import type { TableDensity } from "@/components/tables/table-chrome";
+import {
+  TableDensityToggle,
+  TABLE_TOOLBAR_INSET,
+  type TableDensity,
+} from "@/components/tables/table-chrome";
 import { Button } from "@/components/ui/button";
 import {
   ButtonGroup,
@@ -44,10 +48,7 @@ import {
   transitionTableContentFade,
   transitionTableSkeletonFade,
 } from "@/components/ui/motion";
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/components/ui/toggle-group";
+
 import { isRecentlyUpdated } from "@/lib/realtime-glow";
 import { SortButton } from "@/components/tables/table-primitives";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -355,7 +356,7 @@ export function AccountsTable({
             <div className="ds-refetch-stripe" />
           </div>
         )}
-        <ButtonGroup className="min-h-9 w-full min-w-0 gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:w-fit sm:flex-none">
+        <ButtonGroup className={cn("min-h-9 w-full min-w-0 gap-0 overflow-hidden sm:w-fit sm:flex-none", TABLE_TOOLBAR_INSET)}>
           <label htmlFor="account-search" className="sr-only">
             Search accounts
           </label>
@@ -391,35 +392,14 @@ export function AccountsTable({
           </Select>
         </ButtonGroup>
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
-          <ToggleGroup
-            type="single"
-            value={density}
-            onValueChange={(value) => {
-              if (!value) return;
-              const next = value as TableDensity;
+          <TableDensityToggle
+            density={density}
+            onDensityChange={(next) => {
               setDensity(next);
               table.setPageSize(next === "compact" ? 14 : 10);
             }}
-            size="sm"
-            spacing={0}
-            className="rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none"
-          >
-            <ToggleGroupItem
-              value="comfortable"
-              aria-label="Comfortable density"
-              className="text-xs text-muted-foreground data-[state=on]:bg-foreground data-[state=on]:text-background hover:data-[state=on]:bg-foreground/90"
-            >
-              Comfort
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="compact"
-              aria-label="Compact density"
-              className="text-xs text-muted-foreground data-[state=on]:bg-foreground data-[state=on]:text-background hover:data-[state=on]:bg-foreground/90"
-            >
-              Compact
-            </ToggleGroupItem>
-          </ToggleGroup>
-          <ButtonGroup className="min-w-0 gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none">
+          />
+          <ButtonGroup className={cn("min-w-0 gap-0 overflow-hidden", TABLE_TOOLBAR_INSET)}>
             <ButtonGroupText className="shrink-0 rounded-none border-0 bg-transparent px-2 py-1.5 text-[11px] tabular-nums text-muted-foreground shadow-none">
               {selectedCount} selected
             </ButtonGroupText>

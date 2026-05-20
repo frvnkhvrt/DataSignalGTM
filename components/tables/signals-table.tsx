@@ -47,10 +47,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { TableSkeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { StatusPill } from "@/components/ui/status-pill";
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/components/ui/toggle-group";
+
 import { Dialog, DialogDescription, DialogMotionContent, DialogTitle } from "@/components/ui/dialog";
 import type { SignalStatus } from "@/types/signal";
 import { canTransition } from "@/types/signal";
@@ -63,7 +60,12 @@ import {
 } from "@/components/ui/motion";
 import { isRecentlyUpdated } from "@/lib/realtime-glow";
 import { PlaybookState } from "@/components/tables/playbook-state";
-import { TableLiveRegion, type TableDensity } from "@/components/tables/table-chrome";
+import {
+  TableLiveRegion,
+  TableDensityToggle,
+  TABLE_TOOLBAR_INSET,
+  type TableDensity,
+} from "@/components/tables/table-chrome";
 import { SortButton } from "@/components/tables/table-primitives";
 import { runWithConcurrency } from "@/lib/concurrency";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -414,7 +416,7 @@ export function SignalsTable({
             <div className="ds-refetch-stripe" />
           </div>
         )}
-        <ButtonGroup className="min-h-9 w-full min-w-0 gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:w-fit sm:flex-none">
+        <ButtonGroup className={cn("min-h-9 w-full min-w-0 gap-0 overflow-hidden sm:w-fit sm:flex-none", TABLE_TOOLBAR_INSET)}>
           <label className="sr-only" htmlFor="signal-search">
             Search signals
           </label>
@@ -447,34 +449,13 @@ export function SignalsTable({
           </Select>
         </ButtonGroup>
         <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <ToggleGroup
-            type="single"
-            value={density}
-            onValueChange={(value) => {
-              if (!value) return;
-              const next = value as TableDensity;
+          <TableDensityToggle
+            density={density}
+            onDensityChange={(next) => {
               setDensity(next);
               table.setPageSize(next === "compact" ? 12 : 8);
             }}
-            size="sm"
-            spacing={0}
-            className="rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none"
-          >
-            <ToggleGroupItem
-              value="comfortable"
-              aria-label="Comfortable density"
-              className="text-xs text-muted-foreground data-[state=on]:bg-foreground data-[state=on]:text-background hover:data-[state=on]:bg-foreground/90"
-            >
-              Comfort
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="compact"
-              aria-label="Compact density"
-              className="text-xs text-muted-foreground data-[state=on]:bg-foreground data-[state=on]:text-background hover:data-[state=on]:bg-foreground/90"
-            >
-              Compact
-            </ToggleGroupItem>
-          </ToggleGroup>
+          />
           <AnimatePresence>
             {flags.enable_bulk_actions && selectedSignals.length > 0 && (
               <motion.div
@@ -484,7 +465,7 @@ export function SignalsTable({
                 transition={{ duration: 0.2 }}
                 className="flex"
               >
-                <ButtonGroup className="min-w-0 gap-0 overflow-hidden rounded-xl border border-border/80 bg-background/45 p-0.5 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] transition-[border-color,background-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none">
+                <ButtonGroup className={cn("min-w-0 gap-0 overflow-hidden", TABLE_TOOLBAR_INSET)}>
                   <ButtonGroupText className="shrink-0 rounded-none border-0 bg-transparent px-2 py-1.5 text-[11px] tabular-nums text-muted-foreground shadow-none">
                     {selectedSignals.length} selected
                   </ButtonGroupText>
