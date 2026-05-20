@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
@@ -143,13 +143,19 @@ export default function DashboardClient() {
                   <Sparkles className="h-3 w-3" />
                   Executive overview
                 </Badge>
-                <h1 className="ds-heading text-3xl font-semibold text-foreground sm:text-4xl">
+                <motion.h1
+                  layoutId="page-header-title"
+                  className="ds-heading text-3xl font-semibold text-foreground sm:text-4xl"
+                >
                   Your GTM signal layer, at a glance
-                </h1>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                </motion.h1>
+                <motion.p
+                  layoutId="page-header-description"
+                  className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground"
+                >
                   Start with signal volume, data health, and playbook readiness. Drill
                   into Signals for workflow and Accounts for data quality remediation.
-                </p>
+                </motion.p>
               </div>
               <div className="flex shrink-0 flex-col justify-end border-t border-border/45 pt-5 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
                 <ButtonGroup className="gap-0 overflow-hidden rounded-xl border border-border/55 bg-background/30 p-0.5 shadow-soft ring-1 ring-black/[0.04] backdrop-blur-sm dark:bg-background/20 dark:ring-white/[0.06]">

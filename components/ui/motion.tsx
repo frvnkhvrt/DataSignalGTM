@@ -51,6 +51,8 @@ export const spring = {
   sidebarPill: { type: "spring" as const, stiffness: 380, damping: 36, mass: 0.9 },
   /** KPI / metric value pop when the number changes */
   metricPop: { type: "spring" as const, stiffness: 480, damping: 32, mass: 0.75 },
+  /** Organic/living transition spring — stiffness 400, damping 30 */
+  vibrant: { type: "spring" as const, stiffness: 400, damping: 30, mass: 1.0 },
 } as const;
 
 /** The standard tween used throughout the app, matching --ease-premium */
@@ -628,6 +630,200 @@ function FadeSlide({
       initial={{ opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: dur.fast, ease: ease.premium, delay }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// ── Magnetic Attraction ────────────────────────────────────────────────────────
+
+export function Magnetic({ children, scale = 0.3 }: { children: React.ReactNode; scale?: number }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [position, setPosition] = React.useState({ x: 0, y: 0 });
+  const reduced = useReducedMotion();
+
+  React.useEffect(() => {
+    if (reduced) return;
+    const parent = ref.current?.closest("a") || ref.current?.closest("button");
+    if (!parent) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const { left, top, width, height } = parent.getBoundingClientRect();
+      const centerX = left + width / 2;
+      const centerY = top + height / 2;
+      const x = (clientX - centerX) * scale;
+      const y = (clientY - centerY) * scale;
+      setPosition({ x, y });
+    };
+
+    const handleMouseLeave = () => {
+      setPosition({ x: 0, y: 0 });
+    };
+
+    parent.addEventListener("mousemove", handleMouseMove as EventListener);
+    parent.addEventListener("mouseleave", handleMouseLeave as EventListener);
+    return () => {
+      parent.removeEventListener("mousemove", handleMouseMove as EventListener);
+      parent.removeEventListener("mouseleave", handleMouseLeave as EventListener);
+    };
+  }, [scale, reduced]);
+
+  if (reduced) return <>{children}</>;
+
+  return (
+    <motion.div
+      ref={ref}
+      animate={{ x: position.x, y: position.y }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      style={{ display: "inline-flex" }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// ── Glow Ripple ────────────────────────────────────────────────────────────────
+
+export interface Ripple {
+  id: number;
+  x: number;
+  y: number;
+}
+
+export function useGlowRipples() {
+  const [ripples, setRipples] = React.useState<Ripple[]>([]);
+  const addRipple = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setRipples((prev) => [...prev, { id: Date.now() + Math.random(), x, y }]);
+  };
+  const clearRipple = (id: number) => {
+    setRipples((prev) => prev.filter((r) => r.id !== id));
+  };
+  return { ripples, addRipple, clearRipple };
+}
+
+export function GlowRippleContainer({ ripples, onClear }: { ripples: Ripple[]; onClear: (id: number) => void }) {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[inherit]">
+      <AnimatePresence>
+        {ripples.map((ripple) => (
+          <motion.span
+            key={ripple.id}
+            className="absolute rounded-full border border-primary/40 bg-primary/5 shadow-[0_0_12px_var(--color-primary)] pointer-events-none"
+            style={{
+              left: ripple.x,
+              top: ripple.y,
+              transform: "translate(-50%, -50%)",
+              width: 8,
+              height: 8,
+            }}
+            initial={{ scale: 0, opacity: 0.8 }}
+            animate={{ scale: 22, opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+            onAnimationComplete={() => onClear(ripple.id)}
+          />
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── Dynamic Glass Card ─────────────────────────────────────────────────────────
+
+export const glassCardVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 15,
+    scale: 0.98,
+    "--card-opacity": 0.35,
+    "--card-blur": "4px",
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    "--card-opacity": 0.65,
+    "--card-blur": "12px",
+    transition: {
+      type: "spring" as const,
+      stiffness: 400,
+      damping: 30,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    scale: 0.98,
+    "--card-opacity": 0.35,
+    "--card-blur": "4px",
+    transition: {
+      duration: 0.2,
+      ease: [0.16, 1, 0.3, 1] as const,
+    },
+  },
+};
+
+import { cn } from "@/lib/utils";
+
+export const DynamicGlassCard = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<typeof motion.div>
+>(({ children, className, ...props }, ref) => {
+  return (
+    <motion.div
+      ref={ref}
+      variants={glassCardVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className={cn("ds-dynamic-glass-card border border-border/70 shadow-soft ring-1 ring-black/[0.04] dark:ring-white/[0.06]", className)}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+});
+DynamicGlassCard.displayName = "DynamicGlassCard";
+
+// ── Page Transition Wrapper ────────────────────────────────────────────────────
+
+export function PageTransitionWrapper({ children }: { children: React.ReactNode }) {
+  const reduced = useReducedMotion();
+  
+  if (reduced) return <>{children}</>;
+  
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={{
+        hidden: { opacity: 0, y: 15 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: {
+            type: "spring",
+            stiffness: 400,
+            damping: 30,
+            staggerChildren: 0.05,
+          },
+        },
+        exit: {
+          opacity: 0,
+          y: -10,
+          transition: {
+            duration: 0.2,
+            ease: ease.premium,
+          },
+        },
+      }}
+      className="w-full"
     >
       {children}
     </motion.div>

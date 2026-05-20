@@ -303,6 +303,14 @@
     transition-duration: 55ms;
   }
 
+  .ds-dynamic-glass-card {
+    --card-opacity: 0.65;
+    --card-blur: 12px;
+    background-color: color-mix(in oklch, var(--card) calc(var(--card-opacity) * 100%), transparent) !important;
+    backdrop-filter: blur(var(--card-blur)) !important;
+    -webkit-backdrop-filter: blur(var(--card-blur)) !important;
+  }
+
   .ds-shimmer {
     position: relative;
     overflow: hidden;

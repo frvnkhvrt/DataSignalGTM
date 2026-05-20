@@ -10,6 +10,8 @@ import { RulesEngineSync } from "@/components/rules-engine-sync";
 import { AuthProvider } from "@/lib/auth-context";
 import { getAuthContext } from "@/lib/supabase/server";
 
+import { LayoutTransition } from "@/components/layout/layout-transition";
+
 export default async function AppLayout({
   children,
 }: {
@@ -42,7 +44,9 @@ export default async function AppLayout({
             <TopBar />
             <DemoBanner />
             <main id="main-content" tabIndex={-1}>
-              <ErrorBoundary>{children}</ErrorBoundary>
+              <ErrorBoundary>
+                <LayoutTransition>{children}</LayoutTransition>
+              </ErrorBoundary>
             </main>
           </div>
         </div>

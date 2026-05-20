@@ -1,4 +1,5 @@
 import * as React from "react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -28,9 +29,19 @@ export function PageHeader({
     >
       <div className="min-w-0">
         {eyebrow && <p className="ds-eyebrow mb-2 text-primary">{eyebrow}</p>}
-        <h1 className="ds-heading text-2xl font-semibold text-foreground sm:text-3xl">{title}</h1>
+        <motion.h1
+          layoutId="page-header-title"
+          className="ds-heading text-2xl font-semibold text-foreground sm:text-3xl"
+        >
+          {title}
+        </motion.h1>
         {description && (
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">{description}</p>
+          <motion.p
+            layoutId="page-header-description"
+            className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground"
+          >
+            {description}
+          </motion.p>
         )}
       </div>
       {actions && (

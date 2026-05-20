@@ -16,7 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { spring } from "@/components/ui/motion";
+import { spring, Magnetic, GlowRippleContainer, useGlowRipples } from "@/components/ui/motion";
 import { cn } from "@/lib/utils";
 
 const navGroups = [
@@ -43,6 +43,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const reducedMotion = useReducedMotion();
+  const { ripples, addRipple, clearRipple } = useGlowRipples();
   const helpActive = pathname.startsWith("/help");
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -99,7 +100,7 @@ export function Sidebar() {
           variant="ghost"
           size="icon"
           className={cn(
-            "hidden shrink-0 text-muted-foreground transition-[background-color,color,transform,box-shadow,border-color] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:inline-flex",
+            "hidden shrink-0 text-muted-foreground transition-[background-color,color,transform,box-shadow,border-color] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:inline-flex",
             "ds-focus-ring border border-transparent hover:border-border/55 hover:bg-surface-elevated hover:text-foreground hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)] active:scale-[0.97] motion-reduce:active:scale-100",
             collapsed ? "size-8 rounded-lg" : "ml-auto size-8 rounded-lg"
           )}
@@ -150,6 +151,7 @@ export function Sidebar() {
                     title={collapsed ? label : undefined}
                     onFocus={() => router.prefetch(href)}
                     onMouseEnter={() => router.prefetch(href)}
+                    onClick={addRipple}
                     className={cn(
                       "ds-focus-ring relative flex-col items-center justify-center gap-1 overflow-hidden rounded-md border-t-2 px-2 py-2 text-[11px] transition-[color,background-color,border-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none sm:flex-row sm:border-l-2 sm:border-t-0 sm:text-sm",
                       hideOnMobile ? "hidden sm:flex" : "flex",
@@ -177,7 +179,38 @@ export function Sidebar() {
                         }
                       />
                     )}
-                    <Icon className="relative z-10 size-4 shrink-0" strokeWidth={2} />
+                    <GlowRippleContainer ripples={ripples} onClear={clearRipple} />
+                    <Magnetic scale={0.35}>
+                      <motion.div
+                        animate={
+                          active
+                            ? {
+                                scale: [1, 1.25, 0.95, 1.05, 1],
+                                rotate:
+                                  Icon === LayoutDashboard
+                                    ? [0, 8, -6, 3, 0]
+                                    : Icon === Radio
+                                    ? [0, 0, 0, 0, 0]
+                                    : Icon === Building2
+                                    ? [0, 6, -5, 0, 0]
+                                    : Icon === BarChart3
+                                    ? [0, -8, 8, 0, 0]
+                                    : [0, 10, -10, 5, 0],
+                                y: Icon === Radio ? [0, -3, 2, -1, 0] : 0,
+                              }
+                            : { scale: 1, rotate: 0, y: 0 }
+                        }
+                        transition={{
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 18,
+                          mass: 0.8,
+                        }}
+                        className="relative z-10 flex items-center justify-center"
+                      >
+                        <Icon className="size-4 shrink-0" strokeWidth={2} />
+                      </motion.div>
+                    </Magnetic>
                     <span
                       className={cn(
                         "relative z-10 transition-[opacity,transform,max-width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] overflow-hidden whitespace-nowrap",
@@ -202,6 +235,7 @@ export function Sidebar() {
             title={collapsed ? "Help" : undefined}
             onFocus={() => router.prefetch("/help")}
             onMouseEnter={() => router.prefetch("/help")}
+            onClick={addRipple}
             className={cn(
               "ds-focus-ring relative flex items-center gap-3 overflow-hidden rounded-md border-l-2 border-transparent py-2 text-sm text-muted-foreground transition-[color,background-color,box-shadow] duration-[var(--ds-duration-tactile)] ease-[var(--ease-premium)] motion-reduce:transition-none hover:bg-surface-elevated hover:text-foreground sm:hover:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.04)]",
               helpActive && "text-foreground sm:font-medium",
@@ -221,7 +255,28 @@ export function Sidebar() {
                 transition={reducedMotion ? { duration: 0.01 } : spring.sidebarPill}
               />
             )}
-            <BookOpen className="relative z-10 size-4 shrink-0" strokeWidth={2} />
+            <GlowRippleContainer ripples={ripples} onClear={clearRipple} />
+            <Magnetic scale={0.35}>
+              <motion.div
+                animate={
+                  helpActive
+                    ? {
+                        scale: [1, 1.25, 0.95, 1.05, 1],
+                        rotate: [0, -10, 8, -4, 0],
+                      }
+                    : { scale: 1, rotate: 0 }
+                }
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 18,
+                  mass: 0.8,
+                }}
+                className="relative z-10 flex items-center justify-center"
+              >
+                <BookOpen className="size-4 shrink-0" strokeWidth={2} />
+              </motion.div>
+            </Magnetic>
             <span
               className={cn(
                 "relative z-10 transition-[opacity,transform,max-width] duration-[var(--ds-duration-smooth)] ease-[var(--ease-premium)] overflow-hidden whitespace-nowrap",
